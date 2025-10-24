@@ -16,8 +16,8 @@ export const minikitConfig = {
   miniapp: {
     version: "1",
     name: "Snake Base",
-    subtitle: "Eat & Grow",
-    description: "game",
+    subtitle: "Eat and Grow",
+    description: "games",
     screenshotUrls: [`${ROOT_URL}/screenshot-portrait.png`],
     iconUrl: `${ROOT_URL}/blue-icon.png`,
     splashImageUrl: `${ROOT_URL}/blue-hero.png`,
