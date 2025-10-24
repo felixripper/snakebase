@@ -24,7 +24,7 @@ export const minikitConfig = {
     splashBackgroundColor: "#000000",
     homeUrl: ROOT_URL,
     webhookUrl: `${ROOT_URL}/api/webhook`,
-    primaryCategory: "game",
+    primaryCategory: "games",
     tags: ["game", "base", "miniapp", "neynar"],
     heroImageUrl: `${ROOT_URL}/blue-hero.png`, 
     tagline: "",
