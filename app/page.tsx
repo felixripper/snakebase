@@ -9,6 +9,9 @@ export default function Home() {
     void sdk.actions.ready();
   }, []);
 
+import styles from "./page.module.css";
+
+export default function Home() {
   return (
     <div className={styles.container}>
       <iframe
