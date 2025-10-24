@@ -1,3 +1,14 @@
+"use client";
+
+import { useCallback } from "react";
+import { sdk } from "@farcaster/miniapp-sdk";
+import styles from "./page.module.css";
+
+export default function Home() {
+  const handleReady = useCallback(() => {
+    void sdk.actions.ready();
+  }, []);
+
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -8,6 +19,7 @@ export default function Home() {
         title="Eat & Grow"
         className={styles.frame}
         allow="accelerometer; fullscreen"
+        onLoad={handleReady}
       />
     </div>
   );
