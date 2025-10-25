@@ -208,10 +208,25 @@
     </script>
     
     <script>
-      // Global game config object
+      function deepMerge(target, source) {
+        if (!source || typeof source !== "object") return target;
+        const out = Array.isArray(target) ? target.slice() : { ...(target || {}) };
+        for (const key of Object.keys(source)) {
+          const sv = source[key];
+          const tv = out[key];
+          if (sv && typeof sv === "object" && !Array.isArray(sv)) {
+            out[key] = deepMerge(tv || {}, sv);
+          } else if (Array.isArray(sv)) {
+            out[key] = sv.slice();
+          } else {
+            out[key] = sv;
+          }
+        }
+        return out;
+      }
+
       let CONFIG = {};
 
-      // Farcade SDK güvenli yardımcıları
       let sdkListenersAttached = false;
       function tryHaptic() {
         try { window.FarcadeSDK?.singlePlayer?.actions?.hapticFeedback?.(); } catch (e) {}
@@ -237,18 +252,15 @@
         }
       }
 
-      // This function will now fetch the config from the external file
       async function initConfig() {
         try {
-          const response = await fetch("/game-config.json?t=" + new Date().getTime()); // Cache-busting
+          const response = await fetch("/api/game-config?t=" + new Date().getTime());
           if (!response.ok) {
-            throw new Error("Config file not found");
+            throw new Error("Config API not found");
           }
           const externalConfig = await response.json();
           console.log("Loaded external config:", externalConfig);
           
-          // We will create a simple config object from the external file
-          // This mapping connects your new simple config to the game's more complex structure
           CONFIG = {
             colors: {
               background: externalConfig.backgroundColor || "#0052FF",
@@ -291,18 +303,19 @@
 
         } catch (error) {
           console.error("Could not load external config, using default.", error);
-          // Fallback to a default config if the fetch fails
           CONFIG = {
-            colors: { background: "#0052FF", snakeHead: "#dfb4b4", foodPrimary: "#e1ff00" /* ... other defaults */ },
-            player: { baseSpeed: 6 /* ... */ },
-            gameplay: { foodScore: 30 /* ... */ },
-            ui: { interfaceTitle: "Eat & Grow" }
+            colors: { background: "#0052FF", snakeHead: "#dfb4b4", foodPrimary: "#e1ff00", grid: "#1c60f2", snakeBody: "#ffffff", foodSecondary: "#fff700", particle: "#ffffff", ui: "#ffffff", noPlay: "#06103a" },
+            player: { baseSpeed: 6, speedIncreasePerFood: 0.6, minStepMs: 140, roundedHead: 0.39, roundedBody: 0.1 },
+            gameplay: { gridSize: 30, columns: 20, rows: 28, wrapWalls: true, startLength: 7, foodScore: 30, particles: true, foodShape: "heart", foodKind: "burger", topNoPlayRows: 3, noPlayActsAs: "wrap" },
+            ui: { showGrid: false, showSwipeHint: false, interfaceTitle: "Eat & Grow" },
+            difficulty: "normal"
           };
         }
 
         window.addEventListener("message", (event) => {
+          if (event.origin !== window.location.origin) return;
           if (event.data && event.data.type === "UPDATE_CONFIG") {
-            Object.assign(CONFIG, event.data.config);
+            CONFIG = deepMerge(CONFIG, event.data.config);
             if (window.onConfigUpdate) window.onConfigUpdate(CONFIG);
           }
         });
@@ -314,6 +327,7 @@
       function initAssets() {
         ASSETS = JSON.parse(document.getElementById("game-assets").textContent);
         window.addEventListener("message", (event) => {
+          if (event.origin !== window.location.origin) return;
           if (event.data && event.data.type === "UPDATE_ASSETS") {
             ASSETS = event.data.assets;
             reloadAssets();
@@ -349,7 +363,7 @@
         tAccum: 0,
         lastTime: 0,
         stepMs: 120,
-        gridSize: 30, // Will be set from CONFIG in reset
+        gridSize: 30,
         cols: 20,
         rows: 28,
         snake: [],
@@ -455,8 +469,7 @@
 
       function drawRoundedCell(x, y, color, radiusFrac = 0.25) {
         const gs = state.gridSize;
-        const px = x * gs,
-          py = y * gs;
+        const px = x * gs, py = y * gs;
         const r = gs * radiusFrac;
         ctx.fillStyle = color;
         ctx.beginPath();
@@ -558,7 +571,6 @@
         const t = e.touches[0];
         touchStart = { x: t.clientX, y: t.clientY, time: performance.now() };
       }
-      // Kayma sırasında sayfa scroll’unu engelle
       function onTouchMove(e) {
         e.preventDefault();
       }
@@ -567,8 +579,7 @@
         const t = e.changedTouches[0];
         const dx = t.clientX - touchStart.x;
         const dy = t.clientY - touchStart.y;
-        const ax = Math.abs(dx),
-          ay = Math.abs(dy);
+        const ax = Math.abs(dx), ay = Math.abs(dy);
         if (ax < 12 && ay < 12) {
           touchStart = null;
           return;
@@ -782,8 +793,7 @@
       };
 
       async function main() {
-        await initConfig(); // Wait for config to be loaded
-        
+        await initConfig();
         initAssets();
         canvas.style.backgroundColor = CONFIG.colors.background;
         gameTitleEl.textContent = CONFIG.ui.interfaceTitle;
@@ -792,7 +802,6 @@
         resetGame();
         showStart();
         tryReady();
-        // SDK hazır değilse dinleyicileri bir süre poll ederek ekle
         attachSDKListeners();
         const sdkPoll = setInterval(() => {
           if (!sdkListenersAttached) attachSDKListeners();
@@ -831,7 +840,6 @@
         };
       }
 
-      // Start the application
       main();
     </script>
   </body>
