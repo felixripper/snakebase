@@ -20,6 +20,16 @@ const DEFAULTS: SimpleConfig = {
   interfaceTitle: "Eat & Grow",
 };
 
+function getErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof Error && typeof error.message === "string") {
+    return error.message;
+  }
+  if (typeof error === "string" && error) {
+    return error;
+  }
+  return fallback;
+}
+
 export default function ControlPanel() {
   const [cfg, setCfg] = useState<SimpleConfig>(DEFAULTS);
   const [loading, setLoading] = useState(true);
@@ -37,8 +47,8 @@ export default function ControlPanel() {
         if (!res.ok) throw new Error(`GET /api/game-config failed: ${res.status}`);
         const data = (await res.json()) as SimpleConfig;
         if (!cancelled) setCfg(data);
-      } catch (e: any) {
-        if (!cancelled) setError(e?.message || "Konfigürasyon alınamadı");
+      } catch (error: unknown) {
+        if (!cancelled) setError(getErrorMessage(error, "Konfigürasyon alınamadı"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -109,8 +119,8 @@ export default function ControlPanel() {
         const e = await res.json().catch(() => ({}));
         throw new Error(e?.error || `PUT failed: ${res.status}`);
       }
-    } catch (e: any) {
-      setError(e?.message || "Kaydedilemedi");
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, "Kaydedilemedi"));
     } finally {
       setSaving(false);
     }
