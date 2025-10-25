@@ -56,8 +56,12 @@ export default function AdminPage() {
       } else {
         throw new Error(result.message || "Bir hata oluştu.");
       }
-    } catch (error: any) {
-      setMessage(`Hata: ${error.message}`);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setMessage(`Hata: ${error.message}`);
+      } else {
+        setMessage("Bilinmeyen bir hata oluştu.");
+      }
     }
     setTimeout(() => setMessage(""), 3000);
   };
