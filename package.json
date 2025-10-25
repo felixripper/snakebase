@@ -3,10 +3,31 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3000",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start -p 3000",
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:contract": "playwright test e2e/contract-deployment.spec.ts",
+    "test:e2e:wallet": "ENABLE_WALLET_TESTS=true playwright test e2e/wallet-integration.spec.ts",
+    "test:e2e:transaction": "playwright test e2e/transaction-flow.spec.ts",
+    "test:blockchain": "playwright test e2e/contract-deployment.spec.ts e2e/transaction-flow.spec.ts",
+    "anvil": "anvil --port 8545 --chain-id 31337",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@coinbase/onchainkit": "latest",
@@ -22,16 +43,29 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@coinbase/onchaintestkit": "^1.2.0",
     "@eslint/eslintrc": "^3",
     "@farcaster/quick-auth": "^0.0.7",
     "@next/eslint-plugin-next": "^15.3.4",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@playwright/test": "^1.51.0",
+    "@sentry/nextjs": "^9",
+    "@testing-library/jest-dom": "^6.6.4",
+    "@testing-library/react": "^16.1.1",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@upstash/ratelimit": "^2.0.5",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
-    "typescript": "^5",
     "hardhat": "^2.22.6",
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0"
+    "husky": "^9.1.7",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "lint-staged": "^16.2.6",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "typescript": "^5"
   }
 }
