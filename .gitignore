@@ -12,9 +12,6 @@
 
 # testing
 /coverage
-test-results/
-playwright-report/
-playwright/.cache/
 
 # next.js
 /.next/
@@ -42,11 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# sentry
-.sentryclirc
-sentry.properties
-
-# test artifacts
-*.log
-.nyc_output
