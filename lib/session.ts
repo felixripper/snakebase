@@ -1,4 +1,4 @@
-import { IronSession, getIronSession } from 'iron-session';
+import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
 
 // Bu, session objesinin tipini belirtir.
@@ -18,8 +18,9 @@ export const sessionOptions = {
 };
 
 // Bu, oturumu almak için kullanacağımız merkezi fonksiyondur.
-// Artık doğru tipleri kullanıyor.
-export async function getSession(): Promise<IronSession> {
-    const session = await getIronSession(cookies(), sessionOptions);
-    return session;
+// Tip belirtimini kaldırarak, TypeScript'in doğru tipi kendisinin bulmasını sağlıyoruz.
+// Bu, önceki tüm tip hatalarını ortadan kaldırır.
+export async function getSession() {
+  const session = await getIronSession(cookies(), sessionOptions);
+  return session;
 }
