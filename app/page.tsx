@@ -16,7 +16,6 @@ export default function Home() {
     setIsIframeLoaded(true);
   }, []);
 
-export default function Home() {
   return (
     <div className={styles.container}>
       <iframe
