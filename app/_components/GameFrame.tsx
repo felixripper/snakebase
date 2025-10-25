@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { sdk } from "@farcaster/miniapp-sdk";
-
 import styles from "../page.module.css";
 
 export function GameFrame() {
@@ -20,6 +18,7 @@ export function GameFrame() {
 
     const notifyReady = async () => {
       try {
+        const { sdk } = await import("@farcaster/miniapp-sdk");
         const isMiniApp = (await sdk.isInMiniApp?.()) ?? false;
 
         if (!isMiniApp || isCancelled) {
