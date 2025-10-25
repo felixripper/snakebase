@@ -30,7 +30,9 @@ export default function LoginPage() {
         const data = await response.json();
         setError(data.message || 'Giriş başarısız.');
       }
-    } catch (_) {
+    } catch (err) {
+      // Hata değişkenini kullanmadığımız için ESLint kuralını burada devre dışı bırakıyoruz.
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       setError('Bir sunucu hatası oluştu.');
     }
   };
