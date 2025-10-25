@@ -1,28 +1,29 @@
-import React, { useEffect } from "react";
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { sdk } from "@farcaster/miniapp-sdk";
 import styles from "./page.module.css";
 
 export default function Home() {
+  const [isIframeLoaded, setIsIframeLoaded] = useState(false);
+
   useEffect(() => {
-    // Try to call the SDK ready action if the SDK is available at runtime.
-    // Use globalThis to avoid TypeScript/SSR issues if sdk isn't defined during build.
-    try {
-      const s = (globalThis as any).sdk ?? (globalThis as any).FarcadeSDK ?? null;
-      if (s && typeof s.actions?.ready === "function") {
-        void s.actions.ready();
-      }
-    } catch (e) {
-      // swallow any errors here so the page doesn't break if SDK is missing
-      // (use console.debug so it's visible in dev tools when present)
-      console.debug("SDK not available or ready failed:", e);
-    }
+    if (!isIframeLoaded) return;
+    void sdk.actions.ready();
+  }, [isIframeLoaded]);
+
+  const handleLoad = useCallback(() => {
+    setIsIframeLoaded(true);
   }, []);
 
   return (
     <div className={styles.container}>
       <iframe
         src="/eat-grow.html"
-        title="Eat and Grow"
-        style={{ border: 0, width: "100%", height: "100%" }}
+        title="Eat & Grow"
+        className={styles.frame}
+        allow="accelerometer; fullscreen"
+        onLoad={handleLoad}
       />
     </div>
   );
