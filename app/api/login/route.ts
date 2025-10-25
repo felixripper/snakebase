@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@/lib/session';
+import { getAppRouterSession } from '@/lib/session';
 
 export async function POST(request: Request) {
-  const session = await getSession();
+  const session = await getAppRouterSession();
   const { username, password } = await request.json();
 
   if (
