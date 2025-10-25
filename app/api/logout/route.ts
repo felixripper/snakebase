@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getAppRouterSession } from '@/lib/session';
+import { getIronSession } from 'iron-session';
+import { cookies } from 'next/headers';
+import { sessionOptions, type SessionData } from '@/lib/session';
 
 export async function GET() {
-  const session = await getAppRouterSession();
+  const cookieStore = await cookies();
+  const session = await getIronSession<SessionData>(cookieStore, sessionOptions);
   session.destroy();
   return NextResponse.json({ ok: true });
 }
