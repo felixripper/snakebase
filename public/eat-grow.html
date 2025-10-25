@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Eat & Grow</title>
+    <script src="https://cdn.jsdelivr.net/npm/@farcade/game-sdk@0.2.1/dist/index.min.js"></script>
+    <style>
+      :root {
+        --ui-safe: env(safe-area-inset-bottom, 0px);
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+        background: #0b0f1a;
+        overflow: hidden;
+        touch-action: none;
+        -webkit-tap-highlight-color: transparent;
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        color: #fff;
+      }
+      .hud {
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 12px;
+        padding: 8px 12px;
+        background: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(6px);
+        border-radius: 12px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+        user-select: none;
+        pointer-events: none;
+        z-index: 5;
+      }
+      #wrap {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+      }
+      #canvas {
+        width: min(100vw, 66.666vh);
+        height: calc(min(100vw, 66.666vh) * 1.5);
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        border-radius: 16px;
+        box-shadow:
+          0 10px 40px rgba(0, 0, 0, 0.5),
+          inset 0 0 0 2px rgba(255, 255, 255, 0.06);
+        background: radial-gradient(120% 120% at 50% 0%, #0b1228 0%, #070b18 60%, #05070f 100%);
+        max-height: 100vh;
+        max-width: 100vw;
+      }
+      .overlay {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(to bottom right, rgba(5, 8, 20, 0.75), rgba(5, 8, 16, 0.85));
+        backdrop-filter: blur(4px);
+      }
+      .panel {
+        width: min(92vw, 460px);
+        padding: 20px 18px 16px;
+        background: rgba(0, 0, 0, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        text-align: center;
+        box-shadow:
+          0 12px 40px rgba(0, 0, 0, 0.45),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      }
+      .title {
+        font-size: 28px;
+        font-weight: 900;
+        margin: 4px 0 8px;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+      }
+      .subtitle {
+        opacity: 0.85;
+        font-size: 14px;
+        margin-bottom: 16px;
+      }
+      .btn {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 14px 18px;
+        min-width: 200px;
+        border-radius: 12px;
+        border: none;
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: 0.6px;
+        color: #0b0f1a;
+        background: linear-gradient(180deg, #94f7b7 0%, #3ee686 100%);
+        box-shadow: 0 8px 20px rgba(62, 230, 134, 0.35);
+        cursor: pointer;
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .gesture-hint {
+        position: fixed;
+        bottom: calc(16px + var(--ui-safe));
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0.7;
+        font-size: 12px;
+        background: rgba(0, 0, 0, 0.35);
+        padding: 8px 12px;
+        border-radius: 12px;
+        user-select: none;
+      }
+      .config-hint {
+        margin-top: 10px;
+        font-size: 12px;
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hud" id="hud">
+      <div>Skor: <span id="score">0</span></div>
+      <div>| En İyi: <span id="best">0</span></div>
+    </div>
+
+    <div id="wrap"><canvas id="canvas"></canvas></div>
+
+    <div class="overlay" id="overlay" style="display: none">
+      <div class="panel">
+        <div class="title">Eat & Grow</div>
+        <div class="subtitle">Yemi topla, duvarlara ve kuyruğuna çarpma!</div>
+        <div class="subtitle" style="margin-top:4px; opacity:0.95">Collect the food, don’t hit walls or your tail!</div>
+        <div class="instructions" style="text-align:left; margin: 10px auto 0; max-width: 420px; line-height:1.35; font-size:13px; opacity:0.92">
+          <div style="font-weight:800; letter-spacing:0.3px; margin-bottom:6px;">How to Play</div>
+          <ul style="margin:6px 0 10px 18px; padding:0;">
+            <li>Controls: Swipe (mobile) • Arrow Keys (desktop)</li>
+            <li>Top dark area is a no-play zone — food never spawns there. Depending on settings it acts as wrap or a wall.</li>
+          </ul>
+          <div style="font-weight:800; letter-spacing:0.3px; margin-bottom:6px;">Items</div>
+          <ul style="margin:6px 0 0 18px; padding:0;">
+            <li>Heart: +Score, slightly increases your speed</li>
+            <li>Burger: +Score, slightly increases your speed</li>
+          </ul>
+        </div>
+        <button class="btn" id="startBtn">Oyna</button>
+        <div class="config-hint">Kontroller: Kaydır (mobil) • Yön Tuşları (masaüstü) • Controls: Swipe (mobile) • Arrow Keys (desktop)</div>
+      </div>
+    </div>
+
+    <div class="overlay" id="gameOver" style="display: none">
+      <div class="panel">
+        <div class="title">Oyun Bitti</div>
+        <div class="subtitle">Skor: <span id="finalScore">0</span></div>
+        <button class="btn" id="againBtn">Tekrar Oyna</button>
+      </div>
+    </div>
+
+    <div class="gesture-hint" id="hint">Kaydırarak yön ver • Swipe to steer</div>
+
+    <script id="game-config" type="application/json">
+      {
+        "colors": {
+          "background": "#0052FF",
+          "grid": "#1c60f2",
+          "snakeHead": "#dfb4b4",
+          "snakeBody": "#ffffff",
+          "foodPrimary": "#e1ff00",
+          "foodSecondary": "#fff700",
+          "particle": "#ffffff",
+          "ui": "#ffffff",
+          "noPlay": "#06103a"
+        },
+        "player": {
+          "baseSpeed": 6,
+          "speedIncreasePerFood": 0.6,
+          "minStepMs": 140,
+          "roundedHead": 0.39,
+          "roundedBody": 0.1
+        },
+        "gameplay": {
+          "gridSize": 30,
+          "columns": 20,
+          "rows": 28,
+          "wrapWalls": true,
+          "startLength": 7,
+          "foodScore": 30,
+          "particles": true,
+          "foodShape": "heart",
+          "foodKind": "burger",
+          "topNoPlayRows": 3,
+          "noPlayActsAs": "wrap"
+        },
+        "ui": {
+          "showGrid": false,
+          "showSwipeHint": false
+        },
+        "difficulty": "hard",
+        "_meta": {
+          "colors.background": {
+            "type": "color",
+            "label": "Background"
+          },
+          "colors.grid": {
+            "type": "color",
+            "label": "Grid"
+          },
+          "colors.snakeHead": {
+            "type": "color",
+            "label": "Snake Head"
+          },
+          "colors.snakeBody": {
+            "type": "color",
+            "label": "Snake Body"
+          },
+          "colors.foodPrimary": {
+            "type": "color",
+            "label": "Food Primary"
+          },
+          "colors.foodSecondary": {
+            "type": "color",
+            "label": "Food Secondary"
+          },
+          "colors.particle": {
+            "type": "color",
+            "label": "Particle"
+          },
+          "colors.ui": {
+            "type": "color",
+            "label": "UI"
+          },
+          "player.baseSpeed": {
+            "type": "number",
+            "min": 3,
+            "max": 20,
+            "step": 0.1,
+            "label": "Base Speed (steps/s)"
+          },
+          "player.speedIncreasePerFood": {
+            "type": "number",
+            "min": 0,
+            "max": 1,
+            "step": 0.05,
+            "label": "Speed Increase per Food"
+          },
+          "player.minStepMs": {
+            "type": "number",
+            "min": 40,
+            "max": 140,
+            "step": 1,
+            "label": "Min Step (ms)"
+          },
+          "player.roundedHead": {
+            "type": "number",
+            "min": 0.1,
+            "max": 0.5,
+            "step": 0.01,
+            "label": "Snake Head Roundness"
+          },
+          "player.roundedBody": {
+            "type": "number",
+            "min": 0.1,
+            "max": 0.5,
+            "step": 0.01,
+            "label": "Snake Body Roundness"
+          },
+          "gameplay.gridSize": {
+            "type": "number",
+            "min": 12,
+            "max": 30,
+            "step": 1,
+            "label": "Cell Size (px)"
+          },
+          "gameplay.columns": {
+            "type": "number",
+            "min": 10,
+            "max": 28,
+            "step": 1,
+            "label": "Columns"
+          },
+          "gameplay.rows": {
+            "type": "number",
+            "min": 14,
+            "max": 44,
+            "step": 1,
+            "label": "Rows"
+          },
+          "gameplay.wrapWalls": {
+            "type": "boolean",
+            "label": "Wrap Walls"
+          },
+          "gameplay.startLength": {
+            "type": "number",
+            "min": 3,
+            "max": 10,
+            "step": 1,
+            "label": "Start Length"
+          },
+          "gameplay.foodScore": {
+            "type": "number",
+            "min": 1,
+            "max": 100,
+            "step": 1,
+            "label": "Food Score"
+          },
+          "gameplay.particles": {
+            "type": "boolean",
+            "label": "Particles"
+          },
+          "gameplay.foodShape": {
+            "type": "select",
+            "options": ["auto", "heart", "burger", "square", "circle"],
+            "label": "Food Shape"
+          },
+          "gameplay.foodKind": {
+            "type": "select",
+            "options": ["heart", "burger"],
+            "label": "Food Kind"
+          },
+          "gameplay.topNoPlayRows": {
+            "type": "number",
+            "min": 1,
+            "max": 8,
+            "step": 1,
+            "label": "Top No-Play Rows"
+          },
+          "gameplay.noPlayActsAs": {
+            "type": "select",
+            "options": ["wrap", "wall"],
+            "label": "No-Play Behavior"
+          },
+          "ui.showGrid": {
+            "type": "boolean",
+            "label": "Show Grid"
+          },
+          "ui.showSwipeHint": {
+            "type": "boolean",
+            "label": "Swipe Hint"
+          },
+          "difficulty": {
+            "type": "select",
+            "options": ["easy", "normal", "hard"],
+            "label": "Difficulty"
+          }
+        }
+      }
+    </script>
+
+    <script id="game-assets" type="application/json">
+      {
+        "sounds": { "eat": "", "hit": "" },
+        "_meta": {
+          "sounds.eat": { "label": "Eat SFX", "category": "Sound Effects" },
+          "sounds.hit": { "label": "Hit SFX", "category": "Sound Effects" }
+        }
+      }
+    </script>
+
+    <script>
+      function initConfig() {
+        const config = JSON.parse(document.getElementById("game-config").textContent);
+        window.addEventListener("message", (event) => {
+          if (event.data && event.data.type === "UPDATE_CONFIG") {
+            Object.assign(config, event.data.config);
+            if (window.onConfigUpdate) window.onConfigUpdate(config);
+          }
+        });
+        return config;
+      }
+      const CONFIG = initConfig();
+
+      let ASSETS = {};
+      const loadedImages = {};
+      const loadedSounds = {};
+      function initAssets() {
+        ASSETS = JSON.parse(document.getElementById("game-assets").textContent);
+        window.addEventListener("message", (event) => {
+          if (event.data && event.data.type === "UPDATE_ASSETS") {
+            ASSETS = event.data.assets;
+            reloadAssets();
+          }
+        });
+        loadAssets();
+      }
+      function loadAssets() {
+        if (ASSETS.sounds?.eat) loadedSounds.eat = new Audio(ASSETS.sounds.eat);
+        if (ASSETS.sounds?.hit) loadedSounds.hit = new Audio(ASSETS.sounds.hit);
+      }
+      function reloadAssets() {
+        if (ASSETS.sounds?.eat && loadedSounds.eat) loadedSounds.eat.src = ASSETS.sounds.eat;
+        if (ASSETS.sounds?.hit && loadedSounds.hit) loadedSounds.hit.src = ASSETS.sounds.hit;
+      }
+
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const hudScore = document.getElementById("score");
+      const hudBest = document.getElementById("best");
+      const overlay = document.getElementById("overlay");
+      const gameOverEl = document.getElementById("gameOver");
+      const finalScoreEl = document.getElementById("finalScore");
+      const startBtn = document.getElementById("startBtn");
+      const againBtn = document.getElementById("againBtn");
+      const hintEl = document.getElementById("hint");
+
+      let isMuted = false;
+
+      function getFarcadeSDK() {
+        return window.FarcadeSDK || null;
+      }
+
+      function withFarcadeActions(callback) {
+        const actions = getFarcadeSDK()?.singlePlayer?.actions;
+        if (!actions) return false;
+        callback(actions);
+        return true;
+      }
+
+      function whenFarcadeReady(callback, attempts = 60) {
+        const sdk = getFarcadeSDK();
+        if (sdk) {
+          callback(sdk);
+          return;
+        }
+        if (attempts <= 0) return;
+        setTimeout(() => whenFarcadeReady(callback, attempts - 1), 100);
+      }
+
+      const state = {
+        gameState: "start",
+        tAccum: 0,
+        lastTime: 0,
+        stepMs: 120,
+        gridSize: CONFIG.gameplay.gridSize,
+        cols: CONFIG.gameplay.columns,
+        rows: CONFIG.gameplay.rows,
+        snake: [],
+        dir: { x: 1, y: 0 },
+        nextDir: { x: 1, y: 0 },
+        food: { x: 10, y: 10 },
+        score: 0,
+        best: Number(localStorage.getItem("eatgrow_best") || 0),
+        particles: [],
+      };
+
+      function applyDifficulty() {
+        const base = CONFIG.player.baseSpeed;
+        const diff = CONFIG.difficulty;
+        let speed = base;
+        if (diff === "easy") speed = base * 0.85;
+        if (diff === "hard") speed = base * 1.2;
+        state.stepMs = Math.max(1000 / speed, CONFIG.player.minStepMs);
+      }
+
+      function resizeCanvas() {
+        canvas.width = state.cols * state.gridSize;
+        canvas.height = state.rows * state.gridSize;
+      }
+
+      function resetGame() {
+        state.gridSize = CONFIG.gameplay.gridSize;
+        state.cols = CONFIG.gameplay.columns;
+        state.rows = CONFIG.gameplay.rows;
+        state.snake = [];
+        const startLen = CONFIG.gameplay.startLength;
+        const startX = Math.floor(state.cols / 2);
+        const topRows = CONFIG.gameplay.topNoPlayRows || 0;
+        const startY = Math.max(topRows + 1, Math.floor(state.rows / 2));
+        for (let i = 0; i < startLen; i++) {
+          state.snake.push({ x: startX - i, y: startY });
+        }
+        state.dir = { x: 1, y: 0 };
+        state.nextDir = { x: 1, y: 0 };
+        state.score = 0;
+        hudScore.textContent = "0";
+        placeFood();
+        state.particles = [];
+        applyDifficulty();
+        resizeCanvas();
+        hintEl.style.display = CONFIG.ui.showSwipeHint ? "block" : "none";
+      }
+
+      function cellInTopNoPlay(y) {
+        const topRows = CONFIG.gameplay.topNoPlayRows || 0;
+        return y >= 0 && y < topRows;
+      }
+
+      function placeFood() {
+        const topRows = CONFIG.gameplay.topNoPlayRows || 0;
+        while (true) {
+          const x = Math.floor(Math.random() * state.cols);
+          const y = Math.floor(Math.random() * state.rows);
+          if (y < topRows) continue;
+          if (!state.snake.some((s) => s.x === x && s.y === y)) {
+            state.food = { x, y };
+            break;
+          }
+        }
+      }
+
+      function drawGrid() {
+        if (!CONFIG.ui.showGrid) return;
+        ctx.strokeStyle = CONFIG.colors.grid;
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= state.cols; x++) {
+          ctx.beginPath();
+          ctx.moveTo(x * state.gridSize + 0.5, 0);
+          ctx.lineTo(x * state.gridSize + 0.5, canvas.height);
+          ctx.stroke();
+        }
+        for (let y = 0; y <= state.rows; y++) {
+          ctx.beginPath();
+          ctx.moveTo(0, y * state.gridSize + 0.5);
+          ctx.lineTo(canvas.width, y * state.gridSize + 0.5);
+          ctx.stroke();
+        }
+      }
+
+      function drawTopNoPlayZone() {
+        const topRows = CONFIG.gameplay.topNoPlayRows || 0;
+        if (!topRows) return;
+        const h = topRows * state.gridSize;
+        ctx.save();
+        ctx.globalAlpha = 0.35;
+        ctx.fillStyle = CONFIG.colors.noPlay || "#06103a";
+        ctx.fillRect(0, 0, canvas.width, h);
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = hexToRgba(CONFIG.colors.ui || "#ffffff", 0.25);
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, h + 0.5);
+        ctx.lineTo(canvas.width, h + 0.5);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawRoundedCell(x, y, color, radiusFrac = 0.25) {
+        const gs = state.gridSize;
+        const px = x * gs,
+          py = y * gs;
+        const r = gs * radiusFrac;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(px + r, py);
+        ctx.arcTo(px + gs, py, px + gs, py + gs, r);
+        ctx.arcTo(px + gs, py + gs, px, py + gs, r);
+        ctx.arcTo(px, py + gs, px, py, r);
+        ctx.arcTo(px, py, px + gs, py, r);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      function addParticles(x, y, color) {
+        if (!CONFIG.gameplay.particles) return;
+        for (let i = 0; i < 8; i++) {
+          state.particles.push({
+            x: x * state.gridSize + state.gridSize / 2,
+            y: y * state.gridSize + state.gridSize / 2,
+            vx: (Math.random() - 0.5) * 2.2,
+            vy: (Math.random() - 0.5) * 2.2,
+            life: 18 + Math.random() * 10,
+            color,
+          });
+        }
+      }
+      function updateParticles() {
+        for (const p of state.particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.02;
+          p.life -= 1;
+        }
+        state.particles = state.particles.filter((p) => p.life > 0);
+      }
+      function drawParticles() {
+        for (const p of state.particles) {
+          const alpha = Math.max(0, Math.min(1, p.life / 20));
+          ctx.fillStyle = hexToRgba(CONFIG.colors.particle, alpha);
+          ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3);
+        }
+      }
+
+      function hexToRgba(hex, a = 1) {
+        const h = hex.replace("#", "");
+        const bigint = parseInt(h, 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return `rgba(${r},${g},${b},${a})`;
+      }
+
+      const AudioMgr = {
+        ctx: null,
+        gain: null,
+        init() {
+          if (this.ctx) return;
+          try {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.gain = this.ctx.createGain();
+            this.gain.connect(this.ctx.destination);
+            this.setMute(isMuted);
+          } catch (e) {}
+        },
+        setMute(m) {
+          isMuted = !!m;
+          if (!this.gain) return;
+          this.gain.gain.value = isMuted ? 0 : 0.9;
+        },
+        tone(freq = 440, dur = 0.08, type = "sine") {
+          if (!this.ctx) return;
+          const o = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          o.type = type;
+          o.frequency.value = freq;
+          o.connect(g);
+          g.connect(this.gain);
+          const t = this.ctx.currentTime;
+          g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(0.4, t + 0.01);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+          o.start();
+          o.stop(t + dur + 0.02);
+        },
+        play(name) {
+          if (isMuted) return;
+          if (loadedSounds[name]) {
+            loadedSounds[name].currentTime = 0;
+            loadedSounds[name].play();
+          } else {
+            if (name === "eat") this.tone(680, 0.07, "triangle");
+            if (name === "hit") this.tone(140, 0.18, "square");
+          }
+        },
+      };
+
+      let touchStart = null;
+      function onTouchStart(e) {
+        AudioMgr.init();
+        const t = e.touches[0];
+        touchStart = { x: t.clientX, y: t.clientY, time: performance.now() };
+      }
+      function onTouchMove(e) {}
+      function onTouchEnd(e) {
+        if (!touchStart) return;
+        const t = e.changedTouches[0];
+        const dx = t.clientX - touchStart.x;
+        const dy = t.clientY - touchStart.y;
+        const ax = Math.abs(dx),
+          ay = Math.abs(dy);
+        if (ax < 12 && ay < 12) {
+          touchStart = null;
+          return;
+        }
+        if (ax > ay) {
+          if (dx > 0) setDir(1, 0);
+          else setDir(-1, 0);
+        } else {
+          if (dy > 0) setDir(0, 1);
+          else setDir(0, -1);
+        }
+        withFarcadeActions((actions) => actions.hapticFeedback?.());
+        touchStart = null;
+        hintEl.style.display = "none";
+      }
+      function onKey(e) {
+        if (e.key === "ArrowUp") setDir(0, -1);
+        if (e.key === "ArrowDown") setDir(0, 1);
+        if (e.key === "ArrowLeft") setDir(-1, 0);
+        if (e.key === "ArrowRight") setDir(1, 0);
+        if (e.key === " ") startGame();
+        if (e.key === "Enter") startGame();
+      }
+      function setDir(x, y) {
+        if (state.dir.x === -x && state.dir.y === -y) return;
+        state.nextDir = { x, y };
+      }
+
+      function step() {
+        state.dir = state.nextDir;
+        let head = { x: state.snake[0].x + state.dir.x, y: state.snake[0].y + state.dir.y };
+
+        const wrap = CONFIG.gameplay.wrapWalls;
+        const topRows = CONFIG.gameplay.topNoPlayRows || 0;
+        const noPlayMode = CONFIG.gameplay.noPlayActsAs || "wrap";
+
+        if (wrap) {
+          head.x = (head.x + state.cols) % state.cols;
+        } else {
+          if (head.x < 0 || head.x >= state.cols) return die();
+        }
+
+        if (!wrap) {
+          if (head.y < 0 || head.y >= state.rows) return die();
+        } else {
+          if (head.y < 0) {
+            head.y = state.rows - 1;
+          } else if (head.y >= state.rows) {
+            head.y = 0;
+          }
+        }
+
+        if (cellInTopNoPlay(head.y)) {
+          if (noPlayMode === "wall") {
+            return die();
+          } else {
+            head.y = topRows;
+            if (state.dir.y < 0 || head.y < topRows) {
+              head.y = state.rows - 1;
+            }
+            if (cellInTopNoPlay(head.y)) head.y = topRows;
+          }
+        }
+
+        if (state.snake.some((s) => s.x === head.x && s.y === head.y)) return die();
+
+        state.snake.unshift(head);
+        if (head.x === state.food.x && head.y === state.food.y) {
+          state.score += CONFIG.gameplay.foodScore;
+          hudScore.textContent = state.score;
+          addParticles(head.x, head.y, CONFIG.colors.particle);
+          AudioMgr.play("eat");
+          withFarcadeActions((actions) => actions.hapticFeedback?.());
+          const ms = state.stepMs;
+          const delta =
+            1000 / (CONFIG.player.baseSpeed + CONFIG.player.speedIncreasePerFood) - 1000 / CONFIG.player.baseSpeed;
+          state.stepMs = Math.max(ms - (delta || 0.5), CONFIG.player.minStepMs);
+          placeFood();
+        } else {
+          state.snake.pop();
+        }
+      }
+
+      function die() {
+        AudioMgr.play("hit");
+        withFarcadeActions((actions) => actions.hapticFeedback?.());
+        state.gameState = "gameover";
+        finalScoreEl.textContent = state.score;
+        if (state.score > state.best) {
+          state.best = state.score;
+          localStorage.setItem("eatgrow_best", String(state.best));
+        }
+        hudBest.textContent = state.best;
+        showGameOver();
+        withFarcadeActions((actions) => actions.gameOver?.({ score: state.score }));
+      }
+
+      function drawFoodIcon(kind, cx, cy, size) {
+        ctx.save();
+        if (kind === "heart") {
+          const s = size;
+          const r = s * 0.25;
+          ctx.translate(cx, cy);
+          ctx.fillStyle = CONFIG.colors.foodPrimary;
+          ctx.beginPath();
+          ctx.moveTo(0, s * 0.28);
+          ctx.bezierCurveTo(-s * 0.5, -s * 0.1, -s * 0.52, -s * 0.55, -s * 0.22, -s * 0.62);
+          ctx.bezierCurveTo(-s * 0.02, -s * 0.66, s * 0.12, -s * 0.54, 0, -s * 0.4);
+          ctx.bezierCurveTo(s * 0.12, -s * 0.54, s * 0.02, -s * 0.66, s * 0.22, -s * 0.62);
+          ctx.bezierCurveTo(s * 0.52, -s * 0.55, s * 0.5, -s * 0.1, 0, s * 0.28);
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = hexToRgba("#ffffff", 0.25);
+          ctx.beginPath();
+          ctx.ellipse(-s * 0.12, -s * 0.42, r, r * 0.7, -0.6, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (kind === "burger") {
+          const s = size;
+          ctx.translate(cx, cy);
+          ctx.fillStyle = CONFIG.colors.foodSecondary;
+          ctx.beginPath();
+          ctx.roundRect(-s * 0.5, -s * 0.46, s, s * 0.38, s * 0.2);
+          ctx.fill();
+          ctx.fillStyle = "#38d17a";
+          ctx.fillRect(-s * 0.45, -s * 0.12, s * 0.9, s * 0.08);
+          ctx.fillStyle = "#6b3e2e";
+          ctx.fillRect(-s * 0.46, -s * 0.04, s * 0.92, s * 0.1);
+          ctx.fillStyle = "#ffcf33";
+          ctx.fillRect(-s * 0.3, 0.06 * s, s * 0.6, s * 0.08);
+          ctx.fillStyle = CONFIG.colors.foodSecondary;
+          ctx.beginPath();
+          ctx.roundRect(-s * 0.5, s * 0.12, s, s * 0.26, s * 0.12);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function draw() {
+        ctx.fillStyle = CONFIG.colors.background;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        drawTopNoPlayZone();
+        drawGrid();
+        const pulse = (performance.now() / 600) % 1;
+        const scale = 0.8 + Math.sin(pulse * 2 * Math.PI) * 0.05;
+        const s = state.gridSize * scale;
+        const fx = state.food.x * state.gridSize + state.gridSize / 2;
+        const fy = state.food.y * state.gridSize + state.gridSize / 2;
+        const kind = CONFIG.gameplay.foodShape === "auto" ? CONFIG.gameplay.foodKind : CONFIG.gameplay.foodShape;
+        drawFoodIcon(kind === "circle" || kind === "square" ? "heart" : kind, fx, fy, s * 0.8);
+        if (kind === "square") {
+          ctx.fillStyle = CONFIG.colors.foodPrimary;
+          ctx.beginPath();
+          ctx.roundRect(fx - s * 0.4, fy - s * 0.4, s * 0.8, s * 0.8, 6);
+          ctx.fill();
+        }
+        if (kind === "circle") {
+          ctx.fillStyle = CONFIG.colors.foodPrimary;
+          ctx.beginPath();
+          ctx.arc(fx, fy, s * 0.36, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        for (let i = state.snake.length - 1; i >= 0; i--) {
+          const seg = state.snake[i];
+          const color = i === 0 ? CONFIG.colors.snakeHead : CONFIG.colors.snakeBody;
+          const roundFrac = i === 0 ? CONFIG.player.roundedHead : CONFIG.player.roundedBody;
+          drawRoundedCell(seg.x, seg.y, color, roundFrac);
+        }
+        drawParticles();
+      }
+
+      function loop(ts) {
+        if (!state.lastTime) state.lastTime = ts;
+        const dt = ts - state.lastTime;
+        state.lastTime = ts;
+        if (state.gameState === "playing") {
+          state.tAccum += dt;
+          while (state.tAccum >= state.stepMs) {
+            step();
+            state.tAccum -= state.stepMs;
+          }
+          updateParticles();
+          draw();
+        } else if (state.gameState === "start") {
+          draw();
+        }
+        requestAnimationFrame(loop);
+      }
+
+      function showStart() {
+        overlay.style.display = "grid";
+        gameOverEl.style.display = "none";
+      }
+      function showGameOver() {
+        overlay.style.display = "none";
+        gameOverEl.style.display = "grid";
+      }
+
+      function startGame() {
+        if (state.gameState === "playing") return;
+        AudioMgr.init();
+        state.gameState = "playing";
+        overlay.style.display = "none";
+        gameOverEl.style.display = "none";
+        if (CONFIG.ui.showSwipeHint) hintEl.style.display = "block";
+      }
+
+      window.onConfigUpdate = (cfg) => {
+        canvas.style.backgroundColor = cfg.colors.background;
+        applyDifficulty();
+      };
+
+      function init() {
+        initAssets();
+        canvas.style.backgroundColor = CONFIG.colors.background;
+        hudBest.textContent = state.best;
+        applyDifficulty();
+        resetGame();
+        showStart();
+        whenFarcadeReady((sdk) => {
+          sdk.on?.("play_again", () => {
+            resetGame();
+            showStart();
+          });
+          sdk.on?.("toggle_mute", (data) => {
+            isMuted = !!data?.isMuted;
+            AudioMgr.setMute(isMuted);
+          });
+          sdk.singlePlayer?.actions?.ready?.();
+        });
+        window.addEventListener("keydown", onKey);
+        window.addEventListener("resize", resizeCanvas);
+        canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+        canvas.addEventListener("touchmove", onTouchMove, { passive: false });
+        canvas.addEventListener("touchend", onTouchEnd);
+        startBtn.addEventListener("click", () => {
+          resetGame();
+          startGame();
+        });
+        againBtn.addEventListener("click", () => {
+          resetGame();
+          startGame();
+        });
+        requestAnimationFrame(loop);
+      }
+
+      if (!CanvasRenderingContext2D.prototype.roundRect) {
+        CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+          if (w < 2 * r) r = w / 2;
+          if (h < 2 * r) r = h / 2;
+          this.beginPath();
+          this.moveTo(x + r, y);
+          this.arcTo(x + w, y, x + w, y + h, r);
+          this.arcTo(x + w, y + h, x, y + h, r);
+          this.arcTo(x, y + h, x, y, r);
+          this.arcTo(x, y, x + w, y, r);
+          this.closePath();
+          return this;
+        };
+      }
+
+      init();
+    </script>
+  </body>
+</html>
