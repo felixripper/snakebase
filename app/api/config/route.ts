@@ -29,7 +29,9 @@ function env() {
   return { url, token };
 }
 
-async function upstashPipeline(cmds: string[][]) {
+type UpstashResponse = { result: unknown; error?: string };
+
+async function upstashPipeline(cmds: string[][]): Promise<UpstashResponse[]> {
   const { url, token } = env();
   const res = await fetch(url, {
     method: "POST",
@@ -44,7 +46,17 @@ async function upstashPipeline(cmds: string[][]) {
     const text = await res.text().catch(() => "");
     throw new Error(`Upstash error: ${res.status} ${text}`);
   }
-  return (await res.json()) as Array<{ result: unknown; error?: string }>;
+  return (await res.json()) as UpstashResponse[];
+}
+
+function getErrorMessage(error: unknown, fallback = "Internal Server Error") {
+  if (error instanceof Error && typeof error.message === "string") {
+    return error.message;
+  }
+  if (typeof error === "string" && error) {
+    return error;
+  }
+  return fallback;
 }
 
 function validateConfig(input: Partial<SimpleConfig>): { ok: true; value: SimpleConfig } | { ok: false; message: string } {
@@ -78,13 +90,16 @@ export async function GET() {
         const v = validateConfig(parsed);
         if (v.ok) value = v.value;
       }
-    } catch (e) {
+    } catch {
       // ignore and serve defaults
     }
 
     return NextResponse.json(value, { status: 200 });
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message || "Internal Server Error" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json(
+      { error: getErrorMessage(error) },
+      { status: 500 },
+    );
   }
 }
 
@@ -98,12 +113,15 @@ export async function PUT(request: Request) {
     const value = JSON.stringify(v.value);
 
     const [setResp] = await upstashPipeline([["SET", KEY, value]]);
-    if ((setResp as any)?.error) {
-      throw new Error((setResp as any).error);
+    if (setResp?.error) {
+      throw new Error(setResp.error);
     }
 
     return NextResponse.json(v.value, { status: 200 });
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message || "Internal Server Error" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json(
+      { error: getErrorMessage(error) },
+      { status: 500 },
+    );
   }
 }
