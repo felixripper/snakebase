@@ -3,17 +3,15 @@ import type { NextRequest } from 'next/server';
 import { sessionOptions } from './lib/session';
 
 export function middleware(request: NextRequest) {
-  // Sadece oturum çerezinin varlığını kontrol ediyoruz
+  // Basit kontrol: admin çerezi var mı?
   const hasSession = request.cookies.get(sessionOptions.cookieName);
-
   if (!hasSession) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
-
   return NextResponse.next();
 }
 
-// Sadece /admin yolunda çalışsın
+// /admin altındaki TÜM sayfaları koru
 export const config = {
-  matcher: '/admin',
+  matcher: '/admin/:path*',
 };
