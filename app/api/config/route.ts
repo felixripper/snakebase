@@ -125,3 +125,8 @@ export async function PUT(request: Request) {
     );
   }
 }
+
+// POST alias for PUT (admin panel compatibility)
+export async function POST(request: Request) {
+  return PUT(request);
+}
