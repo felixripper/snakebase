@@ -1,34 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
 import styles from "./page.module.css";
 
 export default function Home() {
   const [isIframeLoaded, setIsIframeLoaded] = useState(false);
-  const hasSignaledReadyRef = useRef(false);
 
   useEffect(() => {
-    if (!isIframeLoaded || hasSignaledReadyRef.current) return;
-
-    hasSignaledReadyRef.current = true;
-
-    const notifyReady = async () => {
-      try {
-        await sdk.actions.ready();
-      } catch (error) {
-        console.error("Failed to notify Farcaster Mini App readiness", error);
-        hasSignaledReadyRef.current = false;
-      }
-    };
-
-    void notifyReady();
+    if (!isIframeLoaded) return;
+    void sdk.actions.ready();
   }, [isIframeLoaded]);
 
   const handleLoad = useCallback(() => {
     setIsIframeLoaded(true);
   }, []);
 
+export default function Home() {
   return (
     <div className={styles.container}>
       <iframe
