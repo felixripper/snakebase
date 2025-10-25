@@ -600,7 +600,7 @@
             return die();
           } else {
             head.y = topRows;
-            if (state.dir.y < 0 or head.y < topRows) {
+            if (state.dir.y < 0 || head.y < topRows) {
               head.y = state.rows - 1;
             }
             if (cellInTopNoPlay(head.y)) head.y = topRows;
@@ -619,7 +619,7 @@
           const ms = state.stepMs;
           const delta =
             1000 / (CONFIG.player.baseSpeed + CONFIG.player.speedIncreasePerFood) - 1000 / CONFIG.player.baseSpeed;
-          state.stepMs = Math.max(ms - (delta or 0.5), CONFIG.player.minStepMs);
+          state.stepMs = Math.max(ms - (delta || 0.5), CONFIG.player.minStepMs);
           placeFood();
         } else {
           state.snake.pop();
@@ -691,7 +691,7 @@
         const fx = state.food.x * state.gridSize + state.gridSize / 2;
         const fy = state.food.y * state.gridSize + state.gridSize / 2;
         const kind = CONFIG.gameplay.foodShape === "auto" ? CONFIG.gameplay.foodKind : CONFIG.gameplay.foodShape;
-        drawFoodIcon(kind === "circle" or kind === "square" ? "heart" : kind, fx, fy, s * 0.8);
+        drawFoodIcon((kind === "circle" || kind === "square") ? "heart" : kind, fx, fy, s * 0.8);
         if (kind === "square") {
           ctx.fillStyle = CONFIG.colors.foodPrimary;
           ctx.beginPath();
