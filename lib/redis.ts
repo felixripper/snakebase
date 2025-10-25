@@ -4,18 +4,28 @@ const memory = new Map<string, string>();
 
 let _redis: Redis | undefined;
 
+function normalizeRestUrl(url: string): string {
+  // If the URL is a TLS Redis URL (rediss://...), normalize to REST base (https://...)
+  if (url.startsWith('rediss://')) return url.replace(/^rediss:\/\//, 'https://');
+  // Some dashboards expose tcp/redis scheme as well; handle cautiously
+  if (url.startsWith('redis://')) return url.replace(/^redis:\/\//, 'https://');
+  return url;
+}
+
 function getRedis(): Redis | undefined {
   if (_redis !== undefined) return _redis;
 
-  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const urlRaw = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-  if (typeof url === 'string' && typeof token === 'string' && url.startsWith('https://')) {
-    _redis = new Redis({ url, token });
-  } else {
-    // Geçersiz ya da eksik env varsa Redis devre dışı; hafıza fallback
-    _redis = undefined;
+  if (typeof urlRaw === 'string' && typeof token === 'string' && urlRaw.length > 0) {
+    const url = normalizeRestUrl(urlRaw);
+    if (url.startsWith('https://')) {
+      _redis = new Redis({ url, token });
+    }
   }
+
+  // If not initialized, leave undefined to use in-memory fallback
   return _redis;
 }
 
