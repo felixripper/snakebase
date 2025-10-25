@@ -20,6 +20,13 @@ const DEFAULT_SIMPLE_CONFIG: SimpleConfig = {
 
 const KEY = "game_config_v1";
 
+// In-memory fallback when Redis is not available
+let memoryStore: SimpleConfig | null = null;
+
+function hasUpstash(): boolean {
+  return Boolean(process.env.UPSTASH_REST_URL && process.env.UPSTASH_REST_TOKEN);
+}
+
 function env() {
   const url = process.env.UPSTASH_REST_URL;
   const token = process.env.UPSTASH_REST_TOKEN;
@@ -82,16 +89,23 @@ export async function GET() {
   try {
     let value: SimpleConfig = DEFAULT_SIMPLE_CONFIG;
 
-    try {
-      const [getResp] = await upstashPipeline([["GET", KEY]]);
-      const raw = (getResp?.result ?? null) as string | null;
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        const v = validateConfig(parsed);
-        if (v.ok) value = v.value;
+    if (hasUpstash()) {
+      try {
+        const [getResp] = await upstashPipeline([["GET", KEY]]);
+        const raw = (getResp?.result ?? null) as string | null;
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const v = validateConfig(parsed);
+          if (v.ok) value = v.value;
+        }
+      } catch {
+        // ignore and serve defaults
       }
-    } catch {
-      // ignore and serve defaults
+    } else {
+      // Use in-memory storage
+      if (memoryStore) {
+        value = memoryStore;
+      }
     }
 
     return NextResponse.json(value, { status: 200 });
@@ -110,11 +124,16 @@ export async function PUT(request: Request) {
     if (!v.ok) {
       return NextResponse.json({ error: v.message }, { status: 400 });
     }
-    const value = JSON.stringify(v.value);
 
-    const [setResp] = await upstashPipeline([["SET", KEY, value]]);
-    if (setResp?.error) {
-      throw new Error(setResp.error);
+    if (hasUpstash()) {
+      const value = JSON.stringify(v.value);
+      const [setResp] = await upstashPipeline([["SET", KEY, value]]);
+      if (setResp?.error) {
+        throw new Error(setResp.error);
+      }
+    } else {
+      // Store in memory
+      memoryStore = v.value;
     }
 
     return NextResponse.json(v.value, { status: 200 });
@@ -124,4 +143,9 @@ export async function PUT(request: Request) {
       { status: 500 },
     );
   }
+}
+
+// POST alias for PUT (admin panel compatibility)
+export async function POST(request: Request) {
+  return PUT(request);
 }
