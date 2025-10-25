@@ -53,10 +53,16 @@ export async function PUT(request: Request) {
     }
 
     if (hasUpstash()) {
-      const value = JSON.stringify(v.value);
-      const [setResp] = await upstashPipeline([["SET", KEY, value]]);
-      if (setResp?.error) {
-        throw new Error(setResp.error);
+      try {
+        const value = JSON.stringify(v.value);
+        const [setResp] = await upstashPipeline([["SET", KEY, value]]);
+        if (setResp?.error) {
+          throw new Error(setResp.error);
+        }
+      } catch (upstashError) {
+        // Fallback to memory if Upstash fails
+        console.warn("Upstash save failed, falling back to memory:", upstashError);
+        setMemoryStore(v.value);
       }
     } else {
       // Store in memory

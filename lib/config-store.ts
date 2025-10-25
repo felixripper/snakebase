@@ -65,9 +65,11 @@ export async function upstashPipeline(cmds: string[][]): Promise<UpstashResponse
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
+    console.error(`Upstash error: ${res.status} ${text}`);
     throw new Error(`Upstash error: ${res.status} ${text}`);
   }
-  return (await res.json()) as UpstashResponse[];
+  const data = await res.json();
+  return data as UpstashResponse[];
 }
 
 export function getErrorMessage(error: unknown, fallback = "Internal Server Error") {
