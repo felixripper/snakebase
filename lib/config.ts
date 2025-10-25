@@ -40,11 +40,7 @@ export type GameConfig = z.infer<typeof GameConfigSchema>;
 
 export const DEFAULT_CONFIG: GameConfig = GameConfigSchema.parse({});
 
-function isPlainObject(val: unknown): val is Record<string, unknown> {
-  return typeof val === 'object' && val !== null && !Array.isArray(val);
-}
-
-// Derin olmayan, tip güvenli bir birleştirme (difficultyPresets için tek seviye derin)
+// Tip güvenli tek seviyeli birleştirme (difficultyPresets için yeterli)
 function mergeConfig(base: GameConfig, patch: Partial<GameConfig>): GameConfig {
   const merged: GameConfig = {
     ...base,
