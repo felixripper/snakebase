@@ -3,10 +3,23 @@
   justify-content: center;
   align-items: center;
   width: 100%;
+  /* fallback */
   min-height: 100vh;
   background: radial-gradient(120% 120% at 50% 0%, #020411 0%, #020108 70%, #010006 100%);
   padding: 16px;
   box-sizing: border-box;
+}
+
+/* Prefer stable viewport units on modern mobile browsers to prevent address bar jump */
+@supports (height: 100svh) {
+  .container {
+    min-height: 100svh;
+  }
+}
+@supports (height: 100dvh) {
+  .container {
+    min-height: 100dvh;
+  }
 }
 
 .frame {
