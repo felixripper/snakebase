@@ -30,7 +30,7 @@ export default function LoginPage() {
         const data = await response.json();
         setError(data.message || 'Giriş başarısız.');
       }
-    } catch (err) {
+    } catch (_) {
       setError('Bir sunucu hatası oluştu.');
     }
   };
