@@ -420,27 +420,6 @@
 
       let isMuted = false;
 
-      function getFarcadeSDK() {
-        return window.FarcadeSDK || null;
-      }
-
-      function withFarcadeActions(callback) {
-        const actions = getFarcadeSDK()?.singlePlayer?.actions;
-        if (!actions) return false;
-        callback(actions);
-        return true;
-      }
-
-      function whenFarcadeReady(callback, attempts = 60) {
-        const sdk = getFarcadeSDK();
-        if (sdk) {
-          callback(sdk);
-          return;
-        }
-        if (attempts <= 0) return;
-        setTimeout(() => whenFarcadeReady(callback, attempts - 1), 100);
-      }
-
       const state = {
         gameState: "start",
         tAccum: 0,
@@ -673,7 +652,7 @@
           if (dy > 0) setDir(0, 1);
           else setDir(0, -1);
         }
-        withFarcadeActions((actions) => actions.hapticFeedback?.());
+        window.FarcadeSDK.singlePlayer.actions.hapticFeedback();
         touchStart = null;
         hintEl.style.display = "none";
       }
@@ -734,7 +713,7 @@
           hudScore.textContent = state.score;
           addParticles(head.x, head.y, CONFIG.colors.particle);
           AudioMgr.play("eat");
-          withFarcadeActions((actions) => actions.hapticFeedback?.());
+          window.FarcadeSDK.singlePlayer.actions.hapticFeedback();
           const ms = state.stepMs;
           const delta =
             1000 / (CONFIG.player.baseSpeed + CONFIG.player.speedIncreasePerFood) - 1000 / CONFIG.player.baseSpeed;
@@ -747,7 +726,7 @@
 
       function die() {
         AudioMgr.play("hit");
-        withFarcadeActions((actions) => actions.hapticFeedback?.());
+        window.FarcadeSDK.singlePlayer.actions.hapticFeedback();
         state.gameState = "gameover";
         finalScoreEl.textContent = state.score;
         if (state.score > state.best) {
@@ -756,7 +735,7 @@
         }
         hudBest.textContent = state.best;
         showGameOver();
-        withFarcadeActions((actions) => actions.gameOver?.({ score: state.score }));
+        window.FarcadeSDK.singlePlayer.actions.gameOver({ score: state.score });
       }
 
       function drawFoodIcon(kind, cx, cy, size) {
@@ -873,6 +852,15 @@
         applyDifficulty();
       };
 
+      window.FarcadeSDK.on("play_again", () => {
+        resetGame();
+        showStart();
+      });
+      window.FarcadeSDK.on("toggle_mute", (data) => {
+        isMuted = data.isMuted;
+        AudioMgr.setMute(isMuted);
+      });
+
       function init() {
         initAssets();
         canvas.style.backgroundColor = CONFIG.colors.background;
@@ -880,17 +868,7 @@
         applyDifficulty();
         resetGame();
         showStart();
-        whenFarcadeReady((sdk) => {
-          sdk.on?.("play_again", () => {
-            resetGame();
-            showStart();
-          });
-          sdk.on?.("toggle_mute", (data) => {
-            isMuted = !!data?.isMuted;
-            AudioMgr.setMute(isMuted);
-          });
-          sdk.singlePlayer?.actions?.ready?.();
-        });
+        window.FarcadeSDK.singlePlayer.actions.ready();
         window.addEventListener("keydown", onKey);
         window.addEventListener("resize", resizeCanvas);
         canvas.addEventListener("touchstart", onTouchStart, { passive: false });
