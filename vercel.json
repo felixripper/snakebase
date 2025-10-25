@@ -1,0 +1,52 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "env": {
+    "NEXT_PUBLIC_URL": {
+      "description": "Your application's public URL (e.g., https://snakebase.vercel.app)",
+      "required": false
+    },
+    "NEXT_PUBLIC_ONCHAINKIT_API_KEY": {
+      "description": "Coinbase OnchainKit API Key from https://portal.cdp.coinbase.com/",
+      "required": true
+    },
+    "ADMIN_USERNAME": {
+      "description": "Admin panel username",
+      "required": true
+    },
+    "ADMIN_PASSWORD": {
+      "description": "Admin panel password (use a strong password!)",
+      "required": true
+    },
+    "SECRET_COOKIE_PASSWORD": {
+      "description": "Session cookie encryption key (at least 32 characters). Generate with: openssl rand -base64 32",
+      "required": true
+    },
+    "UPSTASH_REDIS_REST_URL": {
+      "description": "Upstash Redis REST URL (optional, falls back to in-memory storage)",
+      "required": false
+    },
+    "UPSTASH_REDIS_REST_TOKEN": {
+      "description": "Upstash Redis REST Token (optional)",
+      "required": false
+    },
+    "BASE_MAINNET_RPC": {
+      "description": "Base Mainnet RPC URL (optional, for smart contract deployment)",
+      "required": false
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, must-revalidate"
+        }
+      ]
+    }
+  ]
+}
