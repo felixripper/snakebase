@@ -35,14 +35,17 @@ export function setMemoryStore(config: SimpleConfig): void {
 }
 
 export function hasUpstash(): boolean {
-  return Boolean(process.env.UPSTASH_REST_URL && process.env.UPSTASH_REST_TOKEN);
+  return Boolean(
+    (process.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REST_URL) &&
+    (process.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REST_TOKEN)
+  );
 }
 
 export function env() {
-  const url = process.env.UPSTASH_REST_URL;
-  const token = process.env.UPSTASH_REST_TOKEN;
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REST_TOKEN;
   if (!url || !token) {
-    throw new Error("Missing UPSTASH_REST_URL or UPSTASH_REST_TOKEN");
+    throw new Error("Missing UPSTASH_REDIS_REST_URL/UPSTASH_REST_URL or UPSTASH_REDIS_REST_TOKEN/UPSTASH_REST_TOKEN");
   }
   return { url, token };
 }
