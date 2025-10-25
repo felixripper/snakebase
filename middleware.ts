@@ -4,18 +4,16 @@ import { getIronSession } from 'iron-session';
 import { sessionOptions, SessionData } from './lib/session';
 
 export async function middleware(request: NextRequest) {
+  // Middleware, çerezleri doğrudan request'ten alır. Bu yüzden kendi getIronSession çağrısını yapar.
   const session = await getIronSession<SessionData>(request.cookies, sessionOptions);
 
-  if (session.isLoggedIn !== true) {
-    // Kullanıcı giriş yapmamışsa ve /admin yoluna gitmeye çalışıyorsa,
-    // onu /login sayfasına yönlendir.
+  if (!session.isLoggedIn) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
   return NextResponse.next();
 }
 
-// Bu middleware'in sadece /admin yolunda çalışmasını sağla
 export const config = {
   matcher: '/admin',
 };
