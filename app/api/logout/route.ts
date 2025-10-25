@@ -1,10 +1,8 @@
-import { getIronSession } from 'iron-session'
-import { NextResponse } from 'next/server'
-import { sessionOptions } from '@/lib/session'
-import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server';
+import { getSession } from '@/lib/session';
 
 export async function GET() {
-  const session = await getIronSession(cookies(), sessionOptions)
-  session.destroy()
-  return NextResponse.json({ ok: true })
+  const session = await getSession();
+  session.destroy();
+  return NextResponse.json({ ok: true });
 }
