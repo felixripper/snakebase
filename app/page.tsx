@@ -1,15 +1,20 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
 import styles from "./page.module.css";
 
 export default function Home() {
-  const handleReady = useCallback(() => {
-    void sdk.actions.ready();
-  }, []);
+  const [isIframeLoaded, setIsIframeLoaded] = useState(false);
 
-import styles from "./page.module.css";
+  useEffect(() => {
+    if (!isIframeLoaded) return;
+    void sdk.actions.ready();
+  }, [isIframeLoaded]);
+
+  const handleLoad = useCallback(() => {
+    setIsIframeLoaded(true);
+  }, []);
 
 export default function Home() {
   return (
@@ -19,7 +24,7 @@ export default function Home() {
         title="Eat & Grow"
         className={styles.frame}
         allow="accelerometer; fullscreen"
-        onLoad={handleReady}
+        onLoad={handleLoad}
       />
     </div>
   );
