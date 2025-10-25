@@ -29,9 +29,9 @@ export const GameConfigSchema = z.object({
 
   difficultyPresets: z
     .object({
-      easy: z.record(z.any()).default({ snakeSpeed: 3, acceleration: 0, obstaclesEnabled: false }),
-      normal: z.record(z.any()).default({ snakeSpeed: 5 }),
-      hard: z.record(z.any()).default({ snakeSpeed: 8, acceleration: 0.5, selfCollision: true, obstaclesEnabled: true }),
+      easy: z.record(z.unknown()).default({ snakeSpeed: 3, acceleration: 0, obstaclesEnabled: false }),
+      normal: z.record(z.unknown()).default({ snakeSpeed: 5 }),
+      hard: z.record(z.unknown()).default({ snakeSpeed: 8, acceleration: 0.5, selfCollision: true, obstaclesEnabled: true }),
     })
     .default({}),
 });
@@ -44,32 +44,34 @@ function isPlainObject(val: unknown): val is Record<string, unknown> {
   return typeof val === 'object' && val !== null && !Array.isArray(val);
 }
 
-function mergeDeep<T>(base: T, patch: Partial<T>): T {
-  const out: any = Array.isArray(base) ? [...(base as any)] : { ...(base as any) };
-  for (const [k, v] of Object.entries(patch as any)) {
-    if (v === undefined) continue;
-    if (isPlainObject(v) && isPlainObject((out as any)[k])) {
-      (out as any)[k] = mergeDeep((out as any)[k], v as any);
-    } else {
-      (out as any)[k] = v;
-    }
-  }
-  return out as T;
+// Derin olmayan, tip güvenli bir birleştirme (difficultyPresets için tek seviye derin)
+function mergeConfig(base: GameConfig, patch: Partial<GameConfig>): GameConfig {
+  const merged: GameConfig = {
+    ...base,
+    ...patch,
+    difficultyPresets: {
+      ...base.difficultyPresets,
+      ...(patch.difficultyPresets ?? {}),
+    },
+  };
+  return merged;
 }
 
 export async function getConfig(): Promise<GameConfig> {
   const raw = await kvGet(CONFIG_KEY);
   if (!raw) return DEFAULT_CONFIG;
   try {
-    const parsed = JSON.parse(raw);
-    return GameConfigSchema.parse(mergeDeep(DEFAULT_CONFIG, parsed));
+    const parsed = GameConfigSchema.partial().parse(JSON.parse(raw));
+    return mergeConfig(DEFAULT_CONFIG, parsed);
   } catch {
     return DEFAULT_CONFIG;
   }
 }
 
 export async function setConfig(patch: Partial<GameConfig>): Promise<GameConfig> {
-  const merged = mergeDeep(await getConfig(), patch);
+  const current = await getConfig();
+  const validatedPatch = GameConfigSchema.partial().parse(patch);
+  const merged = mergeConfig(current, validatedPatch);
   const validated = GameConfigSchema.parse(merged);
   await kvSet(CONFIG_KEY, JSON.stringify(validated));
   return validated;
