@@ -44,6 +44,8 @@ jobs:
 
       - name: E2E Contract Tests
         env:
+          # OnchainKit API key - use GitHub secret if available, otherwise use placeholder
+          NEXT_PUBLIC_ONCHAINKIT_API_KEY: ${{ secrets.NEXT_PUBLIC_ONCHAINKIT_API_KEY || 'test-api-key' }}
           # Suppress noisy Sentry warnings during dev server boot
           SENTRY_SUPPRESS_INSTRUMENTATION_FILE_WARNING: '1'
           SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING: '1'
