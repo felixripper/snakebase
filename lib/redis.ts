@@ -1,6 +1,6 @@
 import { Redis } from '@upstash/redis';
 
-let memory = new Map<string, string>();
+const memory = new Map<string, string>();
 
 export const redis =
   process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
