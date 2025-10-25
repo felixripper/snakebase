@@ -15,6 +15,9 @@ export const sessionOptions: SessionOptions = {
 };
 
 // Oturumu almak için merkezi ve doğru tiplendirilmiş fonksiyon.
-export function getAppRouterSession(): Promise<IronSession<SessionData>> {
-  return getIronSession<SessionData>(cookies(), sessionOptions);
+// 'async' anahtar kelimesi, fonksiyonun içindeki await'in doğru çalışmasını sağlar.
+// Bu, önceki tüm hataların kök nedeniydi.
+export async function getAppRouterSession(): Promise<IronSession<SessionData>> {
+  const session = await getIronSession<SessionData>(cookies(), sessionOptions);
+  return session;
 }
