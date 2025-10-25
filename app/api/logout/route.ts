@@ -1,9 +1,10 @@
 import { getIronSession } from 'iron-session'
 import { NextResponse } from 'next/server'
 import { sessionOptions } from '@/lib/session'
+import { cookies } from 'next/headers'
 
-export async function GET(request: Request) {
-  const session = await getIronSession(request.cookies, sessionOptions)
+export async function GET() {
+  const session = await getIronSession(cookies(), sessionOptions)
   session.destroy()
   return NextResponse.json({ ok: true })
 }
