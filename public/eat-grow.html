@@ -2,7 +2,8 @@
 <html lang="tr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- viewport-fit=cover eklendi -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Eat & Grow</title>
     <script src="https://cdn.jsdelivr.net/npm/@farcade/game-sdk@0.2.1/dist/index.min.js"></script>
     <style>
@@ -13,12 +14,14 @@
       body {
         margin: 0;
         padding: 0;
-        height: 100%;
-        width: 100%;
+        /* Daha stabil görünüm için vh fallback + overscroll kapalı */
+        height: 100vh;
+        width: 100vw;
         background: #0b0f1a;
         overflow: hidden;
         touch-action: none;
         -webkit-tap-highlight-color: transparent;
+        overscroll-behavior: none;
         font-family:
           system-ui,
           -apple-system,
@@ -29,6 +32,14 @@
           sans-serif;
         color: #fff;
       }
+      /* Destek varsa sabit viewport birimlerine geç */
+      @supports (height: 100svh) {
+        html,
+        body {
+          height: 100svh;
+        }
+      }
+
       .hud {
         position: fixed;
         top: 10px;
@@ -53,7 +64,9 @@
         display: grid;
         place-items: center;
       }
+      /* Canvas: 2:3 oranını korurken stabil viewport birimlerini kullan */
       #canvas {
+        /* Fallback (vh) */
         width: min(100vw, 66.666vh);
         height: calc(min(100vw, 66.666vh) * 1.5);
         image-rendering: pixelated;
@@ -66,6 +79,16 @@
         max-height: 100vh;
         max-width: 100vw;
       }
+      /* Destek varsa svh ile override */
+      @supports (height: 100svh) {
+        #canvas {
+          width: min(100vw, 66.666svh);
+          height: calc(min(100vw, 66.666svh) * 1.5);
+          max-height: 100svh;
+          max-width: 100vw;
+        }
+      }
+
       .overlay {
         position: fixed;
         inset: 0;
@@ -509,7 +532,10 @@
         const t = e.touches[0];
         touchStart = { x: t.clientX, y: t.clientY, time: performance.now() };
       }
-      function onTouchMove(e) {}
+      // Kayma sırasında sayfa scroll’unu engelle
+      function onTouchMove(e) {
+        e.preventDefault();
+      }
       function onTouchEnd(e) {
         if (!touchStart) return;
         const t = e.changedTouches[0];
@@ -574,7 +600,7 @@
             return die();
           } else {
             head.y = topRows;
-            if (state.dir.y < 0 || head.y < topRows) {
+            if (state.dir.y < 0 or head.y < topRows) {
               head.y = state.rows - 1;
             }
             if (cellInTopNoPlay(head.y)) head.y = topRows;
@@ -593,7 +619,7 @@
           const ms = state.stepMs;
           const delta =
             1000 / (CONFIG.player.baseSpeed + CONFIG.player.speedIncreasePerFood) - 1000 / CONFIG.player.baseSpeed;
-          state.stepMs = Math.max(ms - (delta || 0.5), CONFIG.player.minStepMs);
+          state.stepMs = Math.max(ms - (delta or 0.5), CONFIG.player.minStepMs);
           placeFood();
         } else {
           state.snake.pop();
@@ -665,7 +691,7 @@
         const fx = state.food.x * state.gridSize + state.gridSize / 2;
         const fy = state.food.y * state.gridSize + state.gridSize / 2;
         const kind = CONFIG.gameplay.foodShape === "auto" ? CONFIG.gameplay.foodKind : CONFIG.gameplay.foodShape;
-        drawFoodIcon(kind === "circle" || kind === "square" ? "heart" : kind, fx, fy, s * 0.8);
+        drawFoodIcon(kind === "circle" or kind === "square" ? "heart" : kind, fx, fy, s * 0.8);
         if (kind === "square") {
           ctx.fillStyle = CONFIG.colors.foodPrimary;
           ctx.beginPath();
