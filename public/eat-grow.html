@@ -211,6 +211,32 @@
       // Global game config object
       let CONFIG = {};
 
+      // Farcade SDK güvenli yardımcıları
+      let sdkListenersAttached = false;
+      function tryHaptic() {
+        try { window.FarcadeSDK?.singlePlayer?.actions?.hapticFeedback?.(); } catch (e) {}
+      }
+      function tryReady() {
+        try { window.FarcadeSDK?.singlePlayer?.actions?.ready?.(); } catch (e) {}
+      }
+      function tryGameOver(score) {
+        try { window.FarcadeSDK?.singlePlayer?.actions?.gameOver?.({ score }); } catch (e) {}
+      }
+      function attachSDKListeners() {
+        if (sdkListenersAttached) return;
+        if (window.FarcadeSDK?.on) {
+          window.FarcadeSDK.on("play_again", () => {
+            resetGame();
+            showStart();
+          });
+          window.FarcadeSDK.on("toggle_mute", (data) => {
+            isMuted = data.isMuted;
+            AudioMgr.setMute(isMuted);
+          });
+          sdkListenersAttached = true;
+        }
+      }
+
       // This function will now fetch the config from the external file
       async function initConfig() {
         try {
@@ -554,7 +580,7 @@
           if (dy > 0) setDir(0, 1);
           else setDir(0, -1);
         }
-        window.FarcadeSDK.singlePlayer.actions.hapticFeedback();
+        tryHaptic();
         touchStart = null;
         hintEl.style.display = "none";
       }
@@ -615,7 +641,7 @@
           hudScore.textContent = state.score;
           addParticles(head.x, head.y, CONFIG.colors.particle);
           AudioMgr.play("eat");
-          window.FarcadeSDK.singlePlayer.actions.hapticFeedback();
+          tryHaptic();
           const ms = state.stepMs;
           const delta =
             1000 / (CONFIG.player.baseSpeed + CONFIG.player.speedIncreasePerFood) - 1000 / CONFIG.player.baseSpeed;
@@ -628,7 +654,7 @@
 
       function die() {
         AudioMgr.play("hit");
-        window.FarcadeSDK.singlePlayer.actions.hapticFeedback();
+        tryHaptic();
         state.gameState = "gameover";
         finalScoreEl.textContent = state.score;
         if (state.score > state.best) {
@@ -637,7 +663,7 @@
         }
         hudBest.textContent = state.best;
         showGameOver();
-        window.FarcadeSDK.singlePlayer.actions.gameOver({ score: state.score });
+        tryGameOver(state.score);
       }
 
       function drawFoodIcon(kind, cx, cy, size) {
@@ -755,15 +781,6 @@
         applyDifficulty();
       };
 
-      window.FarcadeSDK.on("play_again", () => {
-        resetGame();
-        showStart();
-      });
-      window.FarcadeSDK.on("toggle_mute", (data) => {
-        isMuted = data.isMuted;
-        AudioMgr.setMute(isMuted);
-      });
-
       async function main() {
         await initConfig(); // Wait for config to be loaded
         
@@ -774,7 +791,15 @@
         applyDifficulty();
         resetGame();
         showStart();
-        window.FarcadeSDK.singlePlayer.actions.ready();
+        tryReady();
+        // SDK hazır değilse dinleyicileri bir süre poll ederek ekle
+        attachSDKListeners();
+        const sdkPoll = setInterval(() => {
+          if (!sdkListenersAttached) attachSDKListeners();
+          else clearInterval(sdkPoll);
+        }, 300);
+        setTimeout(() => clearInterval(sdkPoll), 5000);
+
         window.addEventListener("keydown", onKey);
         window.addEventListener("resize", resizeCanvas);
         canvas.addEventListener("touchstart", onTouchStart, { passive: false });
