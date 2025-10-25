@@ -1,19 +1,19 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getIronSession } from 'iron-session';
-import { sessionOptions, SessionData } from './lib/session';
+import { sessionOptions } from './lib/session';
 
-export async function middleware(request: NextRequest) {
-  // Middleware, çerezleri doğrudan request'ten alır. Bu yüzden kendi getIronSession çağrısını yapar.
-  const session = await getIronSession<SessionData>(request.cookies, sessionOptions);
+export function middleware(request: NextRequest) {
+  // Sadece oturum çerezinin varlığını kontrol ediyoruz
+  const hasSession = request.cookies.get(sessionOptions.cookieName);
 
-  if (!session.isLoggedIn) {
+  if (!hasSession) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
   return NextResponse.next();
 }
 
+// Sadece /admin yolunda çalışsın
 export const config = {
   matcher: '/admin',
 };
