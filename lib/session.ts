@@ -1,5 +1,13 @@
-import { getIronSession, IronSession, IronSessionData } from 'iron-session';
+import { IronSession, getIronSession } from 'iron-session';
 import { cookies } from 'next/headers';
+
+// Bu, session objesinin tipini belirtir.
+// 'iron-session' modülünü genişleterek kendi verimizi ekliyoruz.
+declare module 'iron-session' {
+  interface IronSessionData {
+    isLoggedIn?: boolean;
+  }
+}
 
 export const sessionOptions = {
   password: process.env.SECRET_COOKIE_PASSWORD as string,
@@ -9,12 +17,9 @@ export const sessionOptions = {
   },
 };
 
-// Bu, session objemizin tipini belirtir
-export interface SessionData extends IronSessionData {
-  isLoggedIn?: boolean;
-}
-
-// Bu, oturumu almak için kullanacağımız merkezi fonksiyondur
-export function getSession(): Promise<IronSession<SessionData>> {
-  return getIronSession<SessionData>(cookies(), sessionOptions);
+// Bu, oturumu almak için kullanacağımız merkezi fonksiyondur.
+// Artık doğru tipleri kullanıyor.
+export async function getSession(): Promise<IronSession> {
+    const session = await getIronSession(cookies(), sessionOptions);
+    return session;
 }
