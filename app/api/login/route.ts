@@ -1,6 +1,7 @@
 import { getIronSession } from 'iron-session'
 import { NextResponse } from 'next/server'
 import { sessionOptions } from '@/lib/session'
+import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {
   const { username, password } = await request.json()
@@ -9,7 +10,7 @@ export async function POST(request: Request) {
     username === process.env.ADMIN_USERNAME &&
     password === process.env.ADMIN_PASSWORD
   ) {
-    const session = await getIronSession(request.cookies, sessionOptions)
+    const session = await getIronSession(cookies(), sessionOptions)
     session.isLoggedIn = true
     await session.save()
     return NextResponse.json({ ok: true })
