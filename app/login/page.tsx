@@ -16,25 +16,19 @@ export default function LoginPage() {
     const username = formData.get('username');
     const password = formData.get('password');
 
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
+const response = await fetch('/api/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ username, password }),
+});
 
-      if (response.ok) {
-        // Başarılı girişten sonra admin paneline yönlendir
-        router.push('/admin');
-      } else {
-        const data = await response.json();
-        setError(data.message || 'Giriş başarısız.');
-      }
-    } catch (err) {
-      // Hata değişkenini kullanmadığımız için ESLint kuralını burada devre dışı bırakıyoruz.
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      setError('Bir sunucu hatası oluştu.');
-    }
+if (response.ok) {
+  // Başarılı girişten sonra admin paneline yönlendir
+  router.push('/admin');
+} else {
+  const data = await response.json().catch(() => ({ message: 'Giriş başarısız.' }));
+  setError(data.message || 'Giriş başarısız.');
+}
   };
 
   return (
