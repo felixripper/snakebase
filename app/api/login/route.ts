@@ -1,23 +1,21 @@
-import { getIronSession } from 'iron-session'
-import { NextResponse } from 'next/server'
-import { sessionOptions } from '@/lib/session'
-import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server';
+import { getSession } from '@/lib/session';
 
 export async function POST(request: Request) {
-  const { username, password } = await request.json()
+  const session = await getSession();
+  const { username, password } = await request.json();
 
   if (
     username === process.env.ADMIN_USERNAME &&
     password === process.env.ADMIN_PASSWORD
   ) {
-    const session = await getIronSession(cookies(), sessionOptions)
-    session.isLoggedIn = true
-    await session.save()
-    return NextResponse.json({ ok: true })
+    session.isLoggedIn = true;
+    await session.save();
+    return NextResponse.json({ ok: true });
   }
 
   return NextResponse.json(
     { message: 'Geçersiz kullanıcı adı veya şifre.' },
     { status: 401 }
-  )
+  );
 }
