@@ -136,6 +136,183 @@ To publish your app, create a post in the Base app with your app's URL.
 For detailed step-by-step instructions, see the [Create a Mini App tutorial](https://docs.base.org/docs/mini-apps/quickstart/create-new-miniapp/) in the Base documentation.
 
 
+
+## Features
+
+### Game Configuration
+
+1. **SimpleConfig** (`/api/config` and `/api/game-config`)
+   - Basic game settings (color, speed, score)
+   - Used by admin panel
+
+2. **GameConfig** (`lib/config.ts`)
+   - Advanced settings (grid, obstacles, power-ups)
+   - Extensible for future features
+
+### Redis vs In-Memory
+
+- **Redis**: Recommended for production, persistent settings
+- **In-Memory**: Suitable for development, resets on restart
+
+## 📝 API Endpoints
+
+### Public Endpoints
+
+- `GET /api/config` - Get game configuration
+- `GET /api/game-config` - Get game configuration (alias)
+- `GET /api/redis/health` - Redis connection status
+- `GET /api/redis/env` - Environment variable check
+
+### Protected Endpoints (Admin Only)
+
+- `POST /api/login` - Admin login
+- `GET /api/logout` - Admin logout
+- `POST /api/config` - Save settings
+- `PUT /api/config` - Update settings
+- `PUT /api/game-config` - Update settings
+
+## 🧪 Testing
+
+### Unit Tests (Jest + React Testing Library)
+
+```bash
+npm test                # Run all tests
+npm run test:watch      # Watch mode
+npm run test:coverage   # Coverage report
+```
+
+### E2E Tests (Playwright)
+
+```bash
+npm run test:e2e        # Run all E2E tests
+npm run test:e2e:ui     # Interactive mode
+npm run test:e2e:headed # With browser UI
+```
+
+### Blockchain Tests (OnchainTestKit)
+
+**First, start Anvil (local Ethereum node):**
+
+```bash
+npm run anvil
+# or
+anvil --port 8545 --chain-id 31337
+```
+
+**Then run the tests:**
+
+```bash
+npm run test:e2e:contract     # Smart contract tests
+npm run test:e2e:transaction  # Transaction flow tests
+npm run test:blockchain       # All blockchain tests
+```
+
+**Wallet integration tests (optional):**
+
+```bash
+npm run test:e2e:wallet       # Requires MetaMask/Coinbase Wallet
+```
+
+### Test Coverage
+
+- ✅ **Unit Tests**: Authentication, API endpoints
+- ✅ **E2E Tests**: Admin panel, game config
+- ✅ **Contract Tests**: GameScore deployment, score saving
+- ✅ **Transaction Tests**: ETH transfers, gas estimation
+- ✅ **Wallet Tests**: Connection flow, network switching
+
+### OnchainTestKit Features
+
+**Contract Deployment:**
+
+```typescript
+const deployment = await contractHelper.deployGameScore();
+expect(deployment.address).toBeTruthy();
+```
+
+**Score Operations:**
+
+```typescript
+await contractHelper.saveScore(contractAddress, playerAddress, 1000);
+const score = await contractHelper.getPlayerScore(contractAddress, playerAddress);
+```
+
+**Transaction Tracking:**
+
+```typescript
+const receipt = await contractHelper.waitForTransaction(txHash, 1);
+expect(receipt?.status).toBe(1);
+```
+
+**Gas Estimation:**
+
+```typescript
+const estimatedGas = await contract.saveScore.estimateGas(address, 100);
+```
+
+## 🐛 Troubleshooting
+
+### "Missing UPSTASH_REDIS_REST_URL" Error
+
+If you don't want to use Redis, leave these variables empty. In-memory storage will be used.
+
+### Cannot Login to Admin Panel
+
+1. Is `ADMIN_USERNAME` and `ADMIN_PASSWORD` defined in `.env.local`?
+2. Is `SECRET_COOKIE_PASSWORD` at least 32 characters?
+3. Clear browser cookies
+
+### Game Not Loading
+
+1. Check `http://localhost:3000`
+2. Any errors in browser console?
+3. Is `npm run dev` running?
+
+### Blockchain Tests Not Working
+
+1. Is Anvil installed? `anvil --version`
+2. Is Anvil running? `npm run anvil`
+3. Is port 8545 available?
+
+## 📚 Technologies
+
+- **Next.js 15** - React framework
+- **TypeScript** - Type safety
+- **OnchainKit** - Coinbase blockchain toolkit
+- **Farcaster SDK** - Mini app integration
+- **Upstash Redis** - Serverless Redis
+- **Iron Session** - Secure session management
+- **Hardhat** - Smart contract development
+- **Wagmi** - Ethereum React hooks
+- **Viem** - TypeScript Ethereum library
+- **Jest** - Unit testing
+- **Playwright** - E2E testing
+- **OnchainTestKit** - Blockchain testing framework
+- **Foundry/Anvil** - Local Ethereum node
+- **Sentry** - Error tracking
+- **Husky** - Git hooks
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+This project is inspired by the [Base Waitlist Mini App Quickstart](https://github.com/base/demos) template.
+
+## 📧 Contact
+
+- **Developer**: [felixripper](https://github.com/felixripper)
+- **Project**: [github.com/felixripper/snakebase](https://github.com/felixripper/snakebase)
+
 ---
 
 ## Disclaimer  
