@@ -1,25 +1,15 @@
 import { NextResponse } from "next/server";
 import {
-  getConfig,
   getFullConfig,
-  saveConfig,
+  saveFullConfig,
   getErrorMessage,
-  validateConfig,
-  type SimpleConfig,
+  validateFullConfig,
+  type FullGameConfig,
 } from "@/lib/config-store";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const format = searchParams.get("format");
-    
-    // Support both simple and full config formats
-    if (format === "full") {
-      const value = await getFullConfig();
-      return NextResponse.json(value, { status: 200 });
-    }
-    
-    const value = await getConfig();
+    const value = await getFullConfig();
     return NextResponse.json(value, { status: 200 });
   } catch (error: unknown) {
     return NextResponse.json(
@@ -31,13 +21,13 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const body = (await request.json().catch(() => ({}))) as Partial<SimpleConfig>;
-    const v = validateConfig(body);
+    const body = (await request.json().catch(() => ({}))) as Partial<FullGameConfig>;
+    const v = validateFullConfig(body);
     if (!v.ok) {
       return NextResponse.json({ error: v.message }, { status: 400 });
     }
 
-    await saveConfig(v.value);
+    await saveFullConfig(v.value);
     return NextResponse.json(v.value, { status: 200 });
   } catch (error: unknown) {
     return NextResponse.json(
