@@ -107,7 +107,15 @@ export default function Preview() {
           <div className={styles.loading}>Yükleniyor...</div>
         ) : (
           <iframe
-            src={`/preview/${mode}?draft=${!isLive}`}
+            src={
+              mode === 'game'
+                ? `/eat-grow.html${!isLive ? '?draft=1' : ''}`
+                : mode === 'leaderboard'
+                ? '/leaderboard'
+                : mode === 'profile'
+                ? '/profile'
+                : '/register'
+            }
             className={styles.iframe}
             title="Preview"
           />
