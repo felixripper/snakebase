@@ -392,22 +392,36 @@
       }
 
       function applyUIFromConfig() {
-        // Title and subtitles
+                // Title and subtitles
         gameTitleEl.textContent = CONFIG.ui?.interfaceTitle || (CONFIG.startScreen?.title) || "Eat & Grow";
-        if (subtitleEl) subtitleEl.textContent = (CONFIG.startScreen?.subtitle) || "Collect the food, don’t hit walls or your tail!";
+        if (subtitleEl) subtitleEl.textContent = (CONFIG.startScreen?.subtitle) || "Collect the food, don't hit walls or your tail!";
         if (howTitleEl) howTitleEl.textContent = (CONFIG.startScreen?.howToPlayTitle) || "How to Play";
         if (howListEl) {
-          howListEl.innerHTML = (CONFIG.startScreen?.howToPlayItems || [
+          // Safe DOM manipulation - prevents XSS
+          howListEl.innerHTML = '';
+          const items = CONFIG.startScreen?.howToPlayItems || [
             "Controls: Swipe (mobile) • Arrow Keys (desktop)",
             "Top dark area is a no-play zone — food never spawns there. Depending on settings it acts as wrap or a wall."
-          ]).map((t) => `<li>${t}</li>`).join("");
+          ];
+          items.forEach((text) => {
+            const li = document.createElement('li');
+            li.textContent = text; // textContent prevents XSS
+            howListEl.appendChild(li);
+          });
         }
         if (itemsTitleEl) itemsTitleEl.textContent = (CONFIG.startScreen?.itemsTitle) || "Items";
         if (itemsListEl) {
-          itemsListEl.innerHTML = (CONFIG.startScreen?.itemsList || [
+          // Safe DOM manipulation - prevents XSS
+          itemsListEl.innerHTML = '';
+          const items = CONFIG.startScreen?.itemsList || [
             "Heart: +Score, slightly increases your speed",
             "Burger: +Score, slightly increases your speed"
-          ]).map((t) => `<li>${t}</li>`).join("");
+          ];
+          items.forEach((text) => {
+            const li = document.createElement('li');
+            li.textContent = text; // textContent prevents XSS
+            itemsListEl.appendChild(li);
+          });
         }
         if (controlsHintEl) controlsHintEl.textContent = (CONFIG.startScreen?.controlsHint) || "Controls: Swipe (mobile) • Arrow Keys (desktop)";
         if (startBtn) startBtn.textContent = (CONFIG.startScreen?.startButtonLabel) || "Play";

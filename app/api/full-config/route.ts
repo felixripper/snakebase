@@ -6,6 +6,7 @@ import {
   validateFullConfig,
   type FullGameConfig,
 } from "@/lib/config-store";
+import { getAppRouterSession } from "@/lib/session";
 
 export async function GET() {
   try {
@@ -20,6 +21,22 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
+  // Authentication required for config updates
+  try {
+    const session = await getAppRouterSession();
+    if (!session.isLoggedIn) {
+      return NextResponse.json(
+        { error: "Unauthorized. Please login first." },
+        { status: 401 }
+      );
+    }
+  } catch {
+    return NextResponse.json(
+      { error: "Authentication failed" },
+      { status: 401 }
+    );
+  }
+
   try {
     const body = (await request.json().catch(() => ({}))) as Partial<FullGameConfig>;
     const v = validateFullConfig(body);
