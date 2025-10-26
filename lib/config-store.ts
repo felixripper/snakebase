@@ -1,9 +1,9 @@
 /**
  * Shared config store for both /api/config and /api/game-config endpoints
- * Uses Vercel KV (Redis) for persistence, with in-memory fallback
+ * Uses Upstash Redis for persistence, with in-memory fallback
  */
 
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
 
 type SimpleConfig = {
   backgroundColor: string;
@@ -37,17 +37,18 @@ export function setMemoryStore(config: SimpleConfig): void {
 }
 
 /**
- * Get config from Vercel KV or fallback to memory/default
+ * Get config from Upstash Redis or fallback to memory/default
  */
 export async function getConfig(): Promise<SimpleConfig> {
   try {
-    const stored = await kv.get<SimpleConfig>(KEY);
+    const redis = Redis.fromEnv();
+    const stored = await redis.get<SimpleConfig>(KEY);
     if (stored) {
       setMemoryStore(stored); // Sync to memory
       return stored;
     }
   } catch (err) {
-    console.warn("Vercel KV read failed:", err);
+    console.warn("Upstash Redis read failed:", err);
   }
   
   // Fallback to memory or default
@@ -55,15 +56,16 @@ export async function getConfig(): Promise<SimpleConfig> {
 }
 
 /**
- * Save config to Vercel KV and memory
+ * Save config to Upstash Redis and memory
  */
 export async function saveConfig(config: SimpleConfig): Promise<void> {
   setMemoryStore(config); // Always update memory
   
   try {
-    await kv.set(KEY, config);
+    const redis = Redis.fromEnv();
+    await redis.set(KEY, config);
   } catch (err) {
-    console.error("Vercel KV write failed:", err);
+    console.error("Upstash Redis write failed:", err);
     // Continue with memory fallback
   }
 }

@@ -78,18 +78,17 @@ npm install -g vercel
 vercel
 ```
 
-### 2. **CRITICAL: Enable Vercel KV Storage**
+### 2. **CRITICAL: Upstash Redis Already Configured** ✅
 
-Admin panel config **will not persist** without Vercel KV:
+Good news! Upstash Redis is already set up in your Vercel project with these environment variables:
 
-1. Go to your project dashboard on Vercel
-2. Navigate to **Storage** tab
-3. Click **Create Database** → **KV**
-4. Choose a name (e.g., `snakebase-config`)
-5. Click **Create**
-6. Vercel automatically injects `KV_*` environment variables
+- `KV_URL`
+- `KV_REST_API_URL`
+- `KV_REST_API_TOKEN`
+- `KV_REST_API_READ_ONLY_TOKEN`
+- `REDIS_URL`
 
-Without Vercel KV, each serverless function starts with default config.
+The code automatically uses `Redis.fromEnv()` which reads these variables. No additional setup needed!
 
 ### 3. Configure Environment Variables
 
@@ -107,7 +106,7 @@ NEXT_PUBLIC_ONCHAINKIT_API_KEY=your-cdp-api-key
 
 ### 4. Redeploy
 
-After adding KV and env vars, trigger a redeploy:
+After confirming environment variables, trigger a redeploy:
 
 ```bash
 vercel --prod
@@ -128,7 +127,7 @@ Or push to `main` branch to auto-deploy.
 ### Config Storage
 
 - **Development:** In-memory fallback (resets on restart)
-- **Production:** Vercel KV (Redis) for persistence
+- **Production:** Upstash Redis for persistence (already configured in Vercel)
 - **Shared store:** `lib/config-store.ts` used by both `/api/config` (admin) and `/api/game-config` (game)
 
 ### Authentication
@@ -150,8 +149,8 @@ Or push to `main` branch to auto-deploy.
 
 ### Admin changes don't affect game
 
-**Cause:** Vercel KV not configured  
-**Solution:** Follow [step 2](#2-critical-enable-vercel-kv-storage) above
+**Cause:** Upstash Redis env variables not configured in Vercel  
+**Solution:** Check that `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set (should be automatic with Upstash integration)
 
 ### Session errors on Vercel
 
