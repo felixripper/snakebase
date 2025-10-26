@@ -19,7 +19,88 @@
 .header p {
   font-size: 16px;
   color: #666;
-  margin: 0;
+  margin: 0 0 16px;
+}
+
+.quickActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.btnQuick {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnQuick:hover {
+  background: #f5f5f5;
+  border-color: #0052FF;
+  transform: translateY(-1px);
+}
+
+.presetsPanel {
+  background: white;
+  border: 2px solid #0052FF;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 82, 255, 0.1);
+}
+
+.presetsPanel h3 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0052FF;
+  text-align: center;
+}
+
+.presetGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.presetCard {
+  padding: 20px;
+  border: 2px solid #eee;
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.presetCard:hover {
+  border-color: #0052FF;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 82, 255, 0.2);
+}
+
+.presetEmoji {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.presetName {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.presetDesc {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
 }
 
 .tabs {

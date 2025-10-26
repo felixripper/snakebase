@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "./AdvancedSettings.module.css";
 import type { FullGameConfig } from "@/lib/config-store";
+import { GAME_PRESETS, type GamePreset } from "@/lib/presets";
 
 export default function AdvancedSettings() {
   const [config, setConfig] = useState<FullGameConfig | null>(null);
@@ -10,6 +11,8 @@ export default function AdvancedSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [showPresets, setShowPresets] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadConfig();
@@ -65,6 +68,57 @@ export default function AdvancedSettings() {
     }
   }
 
+  function handleLoadPreset(preset: GamePreset) {
+    setConfig(preset.config);
+    setShowPresets(false);
+    setMessage(`✨ Loaded preset: ${preset.name}`);
+    setTimeout(() => setMessage(""), 3000);
+  }
+
+  function handleExport() {
+    if (!config) return;
+    
+    const dataStr = JSON.stringify(config, null, 2);
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `snake-config-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    setMessage("📥 Config exported!");
+    setTimeout(() => setMessage(""), 3000);
+  }
+
+  function handleImport() {
+    fileInputRef.current?.click();
+  }
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedConfig = JSON.parse(e.target?.result as string);
+        setConfig(importedConfig);
+        setMessage("📤 Config imported successfully!");
+        setTimeout(() => setMessage(""), 3000);
+      } catch (error) {
+        setMessage("❌ Invalid JSON file");
+        setTimeout(() => setMessage(""), 3000);
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
+
   function updateConfig(path: string, value: any) {
     if (!config) return;
     
@@ -90,10 +144,49 @@ export default function AdvancedSettings() {
 
   return (
     <div className={styles.container}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json"
+        style={{ display: "none" }}
+        onChange={handleFileChange}
+      />
+      
       <div className={styles.header}>
         <h1>🎮 Advanced Game Settings</h1>
         <p>Customize every aspect of your snake game</p>
+        
+        <div className={styles.quickActions}>
+          <button onClick={() => setShowPresets(!showPresets)} className={styles.btnQuick}>
+            ✨ Presets
+          </button>
+          <button onClick={handleImport} className={styles.btnQuick}>
+            📤 Import
+          </button>
+          <button onClick={handleExport} className={styles.btnQuick}>
+            📥 Export
+          </button>
+        </div>
       </div>
+
+      {showPresets && (
+        <div className={styles.presetsPanel}>
+          <h3>Choose a Preset</h3>
+          <div className={styles.presetGrid}>
+            {GAME_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                className={styles.presetCard}
+                onClick={() => handleLoadPreset(preset)}
+              >
+                <div className={styles.presetEmoji}>{preset.emoji}</div>
+                <div className={styles.presetName}>{preset.name}</div>
+                <div className={styles.presetDesc}>{preset.description}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className={styles.tabs}>
         <button 
