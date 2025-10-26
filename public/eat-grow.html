@@ -196,7 +196,15 @@
           </div>
           <div id="leaderboardNote" style="font-size:11px; opacity:0.75; margin-top:6px;">Lider tablosu cüzdanla giriş yapan oyuncuların en yüksek skorlarına göre sıralanır.</div>
         </div>
-        <button class="btn" id="againBtn">Play Again</button>
+        <div style="display:flex; gap:10px; margin-top:14px; justify-content:center; flex-wrap:wrap;">
+          <button class="btn" id="againBtn" style="min-width:140px;">Play Again</button>
+          <button class="btn" id="profileBtn" style="min-width:140px; background:linear-gradient(180deg, #a0c4ff 0%, #5a87d9 100%);">Profilini Gör</button>
+          <button class="btn" id="leaderboardBtn" style="min-width:140px; background:linear-gradient(180deg, #ffd97d 0%, #ff9a3c 100%);">Leaderboard</button>
+        </div>
+        <div id="onchainSubmitBox" style="display:none; margin-top:12px; text-align:center;">
+          <button class="btn" id="submitOnChainBtn" style="min-width:200px; background:linear-gradient(180deg, #c084fc 0%, #9333ea 100%); font-size:13px;">Submit On-Chain (gas)</button>
+          <div id="onchainStatus" style="margin-top:8px; font-size:12px; opacity:0.85;"></div>
+        </div>
       </div>
     </div>
 
@@ -910,6 +918,24 @@
           resetGame();
           startGame();
         });
+        const profileBtn = document.getElementById('profileBtn');
+        const leaderboardBtn = document.getElementById('leaderboardBtn');
+        if (profileBtn) {
+          profileBtn.addEventListener('click', () => {
+            window.location.href = '/profile';
+          });
+        }
+        if (leaderboardBtn) {
+          leaderboardBtn.addEventListener('click', () => {
+            window.location.href = '/leaderboard';
+          });
+        }
+        const submitOnChainBtn = document.getElementById('submitOnChainBtn');
+        if (submitOnChainBtn) {
+          submitOnChainBtn.addEventListener('click', () => {
+            submitScoreOnChain(state.score);
+          });
+        }
         requestAnimationFrame(loop);
       }
 
@@ -937,13 +963,22 @@
 
         // Önce session var mı bak
         const sess = await fetchJSON('/api/auth/session');
+        let isAuth = false;
         if (sess && sess.authenticated && sess.user) {
+          isAuth = true;
           await fetchJSON('/api/scores/submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ score })
           });
         }
+
+        // On-chain submit butonu göster (eğer cüzdanlı kullanıcı ise)
+        const onchainBox = document.getElementById('onchainSubmitBox');
+        if (isAuth && onchainBox) {
+          onchainBox.style.display = 'block';
+        }
+
         const top = await fetchJSON('/api/leaderboard/top?limit=25');
         const arr = (top && top.top) ? top.top : [];
         lbList.innerHTML = '';
@@ -962,6 +997,65 @@
           lbList.appendChild(divPlayer);
           lbList.appendChild(divScore);
         });
+      }
+
+      async function submitScoreOnChain(score) {
+        const statusEl = document.getElementById('onchainStatus');
+        if (!statusEl) return;
+        statusEl.textContent = 'Checking contract…';
+        // eslint-disable-next-line no-undef
+        const eth = window.ethereum;
+        if (!eth) {
+          statusEl.textContent = 'No wallet found.';
+          return;
+        }
+
+        try {
+          const accounts = await eth.request({ method: 'eth_requestAccounts' });
+          if (!accounts || accounts.length === 0) {
+            statusEl.textContent = 'No account connected.';
+            return;
+          }
+          const userAddress = accounts[0];
+
+          // Contract details (değişken olarak da tanımlayabiliriz ya da URL'den çekebiliriz)
+          const contractAddress = '0x0000000000000000000000000000000000000000'; // NEXT_PUBLIC_LEADERBOARD_CONTRACT placeholder
+          if (contractAddress === '0x0000000000000000000000000000000000000000') {
+            statusEl.textContent = 'Contract not deployed yet.';
+            return;
+          }
+
+          // ABI subset for submitScore
+          const abi = [{"inputs":[{"name":"_score","type":"uint256"}],"name":"submitScore","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+          const iface = new ethers.utils.Interface(abi);
+          const data = iface.encodeFunctionData('submitScore', [BigInt(score)]);
+
+          statusEl.textContent = 'Requesting wallet signature…';
+          const txHash = await eth.request({
+            method: 'eth_sendTransaction',
+            params: [{
+              from: userAddress,
+              to: contractAddress,
+              data
+            }]
+          });
+
+          statusEl.textContent = `Transaction sent! Hash: ${txHash.slice(0,10)}…`;
+          // Poll for receipt
+          let receipt = null;
+          for (let i = 0; i < 60; i++) {
+            receipt = await eth.request({ method: 'eth_getTransactionReceipt', params: [txHash] });
+            if (receipt) break;
+            await new Promise(r => setTimeout(r, 1000));
+          }
+          if (receipt && receipt.status === '0x1') {
+            statusEl.textContent = '✅ Score submitted on-chain!';
+          } else {
+            statusEl.textContent = receipt ? 'Transaction failed.' : 'Transaction pending…';
+          }
+        } catch (e) {
+          statusEl.textContent = 'Error: ' + (e.message || 'unknown');
+        }
       }
 
       if (!CanvasRenderingContext2D.prototype.roundRect) {

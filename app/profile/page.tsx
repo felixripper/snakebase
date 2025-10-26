@@ -189,16 +189,42 @@ function ProfileContent() {
           {history.length === 0 ? (
             <p>No games recorded yet.</p>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: 8 }}>
-              <div style={{ opacity: 0.7, fontWeight: 700 }}>Date</div>
-              <div style={{ opacity: 0.7, fontWeight: 700, textAlign: 'right' }}>Score</div>
-              {history.map((h, i) => (
-                <>
-                  <div key={`d-${i}`}>{new Date(h.ts).toLocaleString()}</div>
-                  <div key={`s-${i}`} style={{ textAlign: 'right', fontWeight: 700 }}>{h.score}</div>
-                </>
-              ))}
-            </div>
+            <>
+              {/* Simple SVG graph */}
+              <div style={{ marginBottom: 16 }}>
+                <svg viewBox="0 0 400 100" style={{ width: '100%', height: 100, background: '#f8f9fa', borderRadius: 8 }}>
+                  {history.slice(-20).map((h, i, arr) => {
+                    const maxScore = Math.max(...arr.map(a => a.score), 1);
+                    const x = (i / (arr.length - 1 || 1)) * 380 + 10;
+                    const y = 90 - (h.score / maxScore) * 70;
+                    return (
+                      <circle key={i} cx={x} cy={y} r={3} fill="#667eea" />
+                    );
+                  })}
+                  <polyline
+                    points={history.slice(-20).map((h, i, arr) => {
+                      const maxScore = Math.max(...arr.map(a => a.score), 1);
+                      const x = (i / (arr.length - 1 || 1)) * 380 + 10;
+                      const y = 90 - (h.score / maxScore) * 70;
+                      return `${x},${y}`;
+                    }).join(' ')}
+                    fill="none"
+                    stroke="#667eea"
+                    strokeWidth="2"
+                  />
+                </svg>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: 8 }}>
+                <div style={{ opacity: 0.7, fontWeight: 700 }}>Date</div>
+                <div style={{ opacity: 0.7, fontWeight: 700, textAlign: 'right' }}>Score</div>
+                {history.slice(0, 20).map((h, i) => (
+                  <>
+                    <div key={`d-${i}`}>{new Date(h.ts).toLocaleString()}</div>
+                    <div key={`s-${i}`} style={{ textAlign: 'right', fontWeight: 700 }}>{h.score}</div>
+                  </>
+                ))}
+              </div>
+            </>
           )}
         </div>
       )}

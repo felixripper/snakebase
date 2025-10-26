@@ -24,10 +24,10 @@ async function addWalletToSet(wallet: string): Promise<void> {
   }
 }
 
-export async function submitScoreForSession(userId: string, score: number): Promise<void> {
-  if (!Number.isFinite(score) || score < 0) return;
+export async function submitScoreForSession(userId: string, score: number): Promise<{ totalGames: number; highScore: number; totalScore: number }> {
+  if (!Number.isFinite(score) || score < 0) return { totalGames: 0, highScore: 0, totalScore: 0 };
   const user = await getUserById(userId);
-  if (!user || !user.walletAddress) return; // Only record if wallet linked
+  if (!user || !user.walletAddress) return { totalGames: 0, highScore: 0, totalScore: 0 };
   const wallet = user.walletAddress.toLowerCase();
 
   // Update high score (max)
@@ -52,6 +52,11 @@ export async function submitScoreForSession(userId: string, score: number): Prom
 
   // Track wallets set
   await addWalletToSet(wallet);
+
+  // Update player stats for achievements (total games count)
+  const totalGames = trimmed.length;
+  const totalScore = trimmed.reduce((sum, h) => sum + h.score, 0);
+  return { totalGames, highScore: newHigh, totalScore };
 }
 
 export async function getTopHighScores(limit = 25): Promise<LeaderboardRow[]> {
