@@ -1,7 +1,9 @@
 /**
  * Shared config store for both /api/config and /api/game-config endpoints
- * Provides in-memory fallback when Upstash Redis is not available
+ * Uses Vercel KV (Redis) for persistence, with in-memory fallback
  */
+
+import { kv } from "@vercel/kv";
 
 type SimpleConfig = {
   backgroundColor: string;
@@ -23,7 +25,7 @@ export const DEFAULT_SIMPLE_CONFIG: SimpleConfig = {
 
 export const KEY = "game_config_v1";
 
-// Shared in-memory store
+// Shared in-memory store (fallback only)
 let memoryStore: SimpleConfig | null = null;
 
 export function getMemoryStore(): SimpleConfig | null {
@@ -34,42 +36,36 @@ export function setMemoryStore(config: SimpleConfig): void {
   memoryStore = config;
 }
 
-export function hasUpstash(): boolean {
-  return Boolean(
-    (process.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REST_URL) &&
-    (process.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REST_TOKEN)
-  );
+/**
+ * Get config from Vercel KV or fallback to memory/default
+ */
+export async function getConfig(): Promise<SimpleConfig> {
+  try {
+    const stored = await kv.get<SimpleConfig>(KEY);
+    if (stored) {
+      setMemoryStore(stored); // Sync to memory
+      return stored;
+    }
+  } catch (err) {
+    console.warn("Vercel KV read failed:", err);
+  }
+  
+  // Fallback to memory or default
+  return memoryStore ?? DEFAULT_SIMPLE_CONFIG;
 }
 
-export function env() {
-  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REST_TOKEN;
-  if (!url || !token) {
-    throw new Error("Missing UPSTASH_REDIS_REST_URL/UPSTASH_REST_URL or UPSTASH_REDIS_REST_TOKEN/UPSTASH_REST_TOKEN");
+/**
+ * Save config to Vercel KV and memory
+ */
+export async function saveConfig(config: SimpleConfig): Promise<void> {
+  setMemoryStore(config); // Always update memory
+  
+  try {
+    await kv.set(KEY, config);
+  } catch (err) {
+    console.error("Vercel KV write failed:", err);
+    // Continue with memory fallback
   }
-  return { url, token };
-}
-
-export type UpstashResponse = { result: unknown; error?: string };
-
-export async function upstashPipeline(cmds: string[][]): Promise<UpstashResponse[]> {
-  const { url, token } = env();
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(cmds),
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    console.error(`Upstash error: ${res.status} ${text}`);
-    throw new Error(`Upstash error: ${res.status} ${text}`);
-  }
-  const data = await res.json();
-  return data as UpstashResponse[];
 }
 
 export function getErrorMessage(error: unknown, fallback = "Internal Server Error") {

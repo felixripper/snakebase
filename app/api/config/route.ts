@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 import {
-  DEFAULT_SIMPLE_CONFIG,
-  KEY,
-  getMemoryStore,
-  setMemoryStore,
-  hasUpstash,
-  upstashPipeline,
+  getConfig,
+  saveConfig,
   getErrorMessage,
   validateConfig,
   type SimpleConfig,
@@ -13,28 +9,7 @@ import {
 
 export async function GET() {
   try {
-    let value: SimpleConfig = DEFAULT_SIMPLE_CONFIG;
-
-    if (hasUpstash()) {
-      try {
-        const [getResp] = await upstashPipeline([["GET", KEY]]);
-        const raw = (getResp?.result ?? null) as string | null;
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          const v = validateConfig(parsed);
-          if (v.ok) value = v.value;
-        }
-      } catch {
-        // ignore and serve defaults
-      }
-    } else {
-      // Use in-memory storage
-      const stored = getMemoryStore();
-      if (stored) {
-        value = stored;
-      }
-    }
-
+    const value = await getConfig();
     return NextResponse.json(value, { status: 200 });
   } catch (error: unknown) {
     return NextResponse.json(
@@ -52,23 +27,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: v.message }, { status: 400 });
     }
 
-    if (hasUpstash()) {
-      try {
-        const value = JSON.stringify(v.value);
-        const [setResp] = await upstashPipeline([["SET", KEY, value]]);
-        if (setResp?.error) {
-          throw new Error(setResp.error);
-        }
-      } catch (upstashError) {
-        // Fallback to memory if Upstash fails
-        console.warn("Upstash save failed, falling back to memory:", upstashError);
-        setMemoryStore(v.value);
-      }
-    } else {
-      // Store in memory
-      setMemoryStore(v.value);
-    }
-
+    await saveConfig(v.value);
     return NextResponse.json(v.value, { status: 200 });
   } catch (error: unknown) {
     return NextResponse.json(
