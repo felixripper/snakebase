@@ -37,15 +37,32 @@ export function setMemoryStore(config: SimpleConfig): void {
 }
 
 /**
+ * Initialize Redis client with Vercel KV environment variables
+ */
+function getRedisClient(): Redis | null {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  
+  if (!url || !token) {
+    console.warn("Redis env vars not found, using in-memory fallback");
+    return null;
+  }
+  
+  return new Redis({ url, token });
+}
+
+/**
  * Get config from Upstash Redis or fallback to memory/default
  */
 export async function getConfig(): Promise<SimpleConfig> {
   try {
-    const redis = Redis.fromEnv();
-    const stored = await redis.get<SimpleConfig>(KEY);
-    if (stored) {
-      setMemoryStore(stored); // Sync to memory
-      return stored;
+    const redis = getRedisClient();
+    if (redis) {
+      const stored = await redis.get<SimpleConfig>(KEY);
+      if (stored) {
+        setMemoryStore(stored); // Sync to memory
+        return stored;
+      }
     }
   } catch (err) {
     console.warn("Upstash Redis read failed:", err);
@@ -62,8 +79,13 @@ export async function saveConfig(config: SimpleConfig): Promise<void> {
   setMemoryStore(config); // Always update memory
   
   try {
-    const redis = Redis.fromEnv();
-    await redis.set(KEY, config);
+    const redis = getRedisClient();
+    if (redis) {
+      await redis.set(KEY, config);
+      console.log("Config saved to Upstash Redis");
+    } else {
+      console.log("Config saved to memory only (Redis not configured)");
+    }
   } catch (err) {
     console.error("Upstash Redis write failed:", err);
     // Continue with memory fallback
