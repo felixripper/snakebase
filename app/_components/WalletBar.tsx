@@ -1,11 +1,14 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useUser } from '../_contexts/UserContext';
+import Link from 'next/link';
 
 function truncateAddress(addr: string) {
   return addr.slice(0, 6) + '…' + addr.slice(-4);
 }
 
 export default function WalletBar() {
+  const { user, authenticated } = useUser();
   const [address, setAddress] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,6 +89,54 @@ export default function WalletBar() {
         <div style={{ opacity: 0.9 }}>OnchainKit Wallet</div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {authenticated && user && (
+            <Link
+              href="/account"
+              style={{
+                color: '#fff',
+                textDecoration: 'none',
+                padding: '6px 12px',
+                background: 'rgba(102, 126, 234, 0.3)',
+                borderRadius: 8,
+                border: '1px solid rgba(102, 126, 234, 0.5)',
+                fontSize: 13,
+                fontWeight: 500,
+              }}
+            >
+              👤 {user.username}
+            </Link>
+          )}
+          {!authenticated && (
+            <>
+              <Link
+                href="/signin"
+                style={{
+                  color: '#fff',
+                  textDecoration: 'none',
+                  padding: '6px 12px',
+                  fontSize: 13,
+                  fontWeight: 500,
+                }}
+              >
+                Giriş
+              </Link>
+              <Link
+                href="/register"
+                style={{
+                  color: '#fff',
+                  textDecoration: 'none',
+                  padding: '6px 12px',
+                  background: 'rgba(102, 126, 234, 0.5)',
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 600,
+                }}
+              >
+                Kayıt Ol
+              </Link>
+            </>
+          )}
+          
           {address ? (
             <>
               <span

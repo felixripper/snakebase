@@ -4,6 +4,10 @@ import { cookies } from 'next/headers';
 
 export interface SessionData {
   isLoggedIn?: boolean;
+  userId?: string; // User ID for regular users
+  userEmail?: string; // User email
+  username?: string; // Username
+  isAdmin?: boolean; // Admin flag
 }
 
 // Validate SECRET_COOKIE_PASSWORD
@@ -13,13 +17,13 @@ if (!process.env.SECRET_COOKIE_PASSWORD || process.env.SECRET_COOKIE_PASSWORD.le
 
 export const sessionOptions: SessionOptions = {
   password: process.env.SECRET_COOKIE_PASSWORD as string,
-  cookieName: 'snakebase-admin-session',
-  ttl: 60 * 60 * 2, // 2 hours session timeout
+  cookieName: 'snakebase-session',
+  ttl: 60 * 60 * 24 * 7, // 7 days session timeout for users
   cookieOptions: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true, // Prevents XSS attacks
     sameSite: 'strict', // CSRF protection
-    maxAge: 60 * 60 * 2, // 2 hours in seconds
+    maxAge: 60 * 60 * 24 * 7, // 7 days in seconds
   },
 };
 
