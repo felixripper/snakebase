@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useAccount, useSignMessage } from 'wagmi';
 
 interface User {
   id: string;
@@ -24,6 +25,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
+  const [walletLoginBusy, setWalletLoginBusy] = useState(false);
+  const { address, isConnected } = useAccount();
+  const { signMessageAsync } = useSignMessage();
 
   const refreshUser = async () => {
     try {
@@ -51,6 +55,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
       await fetch('/api/auth/logout-user', { method: 'POST' });
       setUser(null);
       setAuthenticated(false);
+      // Kullanıcı isteyerek çıktıysa kısa süreliğine otomatik cüzdan login'ini bastır
+      if (typeof window !== 'undefined') {
+        const until = Date.now() + 30_000; // 30 saniye
+        try { sessionStorage.setItem('suppressWalletLoginUntil', String(until)); } catch {}
+      }
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -59,6 +68,50 @@ export function UserProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     refreshUser();
   }, []);
+
+  // Auto wallet-only login: if wallet connects and no app session, do SIWE-lite
+  useEffect(() => {
+    const run = async () => {
+      try {
+        if (!isConnected || !address) return;
+
+        // Kullanıcı yakın zamanda manuel logout yaptıysa bekle
+        try {
+          const untilStr = typeof window !== 'undefined' ? sessionStorage.getItem('suppressWalletLoginUntil') : null;
+          const until = untilStr ? Number(untilStr) : 0;
+          if (until && Date.now() < until) return;
+        } catch {}
+        if (authenticated || walletLoginBusy) return;
+        setWalletLoginBusy(true);
+
+        // 1) Get nonce
+        const res1 = await fetch('/api/auth/wallet/nonce', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ address })
+        });
+        if (!res1.ok) return;
+        const n = await res1.json();
+        if (!n?.message) return;
+
+        // 2) Ask signature
+        const signature = await signMessageAsync({ message: n.message });
+
+        // 3) Verify
+        const res2 = await fetch('/api/auth/wallet/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ address, signature })
+        });
+        if (res2.ok) await refreshUser();
+      } catch {
+        // kullanıcı imzayı reddedebilir; sessiz geç
+      } finally {
+        setWalletLoginBusy(false);
+      }
+    };
+    void run();
+  }, [isConnected, address, authenticated, signMessageAsync, walletLoginBusy]);
 
   return (
     <UserContext.Provider value={{ user, loading, authenticated, refreshUser, logout }}>

@@ -75,6 +75,48 @@ export async function createUser(
   return user;
 }
 
+// Create or return user with wallet only (no email/password). Email is synthesized.
+export async function createUserWithWallet(
+  walletAddress: string,
+  suggestedUsername?: string
+): Promise<User> {
+  const walletLower = walletAddress.toLowerCase();
+
+  // If user already exists by wallet, return it
+  const existing = await getUserByWallet(walletLower);
+  if (existing) return existing;
+
+  // Generate unique username
+  const baseName = (suggestedUsername || `player_${walletLower.slice(2, 6)}`).toLowerCase();
+  let uname = baseName;
+  let counter = 0;
+  while (await kvGet(USER_BY_USERNAME_KEY(uname))) {
+    counter += 1;
+    uname = `${baseName}_${counter}`;
+  }
+
+  const userId = generateUserId();
+  const syntheticEmail = `${walletLower}@wallet.local`;
+  const passwordHash = 'WALLET_AUTH';
+
+  const user: User = {
+    id: userId,
+    email: syntheticEmail,
+    username: uname,
+    passwordHash,
+    createdAt: Date.now(),
+    walletAddress: walletLower,
+  };
+
+  const userData = JSON.stringify(user);
+  await kvSet(USER_BY_ID_KEY(userId), userData);
+  await kvSet(USER_BY_EMAIL_KEY(syntheticEmail), userId);
+  await kvSet(USER_BY_USERNAME_KEY(uname), userId);
+  await kvSet(USER_BY_WALLET_KEY(walletLower), userId);
+
+  return user;
+}
+
 // Get user by email
 export async function getUserByEmail(email: string): Promise<User | null> {
   const emailLower = email.toLowerCase();

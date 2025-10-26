@@ -45,3 +45,12 @@ export async function kvSet(key: string, value: string): Promise<void> {
   }
   memory.set(key, value);
 }
+
+export async function kvDel(key: string): Promise<void> {
+  const redis = getRedis();
+  if (redis) {
+    await (redis as unknown as { del: (k: string) => Promise<void> }).del(key);
+    return;
+  }
+  memory.delete(key);
+}
