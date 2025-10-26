@@ -1,0 +1,277 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.section h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  color: #333;
+}
+
+/* Type Selector */
+.typeSelector {
+  display: flex;
+  gap: 12px;
+}
+
+.typeSelector button {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.typeSelector button:hover {
+  border-color: #667eea;
+}
+
+.typeSelector button.active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+/* Emoji Grid */
+.emojiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  gap: 8px;
+}
+
+.emojiBtn {
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-size: 28px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emojiBtn:hover {
+  transform: scale(1.1);
+  border-color: #667eea;
+}
+
+.emojiBtn.selected {
+  border-color: #667eea;
+  background: #f0f4ff;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* Upload Section */
+.uploadSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.preview {
+  width: 100px;
+  height: 100px;
+  border: 2px dashed #e0e0e0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.uploadBtn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.uploadBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.uploadBtn input {
+  display: none;
+}
+
+.hint {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+}
+
+/* Slider */
+.sliderGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sliderGroup input[type="range"] {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: #e0e0e0;
+  outline: none;
+}
+
+.sliderGroup input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+}
+
+.sliderGroup input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+  border: none;
+}
+
+.value {
+  font-weight: 700;
+  color: #667eea;
+  min-width: 50px;
+  text-align: right;
+}
+
+.sizePreview {
+  margin-top: 16px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Animation Grid */
+.animationGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.animationBtn {
+  padding: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.animationBtn:hover {
+  border-color: #667eea;
+}
+
+.animationBtn.active {
+  border-color: #667eea;
+  background: #f0f4ff;
+}
+
+.animPreview {
+  font-size: 32px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.animationBtn span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+}
+
+/* Animations */
+.pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.rotate {
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (max-width: 768px) {
+  .emojiGrid {
+    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+  }
+  
+  .emojiBtn {
+    font-size: 24px;
+    padding: 10px;
+  }
+  
+  .animationGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

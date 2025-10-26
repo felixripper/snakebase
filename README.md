@@ -300,6 +300,58 @@ If you don't want to use Redis, leave these variables empty. In-memory storage w
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+## 🎮 Blockchain Leaderboard System
+
+This app includes a competitive blockchain-based leaderboard system built on Base Sepolia testnet.
+
+### Features
+
+- **Player Registration**: Register with a unique username using your wallet
+- **Score Tracking**: All scores are stored on-chain for transparency
+- **Global Leaderboard**: View top players ranked by high score
+- **Player Profiles**: Detailed stats including high score, total games, average score
+- **Real-time Updates**: Leaderboard auto-refreshes every 30 seconds
+
+### Smart Contract
+
+The `SnakeGameLeaderboard` contract (Solidity ^0.8.24) manages:
+- Player registration with username validation (3-20 characters)
+- Score submission with automatic high score tracking
+- Leaderboard queries (top 10/25/50/100 players)
+- Individual player rankings and statistics
+
+### Deployment
+
+1. Deploy the contract to Base Sepolia:
+```bash
+npx hardhat run scripts/deploy-leaderboard.js --network baseSepolia
+```
+
+2. Add the contract address to your `.env.local`:
+```bash
+NEXT_PUBLIC_LEADERBOARD_CONTRACT=0x...your-contract-address
+```
+
+3. Verify the contract on Basescan:
+```bash
+npx hardhat verify --network baseSepolia YOUR_CONTRACT_ADDRESS
+```
+
+### Usage Flow
+
+1. **Connect Wallet**: Connect your wallet using OnchainKit
+2. **Register**: Choose a unique username (one-time registration)
+3. **Play**: Play the Snake game and earn points
+4. **Submit Score**: Submit your score to the blockchain (requires gas)
+5. **View Leaderboard**: Check your ranking and compare with other players
+6. **Profile**: View detailed stats on your profile page
+
+### Gas Optimization
+
+- Reading leaderboard data is free (view functions)
+- Only registration and score submission require gas fees
+- Leaderboard sorting is done on-chain for data integrity
+
 ## 📄 License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) file for details.

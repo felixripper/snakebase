@@ -27,6 +27,64 @@ export const GameConfigSchema = z.object({
   controlScheme: z.enum(['keyboard', 'swipe', 'buttons']).default('keyboard'),
   soundEnabled: z.boolean().default(true),
 
+  // Yem ayarları
+  foodIcon: z.object({
+    type: z.enum(['emoji', 'image']).default('emoji'),
+    value: z.string().default('🍎'), // emoji veya image path
+    size: z.number().min(0.5).max(3).default(1), // multiplier
+    animation: z.enum(['none', 'pulse', 'rotate', 'bounce']).default('none'),
+  }).default({}),
+
+  // Lider tablosu görünümü
+  leaderboardUI: z.object({
+    headerBackground: z.string().default('linear-gradient(135deg, #667eea 0%, #764ba2 100%)'),
+    headerTextColor: z.string().default('#ffffff'),
+    rowBackgroundEven: z.string().default('#ffffff'),
+    rowBackgroundOdd: z.string().default('#f8f9fa'),
+    rowBackgroundHover: z.string().default('#e9ecef'),
+    currentUserHighlight: z.string().default('#fff3cd'),
+    topThreeBackground: z.string().default('#fef3c7'),
+    textColor: z.string().default('#333333'),
+    fontSize: z.number().min(10).max(24).default(14),
+    borderRadius: z.number().min(0).max(30).default(12),
+    spacing: z.number().min(0).max(40).default(20),
+  }).default({}),
+
+  // Profil sayfası görünümü
+  profileUI: z.object({
+    cardBackground: z.string().default('#ffffff'),
+    cardShadow: z.string().default('0 4px 12px rgba(0,0,0,0.1)'),
+    headerGradient: z.string().default('linear-gradient(135deg, #667eea 0%, #764ba2 100%)'),
+    statCardBackground: z.string().default('#ffffff'),
+    statValueColor: z.string().default('#667eea'),
+    statLabelColor: z.string().default('#666666'),
+    borderRadius: z.number().min(0).max(30).default(12),
+    spacing: z.number().min(0).max(40).default(20),
+  }).default({}),
+
+  // Kayıt formu görünümü
+  registrationUI: z.object({
+    cardBackground: z.string().default('#ffffff'),
+    inputBorderColor: z.string().default('#e0e0e0'),
+    inputFocusColor: z.string().default('#667eea'),
+    buttonGradient: z.string().default('linear-gradient(135deg, #667eea 0%, #764ba2 100%)'),
+    buttonTextColor: z.string().default('#ffffff'),
+    errorColor: z.string().default('#dc3545'),
+    successColor: z.string().default('#28a745'),
+    borderRadius: z.number().min(0).max(30).default(8),
+  }).default({}),
+
+  // Skor gönderme popup görünümü
+  scoreSubmissionUI: z.object({
+    cardBackground: z.string().default('#ffffff'),
+    scoreDisplayGradient: z.string().default('linear-gradient(135deg, #667eea 0%, #764ba2 100%)'),
+    buttonGradient: z.string().default('linear-gradient(135deg, #667eea 0%, #764ba2 100%)'),
+    buttonTextColor: z.string().default('#ffffff'),
+    cancelButtonBackground: z.string().default('#e0e0e0'),
+    cancelButtonTextColor: z.string().default('#333333'),
+    borderRadius: z.number().min(0).max(30).default(16),
+  }).default({}),
+
   difficultyPresets: z
     .object({
       easy: z.record(z.unknown()).default({ snakeSpeed: 3, acceleration: 0, obstaclesEnabled: false }),
@@ -40,11 +98,31 @@ export type GameConfig = z.infer<typeof GameConfigSchema>;
 
 export const DEFAULT_CONFIG: GameConfig = GameConfigSchema.parse({});
 
-// Tip güvenli tek seviyeli birleştirme (difficultyPresets için yeterli)
+// Tip güvenli birleştirme (nested objectler için)
 function mergeConfig(base: GameConfig, patch: Partial<GameConfig>): GameConfig {
   const merged: GameConfig = {
     ...base,
     ...patch,
+    foodIcon: {
+      ...base.foodIcon,
+      ...(patch.foodIcon ?? {}),
+    },
+    leaderboardUI: {
+      ...base.leaderboardUI,
+      ...(patch.leaderboardUI ?? {}),
+    },
+    profileUI: {
+      ...base.profileUI,
+      ...(patch.profileUI ?? {}),
+    },
+    registrationUI: {
+      ...base.registrationUI,
+      ...(patch.registrationUI ?? {}),
+    },
+    scoreSubmissionUI: {
+      ...base.scoreSubmissionUI,
+      ...(patch.scoreSubmissionUI ?? {}),
+    },
     difficultyPresets: {
       ...base.difficultyPresets,
       ...(patch.difficultyPresets ?? {}),

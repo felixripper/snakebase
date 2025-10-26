@@ -195,10 +195,14 @@ export const DEFAULT_SIMPLE_CONFIG: SimpleConfig = {
 
 export const KEY = "game_config_v1";
 export const KEY_FULL = "game_config_full_v1";
+export const KEY_DRAFT = "game_config_draft_v1"; // Taslak config
+export const KEY_LIVE = "game_config_live_v1";  // Canlı config
 
 // Shared in-memory store (supports both formats)
 let memoryStore: SimpleConfig | null = null;
 let memoryStoreFull: FullGameConfig | null = null;
+let memoryStoreDraft: FullGameConfig | null = null;
+let memoryStoreLive: FullGameConfig | null = null;
 
 export function getMemoryStore(): SimpleConfig | null {
   return memoryStore;
@@ -463,6 +467,107 @@ export function validateFullConfig(input: Partial<FullGameConfig>): { ok: true; 
   }
 
   return { ok: true, value: cfg };
+}
+
+/**
+ * Get draft config (for preview)
+ */
+export async function getDraftConfig(): Promise<FullGameConfig> {
+  try {
+    const redis = getRedisClient();
+    if (redis) {
+      const stored = await redis.get<FullGameConfig>(KEY_DRAFT);
+      if (stored) {
+        memoryStoreDraft = stored;
+        return stored;
+      }
+    }
+  } catch (err) {
+    console.warn("Draft config read failed:", err);
+  }
+  
+  // Eğer draft yoksa, live config'i döndür
+  return memoryStoreDraft ?? await getLiveConfig();
+}
+
+/**
+ * Save draft config (for preview, doesn't affect live)
+ */
+export async function saveDraftConfig(config: FullGameConfig): Promise<void> {
+  const validated = validateFullConfig(config);
+  if (!validated.ok) {
+    throw new Error("Invalid config");
+  }
+  
+  memoryStoreDraft = validated.value;
+  
+  try {
+    const redis = getRedisClient();
+    if (redis) {
+      await redis.set(KEY_DRAFT, validated.value);
+      console.log("Draft config saved to Redis");
+    }
+  } catch (err) {
+    console.error("Draft config save failed:", err);
+  }
+}
+
+/**
+ * Get live config (actual game config)
+ */
+export async function getLiveConfig(): Promise<FullGameConfig> {
+  try {
+    const redis = getRedisClient();
+    if (redis) {
+      const stored = await redis.get<FullGameConfig>(KEY_LIVE);
+      if (stored) {
+        memoryStoreLive = stored;
+        return stored;
+      }
+      
+      // Migration: live yoksa mevcut full config'i kullan
+      const existing = await getFullConfig();
+      if (existing) {
+        await saveLiveConfig(existing);
+        return existing;
+      }
+    }
+  } catch (err) {
+    console.warn("Live config read failed:", err);
+  }
+  
+  return memoryStoreLive ?? DEFAULT_FULL_CONFIG;
+}
+
+/**
+ * Save live config (actual game config)
+ */
+export async function saveLiveConfig(config: FullGameConfig): Promise<void> {
+  const validated = validateFullConfig(config);
+  if (!validated.ok) {
+    throw new Error("Invalid config");
+  }
+  
+  memoryStoreLive = validated.value;
+  
+  try {
+    const redis = getRedisClient();
+    if (redis) {
+      await redis.set(KEY_LIVE, validated.value);
+      console.log("Live config saved to Redis");
+    }
+  } catch (err) {
+    console.error("Live config save failed:", err);
+  }
+}
+
+/**
+ * Publish draft to live (makes changes go live)
+ */
+export async function publishDraftToLive(): Promise<void> {
+  const draft = await getDraftConfig();
+  await saveLiveConfig(draft);
+  console.log("Draft published to live");
 }
 
 export type { SimpleConfig };
