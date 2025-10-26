@@ -190,6 +190,12 @@
       <div class="panel">
         <div class="title" id="gameOverTitle">Game Over</div>
         <div class="subtitle">Score: <span id="finalScore">0</span></div>
+        <div id="leaderboardBox" style="display:none; text-align:left; margin:12px auto; max-width:420px;">
+          <div style="font-weight:800; letter-spacing:0.3px; margin-bottom:8px;">Top 25</div>
+          <div id="leaderboardList" style="display:grid; grid-template-columns:44px 1fr 80px; gap:8px; font-size:13px;">
+          </div>
+          <div id="leaderboardNote" style="font-size:11px; opacity:0.75; margin-top:6px;">Lider tablosu cüzdanla giriş yapan oyuncuların en yüksek skorlarına göre sıralanır.</div>
+        </div>
         <button class="btn" id="againBtn">Play Again</button>
       </div>
     </div>
@@ -755,6 +761,8 @@
         hudBest.textContent = state.best;
         showGameOver();
         tryGameOver(state.score);
+        // Game over sonrası: skor gönder ve lider tablosunu göster
+        submitScoreAndShowLeaderboard(state.score);
       }
 
       function drawFoodIcon(kind, cx, cy, size) {
@@ -903,6 +911,57 @@
           startGame();
         });
         requestAnimationFrame(loop);
+      }
+
+      async function fetchJSON(url, opts) {
+        try {
+          const res = await fetch(url, opts);
+          if (!res.ok) return null;
+          return await res.json();
+        } catch { return null; }
+      }
+
+      function trophyForRank(rank) {
+        if (rank === 1) return '🥇';
+        if (rank === 2) return '🥈';
+        if (rank === 3) return '🥉';
+        return '#' + rank;
+      }
+
+      async function submitScoreAndShowLeaderboard(score) {
+        const lbBox = document.getElementById('leaderboardBox');
+        const lbList = document.getElementById('leaderboardList');
+        if (!lbBox || !lbList) return;
+        lbBox.style.display = 'block';
+        lbList.innerHTML = '<div style="grid-column:1/-1; opacity:.8">Loading leaderboard…</div>';
+
+        // Önce session var mı bak
+        const sess = await fetchJSON('/api/auth/session');
+        if (sess && sess.authenticated && sess.user) {
+          await fetchJSON('/api/scores/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ score })
+          });
+        }
+        const top = await fetchJSON('/api/leaderboard/top?limit=25');
+        const arr = (top && top.top) ? top.top : [];
+        lbList.innerHTML = '';
+        arr.forEach((row, idx) => {
+          const rank = idx + 1;
+          const divRank = document.createElement('div');
+          divRank.textContent = trophyForRank(rank);
+          divRank.style.fontWeight = '800';
+          const divPlayer = document.createElement('div');
+          const name = row.username || (row.walletAddress.slice(0,6)+'…'+row.walletAddress.slice(-4));
+          divPlayer.textContent = name;
+          const divScore = document.createElement('div');
+          divScore.style.textAlign = 'right';
+          divScore.textContent = String(row.score);
+          lbList.appendChild(divRank);
+          lbList.appendChild(divPlayer);
+          lbList.appendChild(divScore);
+        });
       }
 
       if (!CanvasRenderingContext2D.prototype.roundRect) {

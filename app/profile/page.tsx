@@ -3,7 +3,7 @@
 import { useAccount, useReadContract } from 'wagmi';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import styles from './Profile.module.css';
 
 const LEADERBOARD_CONTRACT = process.env.NEXT_PUBLIC_LEADERBOARD_CONTRACT as `0x${string}`;
@@ -55,6 +55,21 @@ function ProfileContent() {
     functionName: 'getPlayerRank',
     args: targetAddress ? [targetAddress] : undefined,
   });
+
+  // Off-chain history for the connected session user (only when viewing own profile)
+  const [history, setHistory] = useState<Array<{ ts: number; score: number }>>([]);
+  useEffect(() => {
+    const load = async () => {
+      if (!isOwnProfile) return;
+      try {
+        const res = await fetch('/api/scores/history');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.success && Array.isArray(data.history)) setHistory(data.history);
+      } catch {}
+    };
+    void load();
+  }, [isOwnProfile]);
 
   if (!targetAddress) {
     return (
@@ -165,6 +180,26 @@ function ProfileContent() {
           <p>
             Last played: {new Date(Number(lastPlayedAt) * 1000).toLocaleString()}
           </p>
+        </div>
+      )}
+
+      {isOwnProfile && (
+        <div className={styles.activity}>
+          <h3>Game History</h3>
+          {history.length === 0 ? (
+            <p>No games recorded yet.</p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: 8 }}>
+              <div style={{ opacity: 0.7, fontWeight: 700 }}>Date</div>
+              <div style={{ opacity: 0.7, fontWeight: 700, textAlign: 'right' }}>Score</div>
+              {history.map((h, i) => (
+                <>
+                  <div key={`d-${i}`}>{new Date(h.ts).toLocaleString()}</div>
+                  <div key={`s-${i}`} style={{ textAlign: 'right', fontWeight: 700 }}>{h.score}</div>
+                </>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
