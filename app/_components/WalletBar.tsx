@@ -140,7 +140,8 @@ export default function WalletBar() {
               👤 {user.username}
             </Link>
           )}
-          {!authenticated && (
+          {/* Eğer kullanıcı authenticated değilse VE cüzdan bağlı değilse login/register göster */}
+          {!authenticated && !address && (
             <>
               <Link
                 href="/signin"
