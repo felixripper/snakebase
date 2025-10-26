@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <!-- viewport-fit=cover eklendi -->
@@ -159,8 +159,8 @@
   </head>
   <body>
     <div class="hud" id="hud">
-      <div>Skor: <span id="score">0</span></div>
-      <div>| En İyi: <span id="best">0</span></div>
+      <div><span id="scoreLabel">Score</span>: <span id="score">0</span></div>
+      <div>| <span id="bestLabel">Best</span>: <span id="best">0</span></div>
     </div>
 
     <div id="wrap"><canvas id="canvas"></canvas></div>
@@ -168,34 +168,33 @@
     <div class="overlay" id="overlay" style="display: none">
       <div class="panel">
         <div class="title" id="gameTitle">Eat & Grow</div>
-        <div class="subtitle">Yemi topla, duvarlara ve kuyruğuna çarpma!</div>
-        <div class="subtitle" style="margin-top:4px; opacity:0.95">Collect the food, don’t hit walls or your tail!</div>
+        <div class="subtitle" id="subtitle">Collect the food, don’t hit walls or your tail!</div>
         <div class="instructions" style="text-align:left; margin: 10px auto 0; max-width: 420px; line-height:1.35; font-size:13px; opacity:0.92">
-          <div style="font-weight:800; letter-spacing:0.3px; margin-bottom:6px;">How to Play</div>
-          <ul style="margin:6px 0 10px 18px; padding:0;">
+          <div id="howTitle" style="font-weight:800; letter-spacing:0.3px; margin-bottom:6px;">How to Play</div>
+          <ul id="howList" style="margin:6px 0 10px 18px; padding:0;">
             <li>Controls: Swipe (mobile) • Arrow Keys (desktop)</li>
             <li>Top dark area is a no-play zone — food never spawns there. Depending on settings it acts as wrap or a wall.</li>
           </ul>
-          <div style="font-weight:800; letter-spacing:0.3px; margin-bottom:6px;">Items</div>
-          <ul style="margin:6px 0 0 18px; padding:0;">
+          <div id="itemsTitle" style="font-weight:800; letter-spacing:0.3px; margin-bottom:6px;">Items</div>
+          <ul id="itemsList" style="margin:6px 0 0 18px; padding:0;">
             <li>Heart: +Score, slightly increases your speed</li>
             <li>Burger: +Score, slightly increases your speed</li>
           </ul>
         </div>
-        <button class="btn" id="startBtn">Oyna</button>
-        <div class="config-hint">Kontroller: Kaydır (mobil) • Yön Tuşları (masaüstü) • Controls: Swipe (mobile) • Arrow Keys (desktop)</div>
+        <button class="btn" id="startBtn">Play</button>
+        <div class="config-hint" id="controlsHint">Controls: Swipe (mobile) • Arrow Keys (desktop)</div>
       </div>
     </div>
 
     <div class="overlay" id="gameOver" style="display: none">
       <div class="panel">
-        <div class="title">Oyun Bitti</div>
-        <div class="subtitle">Skor: <span id="finalScore">0</span></div>
-        <button class="btn" id="againBtn">Tekrar Oyna</button>
+        <div class="title" id="gameOverTitle">Game Over</div>
+        <div class="subtitle">Score: <span id="finalScore">0</span></div>
+        <button class="btn" id="againBtn">Play Again</button>
       </div>
     </div>
 
-    <div class="gesture-hint" id="hint">Kaydırarak yön ver • Swipe to steer</div>
+    <div class="gesture-hint" id="hint">Swipe to steer</div>
 
     <script id="game-assets" type="application/json">
       {
@@ -254,52 +253,15 @@
 
       async function initConfig() {
         try {
-          const response = await fetch("/api/game-config?t=" + new Date().getTime());
+          const response = await fetch("/api/game-config?format=full&t=" + new Date().getTime());
           if (!response.ok) {
             throw new Error("Config API not found");
           }
           const externalConfig = await response.json();
           console.log("Loaded external config:", externalConfig);
           
-          CONFIG = {
-            colors: {
-              background: externalConfig.backgroundColor || "#0052FF",
-              grid: "#1c60f2",
-              snakeHead: externalConfig.snakeColor || "#dfb4b4",
-              snakeBody: "#ffffff",
-              foodPrimary: externalConfig.foodColor || "#e1ff00",
-              foodSecondary: "#fff700",
-              particle: "#ffffff",
-              ui: "#ffffff",
-              noPlay: "#06103a"
-            },
-            player: {
-              baseSpeed: externalConfig.snakeSpeed || 6,
-              speedIncreasePerFood: 0.6,
-              minStepMs: 140,
-              roundedHead: 0.39,
-              roundedBody: 0.1
-            },
-            gameplay: {
-              gridSize: 30,
-              columns: 20,
-              rows: 28,
-              wrapWalls: true,
-              startLength: 7,
-              foodScore: externalConfig.pointsPerFood || 30,
-              particles: true,
-              foodShape: "heart",
-              foodKind: "burger",
-              topNoPlayRows: 3,
-              noPlayActsAs: "wrap"
-            },
-            ui: {
-              showGrid: false,
-              showSwipeHint: false,
-              interfaceTitle: externalConfig.interfaceTitle || "Eat & Grow"
-            },
-            difficulty: "normal"
-          };
+          CONFIG = externalConfig;
+          applyUIFromConfig();
 
         } catch (error) {
           console.error("Could not load external config, using default.", error);
@@ -308,14 +270,44 @@
             player: { baseSpeed: 6, speedIncreasePerFood: 0.6, minStepMs: 140, roundedHead: 0.39, roundedBody: 0.1 },
             gameplay: { gridSize: 30, columns: 20, rows: 28, wrapWalls: true, startLength: 7, foodScore: 30, particles: true, foodShape: "heart", foodKind: "burger", topNoPlayRows: 3, noPlayActsAs: "wrap" },
             ui: { showGrid: false, showSwipeHint: false, interfaceTitle: "Eat & Grow" },
+            typography: { fontFamily: "system-ui", titleSize: 28, titleWeight: 900, subtitleSize: 14, buttonSize: 16, buttonWeight: 800, hudSize: 14 },
+            buttons: { primaryColor: "#3ee686", primaryGradientStart: "#94f7b7", primaryGradientEnd: "#3ee686", textColor: "#0b0f1a", borderRadius: 12, shadow: true },
+            sounds: { enabled: true, eatSound: true, hitSound: true, volume: 0.5 },
+            startScreen: {
+              title: "Eat & Grow",
+              subtitle: "Collect the food, don’t hit walls or your tail!",
+              howToPlayTitle: "How to Play",
+              howToPlayItems: [
+                "Controls: Swipe (mobile) • Arrow Keys (desktop)",
+                "Top dark area is a no-play zone — food never spawns there. Depending on settings it acts as wrap or a wall."
+              ],
+              itemsTitle: "Items",
+              itemsList: [
+                "Heart: +Score, slightly increases your speed",
+                "Burger: +Score, slightly increases your speed"
+              ],
+              startButtonLabel: "Play",
+              playAgainLabel: "Play Again",
+              gameOverTitle: "Game Over",
+              controlsHint: "Controls: Swipe (mobile) • Arrow Keys (desktop)",
+              scoreLabel: "Score",
+              bestLabel: "Best",
+              hudFontSize: 14,
+              hudFontWeight: 700,
+              hudBackground: "rgba(0, 0, 0, 0.35)",
+              hudBorderRadius: 12
+            },
             difficulty: "normal"
           };
         }
+
+        applyUIFromConfig();
 
         window.addEventListener("message", (event) => {
           if (event.origin !== window.location.origin) return;
           if (event.data && event.data.type === "UPDATE_CONFIG") {
             CONFIG = deepMerge(CONFIG, event.data.config);
+            applyUIFromConfig();
             if (window.onConfigUpdate) window.onConfigUpdate(CONFIG);
           }
         });
@@ -348,6 +340,9 @@
       const ctx = canvas.getContext("2d");
       const hudScore = document.getElementById("score");
       const hudBest = document.getElementById("best");
+      const hudScoreLabel = document.getElementById("scoreLabel");
+      const hudBestLabel = document.getElementById("bestLabel");
+      const hudEl = document.getElementById("hud");
       const overlay = document.getElementById("overlay");
       const gameOverEl = document.getElementById("gameOver");
       const finalScoreEl = document.getElementById("finalScore");
@@ -355,6 +350,13 @@
       const againBtn = document.getElementById("againBtn");
       const hintEl = document.getElementById("hint");
       const gameTitleEl = document.getElementById("gameTitle");
+      const subtitleEl = document.getElementById("subtitle");
+      const howTitleEl = document.getElementById("howTitle");
+      const howListEl = document.getElementById("howList");
+      const itemsTitleEl = document.getElementById("itemsTitle");
+      const itemsListEl = document.getElementById("itemsList");
+      const controlsHintEl = document.getElementById("controlsHint");
+      const gameOverTitleEl = document.getElementById("gameOverTitle");
 
       let isMuted = false;
 
@@ -387,6 +389,65 @@
       function resizeCanvas() {
         canvas.width = state.cols * state.gridSize;
         canvas.height = state.rows * state.gridSize;
+      }
+
+      function applyUIFromConfig() {
+        // Title and subtitles
+        gameTitleEl.textContent = CONFIG.ui?.interfaceTitle || (CONFIG.startScreen?.title) || "Eat & Grow";
+        if (subtitleEl) subtitleEl.textContent = (CONFIG.startScreen?.subtitle) || "Collect the food, don’t hit walls or your tail!";
+        if (howTitleEl) howTitleEl.textContent = (CONFIG.startScreen?.howToPlayTitle) || "How to Play";
+        if (howListEl) {
+          howListEl.innerHTML = (CONFIG.startScreen?.howToPlayItems || [
+            "Controls: Swipe (mobile) • Arrow Keys (desktop)",
+            "Top dark area is a no-play zone — food never spawns there. Depending on settings it acts as wrap or a wall."
+          ]).map((t) => `<li>${t}</li>`).join("");
+        }
+        if (itemsTitleEl) itemsTitleEl.textContent = (CONFIG.startScreen?.itemsTitle) || "Items";
+        if (itemsListEl) {
+          itemsListEl.innerHTML = (CONFIG.startScreen?.itemsList || [
+            "Heart: +Score, slightly increases your speed",
+            "Burger: +Score, slightly increases your speed"
+          ]).map((t) => `<li>${t}</li>`).join("");
+        }
+        if (controlsHintEl) controlsHintEl.textContent = (CONFIG.startScreen?.controlsHint) || "Controls: Swipe (mobile) • Arrow Keys (desktop)";
+        if (startBtn) startBtn.textContent = (CONFIG.startScreen?.startButtonLabel) || "Play";
+        if (againBtn) againBtn.textContent = (CONFIG.startScreen?.playAgainLabel) || "Play Again";
+        if (gameOverTitleEl) gameOverTitleEl.textContent = (CONFIG.startScreen?.gameOverTitle) || "Game Over";
+
+        // HUD labels and styles
+        if (hudScoreLabel) hudScoreLabel.textContent = (CONFIG.startScreen?.scoreLabel) || "Score";
+        if (hudBestLabel) hudBestLabel.textContent = (CONFIG.startScreen?.bestLabel) || "Best";
+        if (hudEl) {
+          hudEl.style.fontSize = (CONFIG.startScreen?.hudFontSize ?? 14) + 'px';
+          hudEl.style.fontWeight = (CONFIG.startScreen?.hudFontWeight ?? 700).toString();
+          hudEl.style.background = CONFIG.startScreen?.hudBackground || 'rgba(0, 0, 0, 0.35)';
+          hudEl.style.borderRadius = (CONFIG.startScreen?.hudBorderRadius ?? 12) + 'px';
+        }
+
+        // Button styles from config
+        const btnBg = `linear-gradient(180deg, ${CONFIG.buttons?.primaryGradientStart || '#94f7b7'} 0%, ${CONFIG.buttons?.primaryGradientEnd || '#3ee686'} 100%)`;
+        const btnColor = CONFIG.buttons?.textColor || '#0b0f1a';
+        const radius = (CONFIG.buttons?.borderRadius ?? 12) + 'px';
+        const shadow = CONFIG.buttons?.shadow ? '0 8px 20px rgba(62, 230, 134, 0.35)' : 'none';
+        [startBtn, againBtn].forEach((btn) => {
+          if (!btn) return;
+          btn.style.background = btnBg;
+          btn.style.color = btnColor;
+          btn.style.borderRadius = radius;
+          btn.style.boxShadow = shadow;
+          btn.style.fontSize = (CONFIG.typography?.buttonSize ?? 16) + 'px';
+          btn.style.fontWeight = (CONFIG.typography?.buttonWeight ?? 800).toString();
+        });
+
+        // Typography
+        document.querySelectorAll('.title').forEach((el) => {
+          el.style.fontSize = (CONFIG.typography?.titleSize ?? 28) + 'px';
+          el.style.fontWeight = (CONFIG.typography?.titleWeight ?? 900).toString();
+          el.style.fontFamily = (CONFIG.typography?.fontFamily || 'system-ui');
+        });
+        document.querySelectorAll('.subtitle').forEach((el) => {
+          el.style.fontFamily = (CONFIG.typography?.fontFamily || 'system-ui');
+        });
       }
 
       function resetGame() {

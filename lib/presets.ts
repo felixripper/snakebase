@@ -11,8 +11,8 @@ export type GamePreset = {
 export const GAME_PRESETS: GamePreset[] = [
   {
     id: "classic",
-    name: "Classic",
-    description: "The original snake game experience",
+    name: "Klasik",
+    description: "Klasik yılan oyunu deneyimi",
     emoji: "🎮",
     config: {
       colors: {
@@ -79,8 +79,8 @@ export const GAME_PRESETS: GamePreset[] = [
   },
   {
     id: "speed",
-    name: "Speed Mode",
-    description: "Fast-paced action for experienced players",
+    name: "Hız Modu",
+    description: "Deneyimli oyuncular için hızlı tempo",
     emoji: "⚡",
     config: {
       colors: {
@@ -147,8 +147,8 @@ export const GAME_PRESETS: GamePreset[] = [
   },
   {
     id: "rainbow",
-    name: "Rainbow",
-    description: "Colorful and vibrant theme",
+    name: "Gökkuşağı",
+    description: "Rengarenk ve canlı tema",
     emoji: "🌈",
     config: {
       colors: {
@@ -216,7 +216,7 @@ export const GAME_PRESETS: GamePreset[] = [
   {
     id: "retro",
     name: "Retro",
-    description: "Classic green-screen nostalgia",
+    description: "Klasik yeşil ekran nostaljisi",
     emoji: "👾",
     config: {
       colors: {
@@ -284,7 +284,7 @@ export const GAME_PRESETS: GamePreset[] = [
   {
     id: "minimal",
     name: "Minimal",
-    description: "Clean and simple design",
+    description: "Sade ve temiz tasarım",
     emoji: "⚪",
     config: {
       colors: {
@@ -352,7 +352,7 @@ export const GAME_PRESETS: GamePreset[] = [
   {
     id: "neon",
     name: "Neon",
-    description: "Cyberpunk vibes with glowing effects",
+    description: "Parlayan efektlerle siberpunk havası",
     emoji: "🌃",
     config: {
       colors: {
