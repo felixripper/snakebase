@@ -2,33 +2,45 @@
 import { useEffect, useState } from 'react';
 import { useUser } from '../_contexts/UserContext';
 import Link from 'next/link';
+import { useAccount } from 'wagmi';
 
 function truncateAddress(addr: string) {
   return addr.slice(0, 6) + '…' + addr.slice(-4);
 }
 
 export default function WalletBar() {
-  const { user, authenticated } = useUser();
+  const { user, authenticated, refreshUser } = useUser();
+  const { address: wagmiAddress, isConnected } = useAccount();
   const [address, setAddress] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMiniApp, setIsMiniApp] = useState(false);
 
-  // Try to detect already connected accounts on load
+  // MiniApp ortamını algıla ve mevcut hesapları tespit et
   useEffect(() => {
+    let cancelled = false;
     const detect = async () => {
       try {
+        // Farcaster Mini App
+        const { sdk } = await import('@farcaster/miniapp-sdk');
+        const inside = (await sdk.isInMiniApp?.()) ?? false;
+        if (!cancelled) setIsMiniApp(inside);
+
+        // Tarayıcı cüzdanı (fallback)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const eth = (window as any)?.ethereum;
-        if (!eth) return;
-        const accounts: string[] = await eth.request({ method: 'eth_accounts' });
-        if (accounts && accounts.length > 0) {
-          setAddress(accounts[0]);
+        if (eth?.request) {
+          const accounts: string[] = await eth.request({ method: 'eth_accounts' });
+          if (!cancelled && accounts && accounts.length > 0) {
+            setAddress(accounts[0]);
+          }
         }
       } catch {
         // noop
       }
     };
     void detect();
+    return () => { cancelled = true; };
   }, []);
 
   const connect = async () => {
@@ -37,16 +49,16 @@ export default function WalletBar() {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const eth = (window as any)?.ethereum;
-      if (!eth) {
-        setError(
-          'Cüzdan bulunamadı (window.ethereum yok). Lütfen MetaMask veya benzeri bir cüzdan kurun.'
-        );
+      if (eth?.request) {
+        const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' });
+        if (accounts && accounts.length > 0) setAddress(accounts[0]);
         return;
       }
-      const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' });
-      if (accounts && accounts.length > 0) {
-        setAddress(accounts[0]);
+      if (isMiniApp) {
+        setError('Farcaster Base App içinde cüzdan bağlantısı uygulama tarafından yönetilir. Oyun sırasında yetki istenebilir.');
+        return;
       }
+      setError('Cüzdan bulunamadı. Lütfen MetaMask kurun veya Base App içinde açın.');
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Bağlantı hatası');
     } finally {
@@ -60,6 +72,28 @@ export default function WalletBar() {
     setAddress(null);
     setError(null);
   };
+
+  // Kullanıcı login ise ve cüzdan adresi varsa otomatik linkle
+  const effectiveAddress = wagmiAddress ?? address;
+  useEffect(() => {
+    const run = async () => {
+      try {
+        if (!authenticated || !user || !effectiveAddress) return;
+        if (user.walletAddress && user.walletAddress.toLowerCase() === effectiveAddress.toLowerCase()) return;
+        const res = await fetch('/api/auth/link-wallet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ walletAddress: effectiveAddress })
+        });
+        if (res.ok) {
+          await refreshUser();
+        }
+      } catch {
+        // ignore
+      }
+    };
+    void run();
+  }, [authenticated, user, effectiveAddress, refreshUser]);
 
   return (
     <div
@@ -137,7 +171,7 @@ export default function WalletBar() {
             </>
           )}
           
-          {address ? (
+          {(isConnected || !!effectiveAddress) ? (
             <>
               <span
                 style={{
@@ -160,7 +194,7 @@ export default function WalletBar() {
                     display: 'inline-block',
                   }}
                 />
-                {truncateAddress(address)}
+                {effectiveAddress ? truncateAddress(effectiveAddress) : 'Connected'}
               </span>
               <button
                 type="button"

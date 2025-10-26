@@ -253,7 +253,12 @@
 
       async function initConfig() {
         try {
-          const response = await fetch("/api/game-config?format=full&t=" + new Date().getTime());
+          // URL parametrelerinden draft modunu oku
+          const sp = new URLSearchParams(window.location.search);
+          const isDraft = sp.get("draft") === "1" || sp.get("draft") === "true";
+          const endpoint = isDraft ? "/api/draft-config" : "/api/full-config";
+
+          const response = await fetch(endpoint + "?t=" + new Date().getTime());
           if (!response.ok) {
             throw new Error("Config API not found");
           }
