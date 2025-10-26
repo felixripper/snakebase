@@ -201,6 +201,14 @@
           <button class="btn" id="profileBtn" style="min-width:140px; background:linear-gradient(180deg, #a0c4ff 0%, #5a87d9 100%);">Profilini Gör</button>
           <button class="btn" id="leaderboardBtn" style="min-width:140px; background:linear-gradient(180deg, #ffd97d 0%, #ff9a3c 100%);">Leaderboard</button>
         </div>
+        <div id="shareBox" style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.1);">
+          <div style="font-weight:800; letter-spacing:0.3px; margin-bottom:10px; font-size:14px;">Skorunu Paylaş</div>
+          <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+            <button class="btn" id="shareFarcasterBtn" style="min-width:120px; background:linear-gradient(180deg, #8a63d2 0%, #5a3d9b 100%); font-size:13px;">🟣 Farcaster</button>
+            <button class="btn" id="shareTwitterBtn" style="min-width:120px; background:linear-gradient(180deg, #1da1f2 0%, #0d8bd9 100%); font-size:13px;">🐦 Twitter</button>
+            <button class="btn" id="shareBaseBtn" style="min-width:120px; background:linear-gradient(180deg, #0052FF 0%, #0041cc 100%); font-size:13px;">🔵 Base</button>
+          </div>
+        </div>
         <div id="onchainSubmitBox" style="display:none; margin-top:12px; text-align:center;">
           <button class="btn" id="submitOnChainBtn" style="min-width:200px; background:linear-gradient(180deg, #c084fc 0%, #9333ea 100%); font-size:13px;">Submit On-Chain (gas)</button>
           <div id="onchainStatus" style="margin-top:8px; font-size:12px; opacity:0.85;"></div>
@@ -936,6 +944,24 @@
             submitScoreOnChain(state.score);
           });
         }
+        const shareFarcasterBtn = document.getElementById('shareFarcasterBtn');
+        const shareTwitterBtn = document.getElementById('shareTwitterBtn');
+        const shareBaseBtn = document.getElementById('shareBaseBtn');
+        if (shareFarcasterBtn) {
+          shareFarcasterBtn.addEventListener('click', () => {
+            shareToFarcaster(state.score);
+          });
+        }
+        if (shareTwitterBtn) {
+          shareTwitterBtn.addEventListener('click', () => {
+            shareToTwitter(state.score);
+          });
+        }
+        if (shareBaseBtn) {
+          shareBaseBtn.addEventListener('click', () => {
+            shareToBase(state.score);
+          });
+        }
         requestAnimationFrame(loop);
       }
 
@@ -1056,6 +1082,123 @@
         } catch (e) {
           statusEl.textContent = 'Error: ' + (e.message || 'unknown');
         }
+      }
+
+      async function generateScorePoster(score, username, walletAddress, rank) {
+        // Canvas ile poster oluştur
+        const posterCanvas = document.createElement('canvas');
+        posterCanvas.width = 800;
+        posterCanvas.height = 1000;
+        const ctx = posterCanvas.getContext('2d');
+
+        // Gradient background
+        const grad = ctx.createLinearGradient(0, 0, 0, 1000);
+        grad.addColorStop(0, '#0b1228');
+        grad.addColorStop(0.5, '#1a2847');
+        grad.addColorStop(1, '#0b1228');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 800, 1000);
+
+        // Başlık
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 48px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText('🐍 Snakebase', 400, 100);
+
+        // Skor
+        ctx.font = 'bold 96px system-ui';
+        ctx.fillStyle = '#3ee686';
+        ctx.fillText(String(score), 400, 350);
+        
+        ctx.font = '32px system-ui';
+        ctx.fillStyle = '#aaa';
+        ctx.fillText('SCORE', 400, 400);
+
+        // Kullanıcı bilgisi
+        ctx.font = 'bold 36px system-ui';
+        ctx.fillStyle = '#fff';
+        const displayName = username || (walletAddress ? walletAddress.slice(0,6) + '…' + walletAddress.slice(-4) : 'Player');
+        ctx.fillText(displayName, 400, 500);
+
+        if (rank && rank > 0) {
+          ctx.font = '28px system-ui';
+          ctx.fillStyle = '#ffd97d';
+          let rankIcon = '🏆';
+          if (rank === 1) rankIcon = '🥇';
+          if (rank === 2) rankIcon = '🥈';
+          if (rank === 3) rankIcon = '🥉';
+          ctx.fillText(`${rankIcon} Rank #${rank}`, 400, 560);
+        }
+
+        // Footer
+        ctx.font = '24px system-ui';
+        ctx.fillStyle = '#888';
+        ctx.fillText('Play on Base • snakebase.vercel.app', 400, 920);
+
+        // Canvas'ı blob'a dönüştür
+        return new Promise((resolve) => {
+          posterCanvas.toBlob((blob) => {
+            resolve(blob);
+          }, 'image/png');
+        });
+      }
+
+      async function shareToFarcaster(score) {
+        const sess = await fetchJSON('/api/auth/session');
+        const username = sess?.user?.username || 'Player';
+        const walletAddress = sess?.user?.walletAddress || null;
+        
+        // Top leaderboard'dan rank bul
+        const topData = await fetchJSON('/api/leaderboard/top?limit=100');
+        let rank = 0;
+        if (topData && topData.top && walletAddress) {
+          const idx = topData.top.findIndex(r => r.walletAddress.toLowerCase() === walletAddress.toLowerCase());
+          if (idx >= 0) rank = idx + 1;
+        }
+
+        const text = `🐍 Just scored ${score} on Snakebase! 🎮\n\n${rank > 0 ? `Rank #${rank} 🏆` : ''}\n\nPlay on Base: ${window.location.origin}`;
+        
+        // Farcaster Warpcast share intent
+        const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+      }
+
+      async function shareToTwitter(score) {
+        const sess = await fetchJSON('/api/auth/session');
+        const username = sess?.user?.username || 'Player';
+        const walletAddress = sess?.user?.walletAddress || null;
+        
+        const topData = await fetchJSON('/api/leaderboard/top?limit=100');
+        let rank = 0;
+        if (topData && topData.top && walletAddress) {
+          const idx = topData.top.findIndex(r => r.walletAddress.toLowerCase() === walletAddress.toLowerCase());
+          if (idx >= 0) rank = idx + 1;
+        }
+
+        const text = `🐍 Just scored ${score} on Snakebase! 🎮\n\n${rank > 0 ? `Rank #${rank} 🏆` : ''}\n\nPlay on @base: ${window.location.origin}`;
+        
+        const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+      }
+
+      async function shareToBase(score) {
+        const sess = await fetchJSON('/api/auth/session');
+        const username = sess?.user?.username || 'Player';
+        const walletAddress = sess?.user?.walletAddress || null;
+        
+        const topData = await fetchJSON('/api/leaderboard/top?limit=100');
+        let rank = 0;
+        if (topData && topData.top && walletAddress) {
+          const idx = topData.top.findIndex(r => r.walletAddress.toLowerCase() === walletAddress.toLowerCase());
+          if (idx >= 0) rank = idx + 1;
+        }
+
+        // Base'de doğrudan share yok; Twitter veya Farcaster alternatifi
+        const text = `🐍 Just scored ${score} on Snakebase (Base)! 🎮\n\n${rank > 0 ? `Rank #${rank} 🏆` : ''}\n\nPlay now: ${window.location.origin}`;
+        
+        // Base ecosystem için Farcaster tercih edilebilir
+        const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
       }
 
       if (!CanvasRenderingContext2D.prototype.roundRect) {
