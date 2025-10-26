@@ -106,7 +106,7 @@ export default function AdvancedSettings() {
         setConfig(importedConfig);
         setMessage("📤 Config imported successfully!");
         setTimeout(() => setMessage(""), 3000);
-      } catch (error) {
+  } catch {
         setMessage("❌ Invalid JSON file");
         setTimeout(() => setMessage(""), 3000);
       }
@@ -119,15 +119,15 @@ export default function AdvancedSettings() {
     }
   }
 
-  function updateConfig(path: string, value: any) {
+  function updateConfig(path: string, value: unknown) {
     if (!config) return;
     
     const keys = path.split(".");
     const newConfig = JSON.parse(JSON.stringify(config));
     
-    let current: any = newConfig;
+  let current: Record<string, unknown> = newConfig;
     for (let i = 0; i < keys.length - 1; i++) {
-      current = current[keys[i]];
+  current = current[keys[i]] as Record<string, unknown>;
     }
     current[keys[keys.length - 1]] = value;
     
