@@ -1,5 +1,6 @@
 import { kvGet, kvSet } from '@/lib/redis';
 import { getUserById } from '@/lib/user-store';
+import { memoryCache } from '@/lib/cache';
 
 // Achievements key
 const ACHIEVEMENTS_KEY = (userId: string) => `achievements:${userId}`;
@@ -81,6 +82,11 @@ const ALL_ACHIEVEMENTS: Achievement[] = [
 ];
 
 export async function getPlayerAchievements(userId: string): Promise<{ unlocked: Achievement[]; locked: Achievement[] }> {
+  // Check cache first (2 minute TTL)
+  const cacheKey = `achievements:cache:${userId}`;
+  const cached = memoryCache.get<{ unlocked: Achievement[]; locked: Achievement[] }>(cacheKey, 120_000);
+  if (cached) return cached;
+
   const raw = await kvGet(ACHIEVEMENTS_KEY(userId));
   const unlocked: Record<string, number> = raw ? JSON.parse(raw) : {};
 
@@ -101,7 +107,9 @@ export async function getPlayerAchievements(userId: string): Promise<{ unlocked:
     }
   }
 
-  return { unlocked: unlockedList, locked: lockedList };
+  const result = { unlocked: unlockedList, locked: lockedList };
+  memoryCache.set(cacheKey, result);
+  return result;
 }
 
 export async function checkAndUnlockAchievements(userId: string, stats: PlayerStats): Promise<Achievement[]> {
@@ -118,6 +126,8 @@ export async function checkAndUnlockAchievements(userId: string, stats: PlayerSt
 
   if (newlyUnlocked.length > 0) {
     await kvSet(ACHIEVEMENTS_KEY(userId), JSON.stringify(unlocked));
+    // Invalidate cache
+    memoryCache.delete(`achievements:cache:${userId}`);
   }
 
   return newlyUnlocked;

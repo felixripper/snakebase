@@ -26,20 +26,33 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
   const [walletLoginBusy, setWalletLoginBusy] = useState(false);
+  const [sessionCache, setSessionCache] = useState<{ user: User | null; timestamp: number } | null>(null);
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
 
-  const refreshUser = async () => {
+  const SESSION_CACHE_TTL = 60_000; // 60 seconds cache
+
+  const refreshUser = async (forceRefresh = false) => {
     try {
+      // Check cache first
+      if (!forceRefresh && sessionCache && Date.now() - sessionCache.timestamp < SESSION_CACHE_TTL) {
+        setUser(sessionCache.user);
+        setAuthenticated(!!sessionCache.user);
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch('/api/auth/session');
       const data = await response.json();
 
       if (data.authenticated && data.user) {
         setUser(data.user);
         setAuthenticated(true);
+        setSessionCache({ user: data.user, timestamp: Date.now() });
       } else {
         setUser(null);
         setAuthenticated(false);
+        setSessionCache({ user: null, timestamp: Date.now() });
       }
     } catch (error) {
       console.error('Failed to fetch user session:', error);
@@ -55,6 +68,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       await fetch('/api/auth/logout-user', { method: 'POST' });
       setUser(null);
       setAuthenticated(false);
+      setSessionCache(null); // Clear cache on logout
       // Kullanıcı isteyerek çıktıysa kısa süreliğine otomatik cüzdan login'ini bastır
       if (typeof window !== 'undefined') {
         const until = Date.now() + 30_000; // 30 saniye
@@ -103,7 +117,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ address, signature })
         });
-        if (res2.ok) await refreshUser();
+        if (res2.ok) await refreshUser(true); // Force refresh after login
       } catch {
         // kullanıcı imzayı reddedebilir; sessiz geç
       } finally {

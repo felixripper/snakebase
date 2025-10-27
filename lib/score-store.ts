@@ -1,5 +1,6 @@
 import { kvGet, kvSet } from '@/lib/redis';
 import { getUserById, getUserByWallet } from '@/lib/user-store';
+import { memoryCache } from '@/lib/cache';
 
 // Keys
 const WALLETS_SET_KEY = 'scores:wallets'; // JSON stringified string[] as fallback for set
@@ -21,6 +22,7 @@ async function addWalletToSet(wallet: string): Promise<void> {
   if (!arr.includes(wallet)) {
     arr.push(wallet);
     await kvSet(WALLETS_SET_KEY, JSON.stringify(arr));
+    memoryCache.delete('leaderboard:top'); // Invalidate leaderboard cache
   }
 }
 
@@ -36,6 +38,7 @@ export async function submitScoreForSession(userId: string, score: number): Prom
   const newHigh = Math.max(existingHigh, Math.floor(score));
   if (newHigh !== existingHigh) {
     await kvSet(HIGH_KEY(wallet), String(newHigh));
+    memoryCache.delete('leaderboard:top'); // Invalidate leaderboard cache
   }
 
   // Cache display username
@@ -60,6 +63,11 @@ export async function submitScoreForSession(userId: string, score: number): Prom
 }
 
 export async function getTopHighScores(limit = 25): Promise<LeaderboardRow[]> {
+  // Check cache first (30 second TTL for leaderboard)
+  const cacheKey = 'leaderboard:top';
+  const cached = memoryCache.get<LeaderboardRow[]>(cacheKey, 30_000);
+  if (cached) return cached.slice(0, limit);
+
   const raw = await kvGet(WALLETS_SET_KEY);
   const wallets: string[] = raw ? (JSON.parse(raw) as string[]) : [];
   const rows: LeaderboardRow[] = [];
@@ -76,6 +84,10 @@ export async function getTopHighScores(limit = 25): Promise<LeaderboardRow[]> {
     rows.push({ walletAddress: w, username, score });
   }
   rows.sort((a, b) => b.score - a.score);
+  
+  // Cache the result
+  memoryCache.set(cacheKey, rows);
+  
   return rows.slice(0, limit);
 }
 
