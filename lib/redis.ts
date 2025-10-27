@@ -32,7 +32,12 @@ function getRedis(): Redis | undefined {
 export async function kvGet(key: string): Promise<string | null> {
   const redis = getRedis();
   if (redis) {
-    return (await redis.get<string>(key)) ?? null;
+    try {
+      return (await redis.get<string>(key)) ?? null;
+    } catch (error) {
+      console.error('Redis get error:', error);
+      // Fall back to memory
+    }
   }
   return memory.get(key) ?? null;
 }
@@ -40,8 +45,13 @@ export async function kvGet(key: string): Promise<string | null> {
 export async function kvSet(key: string, value: string): Promise<void> {
   const redis = getRedis();
   if (redis) {
-    await redis.set(key, value);
-    return;
+    try {
+      await redis.set(key, value);
+      return;
+    } catch (error) {
+      console.error('Redis set error:', error);
+      // Fall back to memory
+    }
   }
   memory.set(key, value);
 }
@@ -49,8 +59,13 @@ export async function kvSet(key: string, value: string): Promise<void> {
 export async function kvDel(key: string): Promise<void> {
   const redis = getRedis();
   if (redis) {
-    await (redis as unknown as { del: (k: string) => Promise<void> }).del(key);
-    return;
+    try {
+      await (redis as unknown as { del: (k: string) => Promise<void> }).del(key);
+      return;
+    } catch (error) {
+      console.error('Redis del error:', error);
+      // Fall back to memory
+    }
   }
   memory.delete(key);
 }
