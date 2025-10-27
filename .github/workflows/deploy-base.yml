@@ -1,0 +1,68 @@
+name: Deploy Leaderboard Contract (Base)
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: "Network to deploy to (base or baseSepolia)"
+        required: true
+        default: "base"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile contracts
+        run: npx hardhat compile
+
+      - name: Deploy to Base network
+        id: deploy
+        env:
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+          BASE_SEPOLIA_RPC_URL: ${{ secrets.BASE_SEPOLIA_RPC_URL }}
+        run: |
+          set -euo pipefail
+          NET=${{ github.event.inputs.network }}
+          if [ "$NET" = "base" ]; then
+            npx hardhat run scripts/deploy-leaderboard.js --network base | tee deploy.log
+          else
+            npx hardhat run scripts/deploy-leaderboard.js --network baseSepolia | tee deploy.log
+          fi
+          ADDR=$(grep -Eo "0x[a-fA-F0-9]{40}" deploy.log | tail -n1)
+          if [ -z "$ADDR" ]; then echo "Failed to parse contract address"; exit 1; fi
+          echo "address=$ADDR" >> $GITHUB_OUTPUT
+          echo "Deployed address: $ADDR"
+
+      - name: Optionally set Vercel env (production)
+        if: ${{ secrets.VERCEL_TOKEN && secrets.VERCEL_PROJECT_ID && secrets.VERCEL_ORG_ID }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        run: |
+          set -euo pipefail
+          KEY="NEXT_PUBLIC_LEADERBOARD_CONTRACT"
+          VALUE="${{ steps.deploy.outputs.address }}"
+          # Create or update env var via Vercel API (production target)
+          curl -s -X PATCH \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H "Content-Type: application/json" \
+            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env/$KEY?teamId=$VERCEL_ORG_ID" \
+            -d "{\"value\":\"$VALUE\",\"type\":\"plain\",\"target\":[\"production\"],\"gitBranch\":null}" \
+            | sed -e 's/.*//'
+          echo "Set Vercel env $KEY=$VALUE"
+
+      - name: Output address
+        run: echo "Contract deployed to ${{ steps.deploy.outputs.address }}"
