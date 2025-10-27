@@ -33,6 +33,7 @@ import { GAME_CONTRACT_ADDRESS } from '@/lib/contract';
 const CONTRACT_ADDRESS = GAME_CONTRACT_ADDRESS || '0x0000000000000000000000000000000000000000';
 
 export default function PlayerRegistration() {
+  const blockchainEnabled = process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true';
   const { address, isConnected } = useAccount();
   const [username, setUsername] = useState('');
   const [checking, setChecking] = useState(false);
@@ -106,6 +107,16 @@ export default function PlayerRegistration() {
       refetchRegistration();
       window.location.reload();
     }, 2000);
+  }
+
+  if (!blockchainEnabled) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.notice}>
+          🔒 Blockchain devre dışı. Oyuncu kaydı için NEXT_PUBLIC_BLOCKCHAIN_ENABLED=true olarak ayarlayın.
+        </div>
+      </div>
+    );
   }
 
   if (!isConnected) {

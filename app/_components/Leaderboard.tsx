@@ -77,8 +77,19 @@ type LeaderboardEntry = {
 };
 
 export default function Leaderboard() {
+  const blockchainEnabled = process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true';
   const { address, isConnected } = useAccount();
   const [displayCount, setDisplayCount] = useState(10);
+
+  if (!blockchainEnabled) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.notice}>
+          🔒 Blockchain özelliği kapalı. Lider tablosunu görmek için NEXT_PUBLIC_BLOCKCHAIN_ENABLED=true olarak ayarlayın.
+        </div>
+      </div>
+    );
+  }
 
   // Top players data
   const { data: topPlayers, isLoading: loadingPlayers, refetch: refetchLeaderboard } = useReadContract({
