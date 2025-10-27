@@ -1,0 +1,21 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjQ0MTYxMywidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweEFBODFmMGY0OTVCOEIyRDJCNEY1OEM4NTNBOGM3MzExZjAxYzFFNUMifQ",
+    "payload": "eyJkb21haW4iOiJzbmFrZWJhc2UudmVyY2VsLmFwcCJ9",
+    "signature": "phvP5vda301efC+3JII4QcWFdQBnr4NMJNZX4nOsnuI2G+wX8SQYvnMYI+J8+DFMl/EZq7xG0nGUdc2M1EEBCRw="
+  },
+  "frame": {
+    "version": "1",
+    "name": "Snake",
+    "iconUrl": "https://snakebase.vercel.app/blue-icon.png",
+    "homeUrl": "https://snakebase.vercel.app",
+    "imageUrl": "https://snakebase.vercel.app/blue-hero.png",
+    "buttonTitle": "Play",
+    "splashImageUrl": "https://snakebase.vercel.app/blue-hero.png",
+    "splashBackgroundColor": "#000000",
+    "webhookUrl": "https://snakebase.vercel.app/api/webhook"
+  },
+  "baseBuilder": {
+    "ownerAddress": "0x4caA73f2D477B38795e8b6f9A7FB4ed493882684"
+  }
+}
