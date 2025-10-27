@@ -1156,10 +1156,17 @@
           if (idx >= 0) rank = idx + 1;
         }
 
-        const text = `🐍 Just scored ${score} on Snakebase! 🎮\n\n${rank > 0 ? `Rank #${rank} 🏆` : ''}\n\nPlay on Base: ${window.location.origin}`;
+        // Share frame URL'si oluştur
+        const shareUrl = new URL('/share', window.location.origin);
+        shareUrl.searchParams.set('score', String(score));
+        shareUrl.searchParams.set('username', username);
+        if (rank > 0) shareUrl.searchParams.set('rank', String(rank));
+        if (walletAddress) shareUrl.searchParams.set('wallet', walletAddress);
+
+        const text = `🐍 Just scored ${score} on Snakebase! 🎮\n\n${rank > 0 ? `Rank #${rank} 🏆` : ''}\n\n`;
         
-        // Farcaster Warpcast share intent
-        const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`;
+        // Farcaster Warpcast share intent with embed
+        const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(shareUrl.toString())}`;
         window.open(url, '_blank');
       }
 
@@ -1175,7 +1182,14 @@
           if (idx >= 0) rank = idx + 1;
         }
 
-        const text = `🐍 Just scored ${score} on Snakebase! 🎮\n\n${rank > 0 ? `Rank #${rank} 🏆` : ''}\n\nPlay on @base: ${window.location.origin}`;
+        // Share frame URL'si oluştur
+        const shareUrl = new URL('/share', window.location.origin);
+        shareUrl.searchParams.set('score', String(score));
+        shareUrl.searchParams.set('username', username);
+        if (rank > 0) shareUrl.searchParams.set('rank', String(rank));
+        if (walletAddress) shareUrl.searchParams.set('wallet', walletAddress);
+
+        const text = `🐍 Just scored ${score} on Snakebase! 🎮\n\n${rank > 0 ? `Rank #${rank} 🏆` : ''}\n\nPlay on @base:\n${shareUrl.toString()}`;
         
         const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
         window.open(url, '_blank');
@@ -1193,11 +1207,17 @@
           if (idx >= 0) rank = idx + 1;
         }
 
-        // Base'de doğrudan share yok; Twitter veya Farcaster alternatifi
-        const text = `🐍 Just scored ${score} on Snakebase (Base)! 🎮\n\n${rank > 0 ? `Rank #${rank} 🏆` : ''}\n\nPlay now: ${window.location.origin}`;
+        // Share frame URL'si oluştur
+        const shareUrl = new URL('/share', window.location.origin);
+        shareUrl.searchParams.set('score', String(score));
+        shareUrl.searchParams.set('username', username);
+        if (rank > 0) shareUrl.searchParams.set('rank', String(rank));
+        if (walletAddress) shareUrl.searchParams.set('wallet', walletAddress);
+
+        // Base ecosystem için Farcaster tercih edilir
+        const text = `🐍 Just scored ${score} on Snakebase (Base)! 🎮\n\n${rank > 0 ? `Rank #${rank} 🏆` : ''}\n\n`;
         
-        // Base ecosystem için Farcaster tercih edilebilir
-        const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`;
+        const url = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(shareUrl.toString())}`;
         window.open(url, '_blank');
       }
 
