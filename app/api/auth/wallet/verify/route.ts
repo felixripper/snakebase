@@ -40,7 +40,6 @@ export async function POST(req: NextRequest) {
     const session = await getAppRouterSession();
     session.isLoggedIn = true;
     session.userId = user.id;
-    session.userEmail = user.email;
     session.username = user.username;
     session.isAdmin = false;
     await session.save();
@@ -48,7 +47,7 @@ export async function POST(req: NextRequest) {
     // Delete nonce (one-time)
     await kvDel(`auth:nonce:${addr}`);
 
-    return NextResponse.json({ success: true, user: { id: user.id, username: user.username, email: user.email, walletAddress: user.walletAddress } });
+    return NextResponse.json({ success: true, user: { id: user.id, username: user.username, walletAddress: user.walletAddress, avatarUrl: user.avatarUrl } });
   } catch {
     return NextResponse.json({ success: false, message: 'wallet verify failed' }, { status: 500 });
   }

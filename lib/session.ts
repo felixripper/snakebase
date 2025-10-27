@@ -5,7 +5,6 @@ import { cookies } from 'next/headers';
 export interface SessionData {
   isLoggedIn?: boolean;
   userId?: string; // User ID for regular users
-  userEmail?: string; // User email
   username?: string; // Username
   isAdmin?: boolean; // Admin flag
 }

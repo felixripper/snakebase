@@ -29,10 +29,10 @@ export async function GET() {
       authenticated: true,
       user: {
         id: user.id,
-        email: user.email,
         username: user.username,
         walletAddress: user.walletAddress,
         createdAt: user.createdAt,
+        avatarUrl: user.avatarUrl,
       },
     });
 
