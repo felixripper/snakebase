@@ -4,10 +4,17 @@ const { ethers } = require("hardhat");
 async function main() {
   console.log("🚀 Deploying SnakeGameScore contract to Base...\n");
 
-  const [deployer] = await ethers.getSigners();
-  console.log("📝 Deploying with account:", deployer.address);
+  // Get signer
+  const signers = await ethers.getSigners();
+  if (!signers || signers.length === 0) {
+    throw new Error("No signer found. Make sure DEPLOYER_PRIVATE_KEY is set in .env.local");
+  }
   
-  const balance = await ethers.provider.getBalance(deployer.address);
+  const deployer = signers[0];
+  const deployerAddress = await deployer.getAddress();
+  console.log("📝 Deploying with account:", deployerAddress);
+  
+  const balance = await ethers.provider.getBalance(deployerAddress);
   console.log("💰 Account balance:", ethers.formatEther(balance), "ETH\n");
 
   console.log("⏳ Deploying contract...");

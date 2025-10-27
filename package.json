@@ -10,6 +10,7 @@
     "build": "node scripts/generate-manifest.js && next build",
     "start": "next start -p 3000",
     "lint": "next lint",
+    "check-balance": "hardhat run scripts/check-balance.js --network base",
     "deploy:baseSepolia": "hardhat run scripts/deploy-leaderboard.js --network baseSepolia",
     "deploy:base": "hardhat run scripts/deploy-leaderboard.js --network base",
     "test": "jest",
