@@ -43,6 +43,8 @@ export async function POST(req: NextRequest) {
     session.username = user.username;
     session.isAdmin = false;
     await session.save();
+  // eslint-disable-next-line no-console
+  console.log('DEBUG wallet verify session saved:', { isLoggedIn: session.isLoggedIn, userId: session.userId, username: session.username });
 
     // Delete nonce (one-time)
     await kvDel(`auth:nonce:${addr}`);

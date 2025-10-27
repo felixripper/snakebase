@@ -34,18 +34,14 @@ export async function getAppRouterSession(): Promise<IronSession<SessionData>> {
   // Await ile kesin olarak CookieStore elde ediyoruz.
   const cookieStore = await cookies();
   // DEBUG: log cookie keys present for troubleshooting
-  // eslint-disable-next-line no-console
   try {
-    const all = cookieStore.getAll ? cookieStore.getAll() : [];
-    // Note: cookieStore.getAll() may return Cookie objects depending on runtime
+    const all = cookieStore.getAll ? (cookieStore.getAll() as Array<{ name: string; value?: string }>) : [];
     // We'll log names only to avoid leaking values in logs.
-    // eslint-disable-next-line no-console
-    console.log('DEBUG cookie names:', all.map((c: any) => c.name));
+    console.log('DEBUG cookie names:', all.map((c) => c.name));
     // Log value lengths (masked)
-    // eslint-disable-next-line no-console
-    console.log('DEBUG cookie values (name:length):', all.map((c: any) => `${c.name}:${String(c.value || '').length}`));
-  } catch (e) {
-    // ignore
+    console.log('DEBUG cookie values (name:length):', all.map((c) => `${c.name}:${String(c.value || '').length}`));
+  } catch {
+    // ignore logging errors
   }
   // Also log the raw snakebase-session cookie for deeper debugging (masked partially)
   try {
@@ -57,7 +53,7 @@ export async function getAppRouterSession(): Promise<IronSession<SessionData>> {
       // eslint-disable-next-line no-console
       console.log('DEBUG raw snakebase-session cookie: <not present>');
     }
-  } catch (e) {
+  } catch {
     // ignore
   }
   return getIronSession<SessionData>(cookieStore, sessionOptions);

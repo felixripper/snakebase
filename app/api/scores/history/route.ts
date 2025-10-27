@@ -6,16 +6,12 @@ import { getUserById } from '@/lib/user-store';
 export async function GET(req: NextRequest) {
   try {
     // Log incoming Cookie header to ensure the browser/client is sending the session cookie
-    // eslint-disable-next-line no-console
     console.log('DEBUG Request Cookie header:', String(req.headers.get('cookie'))?.slice(0, 200));
     const session = await getAppRouterSession();
-  // DEBUG: log session for troubleshooting auth issues
-  // eslint-disable-next-line no-console
-  console.log('DEBUG session.isLoggedIn:', Boolean((session as any).isLoggedIn));
-  // eslint-disable-next-line no-console
-  console.log('DEBUG session.userId:', (session as any).userId);
-  // eslint-disable-next-line no-console
-  console.log('DEBUG session.username:', (session as any).username);
+    // DEBUG: log session for troubleshooting auth issues (safe access)
+    console.log('DEBUG session.isLoggedIn:', Boolean(session.isLoggedIn));
+    console.log('DEBUG session.userId:', session.userId ?? '<none>');
+    console.log('DEBUG session.username:', session.username ?? '<none>');
     if (!session.isLoggedIn || !session.userId) {
       return NextResponse.json({ success: false, message: 'auth required', history: [] }, { status: 401 });
     }
@@ -25,7 +21,8 @@ export async function GET(req: NextRequest) {
     }
     const history = await getHistoryByWallet(user.walletAddress, 50);
     return NextResponse.json({ success: true, history });
-  } catch {
+  } catch (err) {
+    console.error('ERROR /api/scores/history', err);
     return NextResponse.json({ success: false, history: [] }, { status: 500 });
   }
 }
