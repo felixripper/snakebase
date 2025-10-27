@@ -41,6 +41,9 @@ export async function getAppRouterSession(): Promise<IronSession<SessionData>> {
     // We'll log names only to avoid leaking values in logs.
     // eslint-disable-next-line no-console
     console.log('DEBUG cookie names:', all.map((c: any) => c.name));
+    // Log value lengths (masked)
+    // eslint-disable-next-line no-console
+    console.log('DEBUG cookie values (name:length):', all.map((c: any) => `${c.name}:${String(c.value || '').length}`));
   } catch (e) {
     // ignore
   }
