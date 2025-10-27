@@ -29,11 +29,28 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Install Foundry (Anvil)
+        # Install foundry and run foundryup in a non-interactive CI environment.
         run: |
+          set -euo pipefail
           curl -L https://foundry.paradigm.xyz | bash
-          source $HOME/.bashrc
-          foundryup
-          anvil --version
+          # Ensure the installation folder is available in PATH for this step
+          if [ -f "$HOME/.bashrc" ]; then
+            # shellcheck disable=SC1090
+            source "$HOME/.bashrc" || true
+          fi
+          # Try to run foundryup (it may already be present after the script)
+          if command -v foundryup >/dev/null 2>&1; then
+            foundryup || true
+          elif [ -x "$HOME/.foundry/bin/foundryup" ]; then
+            "$HOME/.foundry/bin/foundryup" || true
+          fi
+          # Verify anvil is available
+          if command -v anvil >/dev/null 2>&1; then
+            anvil --version
+          else
+            echo "anvil not found after foundry installation; aborting" >&2
+            exit 1
+          fi
 
       - name: Lint
         run: npm run lint
