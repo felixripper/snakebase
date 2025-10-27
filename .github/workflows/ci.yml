@@ -9,6 +9,9 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      # Disable on-chain contract e2e by default in CI runs unless explicitly enabled.
+      RUN_ONCHAIN_TESTS: 'false'
 
     steps:
       - name: Checkout
@@ -29,6 +32,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Install Foundry (Anvil)
+        if: ${{ env.RUN_ONCHAIN_TESTS == 'true' }}
         # Install foundry and run foundryup in a non-interactive CI environment.
         run: |
           set -euo pipefail
@@ -59,9 +63,11 @@ jobs:
         run: npm test -- --ci
 
       - name: Start Anvil
+        if: ${{ env.RUN_ONCHAIN_TESTS == 'true' }}
         run: nohup anvil --port 8545 --chain-id 31337 > anvil.log 2>&1 &
 
       - name: E2E Contract Tests
+        if: ${{ env.RUN_ONCHAIN_TESTS == 'true' }}
         env:
           # OnchainKit API key - use GitHub secret if available, otherwise use placeholder
           NEXT_PUBLIC_ONCHAINKIT_API_KEY: ${{ secrets.NEXT_PUBLIC_ONCHAINKIT_API_KEY || 'test-api-key' }}
