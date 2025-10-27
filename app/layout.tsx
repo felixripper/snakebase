@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { SafeArea } from '@coinbase/onchainkit/minikit';
 import { minikitConfig } from '../minikit.config';
 import { RootProvider } from './rootProvider';
 import './globals.css';
@@ -34,10 +33,8 @@ export default function RootLayout({
     <RootProvider>
       <html lang="en">
         <body>
-          <SafeArea>
-            <WalletBar />
-            {children}
-          </SafeArea>
+          <WalletBar />
+          {children}
         </body>
       </html>
     </RootProvider>

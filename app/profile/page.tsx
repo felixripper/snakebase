@@ -4,6 +4,7 @@ import { useAccount, useReadContract } from 'wagmi';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense, useEffect, useState, useRef } from 'react';
+import Image from 'next/image';
 import styles from './Profile.module.css';
 import { useUser } from '../_contexts/UserContext';
 
@@ -226,7 +227,7 @@ function ProfileContent() {
                 title="Click to change avatar"
               >
                 {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <Image src={user.avatarUrl} alt="Avatar" width={128} height={128} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   '👤'
                 )}

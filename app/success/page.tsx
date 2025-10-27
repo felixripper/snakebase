@@ -1,30 +1,27 @@
 "use client";
 
-import { useComposeCast } from '@coinbase/onchainkit/minikit';
 import { minikitConfig } from "../../minikit.config";
 import styles from "./page.module.css";
 
 export default function Success() {
 
-  const { composeCastAsync } = useComposeCast();
-  
   const handleShare = async () => {
     try {
       const text = `Yay! I just joined the waitlist for ${minikitConfig.miniapp.name.toUpperCase()}! `;
-      
-      const result = await composeCastAsync({
-        text: text,
-        embeds: [process.env.NEXT_PUBLIC_URL || ""]
-      });
 
-      // result.cast can be null if user cancels
-      if (result?.cast) {
-        console.log("Cast created successfully:", result.cast.hash);
+      // Fallback: use navigator.share if available, otherwise copy to clipboard
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Snakebase Success',
+          text: text,
+          url: process.env.NEXT_PUBLIC_URL || ""
+        });
       } else {
-        console.log("User cancelled the cast");
+        await navigator.clipboard.writeText(text + (process.env.NEXT_PUBLIC_URL || ""));
+        alert('Link copied to clipboard!');
       }
     } catch (error) {
-      console.error("Error sharing cast:", error);
+      console.error("Error sharing:", error);
     }
   };
 

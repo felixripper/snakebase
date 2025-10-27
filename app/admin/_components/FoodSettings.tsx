@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import styles from './FoodSettings.module.css';
 
 interface FoodIconConfig {
@@ -114,7 +115,7 @@ export default function FoodSettings({ config, onChange }: Props) {
           <div className={styles.uploadSection}>
             {config.value && (
               <div className={styles.preview}>
-                <img src={config.value} alt="Food icon" />
+                <Image src={config.value} alt="Food icon" width={32} height={32} />
               </div>
             )}
             <label className={styles.uploadBtn}>
@@ -149,7 +150,7 @@ export default function FoodSettings({ config, onChange }: Props) {
         <div className={styles.sizePreview}>
           <div style={{ fontSize: `${config.size * 32}px` }}>
             {config.type === 'emoji' ? config.value : (
-              config.value ? <img src={config.value} alt="Preview" style={{ width: `${config.size * 32}px`, height: `${config.size * 32}px` }} /> : '🍎'
+              config.value ? <Image src={config.value} alt="Preview" width={config.size * 32} height={config.size * 32} /> : '🍎'
             )}
           </div>
         </div>

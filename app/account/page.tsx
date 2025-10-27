@@ -3,6 +3,7 @@
 import { useUser } from '../_contexts/UserContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
+import Image from 'next/image';
 import styles from './Account.module.css';
 
 export default function AccountPage() {
@@ -136,7 +137,7 @@ export default function AccountPage() {
                 title="Click to change avatar"
               >
                 {user.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <Image src={user.avatarUrl} alt="Avatar" width={128} height={128} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   '👤'
                 )}

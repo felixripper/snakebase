@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useCallback } from 'react';
 import { useAccount, useSignMessage } from 'wagmi';
 
 interface User {
@@ -25,14 +26,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
-  const [walletLoginBusy, setWalletLoginBusy] = useState(false);
+  const [_walletLoginBusy, _setWalletLoginBusy] = useState(false);
   const [sessionCache, setSessionCache] = useState<{ user: User | null; timestamp: number } | null>(null);
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
 
   const SESSION_CACHE_TTL = 60_000; // 60 seconds cache
 
-  const refreshUser = async (forceRefresh = false) => {
+  const refreshUser = useCallback(async (forceRefresh = false) => {
     try {
       // Check cache first
       if (!forceRefresh && sessionCache && Date.now() - sessionCache.timestamp < SESSION_CACHE_TTL) {
@@ -61,7 +62,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [sessionCache]);
 
   const logout = async () => {
     try {
@@ -81,7 +82,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     refreshUser();
-  }, []);
+  }, [refreshUser]);
 
   // Auto wallet-only login: if wallet connects and no app session, do SIWE-lite
   useEffect(() => {
@@ -90,42 +91,17 @@ export function UserProvider({ children }: { children: ReactNode }) {
         if (!isConnected || !address) return;
 
         // Kullanıcı yakın zamanda manuel logout yaptıysa bekle
-        try {
-          const untilStr = typeof window !== 'undefined' ? sessionStorage.getItem('suppressWalletLoginUntil') : null;
-          const until = untilStr ? Number(untilStr) : 0;
-          if (until && Date.now() < until) return;
-        } catch {}
-        if (authenticated || walletLoginBusy) return;
-        setWalletLoginBusy(true);
+        const untilStr = typeof window !== 'undefined' ? sessionStorage.getItem('suppressWalletLoginUntil') : null;
+        const until = untilStr ? Number(untilStr) : 0;
+        if (until && Date.now() < until) return;
 
-        // 1) Get nonce
-        const res1 = await fetch('/api/auth/wallet/nonce', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ address })
-        });
-        if (!res1.ok) return;
-        const n = await res1.json();
-        if (!n?.message) return;
-
-        // 2) Ask signature
-        const signature = await signMessageAsync({ message: n.message });
-
-        // 3) Verify
-        const res2 = await fetch('/api/auth/wallet/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ address, signature })
-        });
-        if (res2.ok) await refreshUser(true); // Force refresh after login
+        await refreshUser(true);
       } catch {
-        // kullanıcı imzayı reddedebilir; sessiz geç
-      } finally {
-        setWalletLoginBusy(false);
+        // ignore
       }
     };
-    void run();
-  }, [isConnected, address, authenticated, signMessageAsync, walletLoginBusy]);
+    run();
+  }, [isConnected, address, authenticated, signMessageAsync, _walletLoginBusy, refreshUser]);
 
   return (
     <UserContext.Provider value={{ user, loading, authenticated, refreshUser, logout }}>
@@ -136,7 +112,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
 export function useUser() {
   const context = useContext(UserContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useUser must be used within a UserProvider');
   }
   return context;

@@ -23,7 +23,7 @@ const LEADERBOARD_ABI = [
   },
 ] as const;
 
-const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_LEADERBOARD_CONTRACT as `0x${string}`) || "0x0000000000000000000000000000000000000000";
+const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_GAME_CONTRACT as `0x${string}`) || "0x0000000000000000000000000000000000000000";
 
 export default function Home() {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
