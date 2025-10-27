@@ -44,5 +44,18 @@ export async function getAppRouterSession(): Promise<IronSession<SessionData>> {
   } catch (e) {
     // ignore
   }
+  // Also log the raw snakebase-session cookie for deeper debugging (masked partially)
+  try {
+    const raw = cookieStore.get ? cookieStore.get('snakebase-session') : undefined;
+    if (raw) {
+      // eslint-disable-next-line no-console
+      console.log('DEBUG raw snakebase-session cookie:', String(raw.value).slice(0, 40) + '...');
+    } else {
+      // eslint-disable-next-line no-console
+      console.log('DEBUG raw snakebase-session cookie: <not present>');
+    }
+  } catch (e) {
+    // ignore
+  }
   return getIronSession<SessionData>(cookieStore, sessionOptions);
 }
