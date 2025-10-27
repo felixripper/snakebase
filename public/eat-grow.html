@@ -1025,6 +1025,25 @@
         });
       }
 
+      // Listen for on-chain status messages from parent
+      window.addEventListener('message', (event) => {
+        if (event.origin !== window.location.origin) return;
+        const data = event.data;
+        const statusEl = document.getElementById('onchainStatus');
+        if (!statusEl) return;
+        if (!data || typeof data !== 'object') return;
+        if (data.type === 'ONCHAIN_STATUS') {
+          statusEl.textContent = data.message || '';
+        } else if (data.type === 'ONCHAIN_HASH') {
+          const h = data.hash || '';
+          statusEl.textContent = `Transaction sent! Hash: ${String(h).slice(0,10)}…`;
+        } else if (data.type === 'ONCHAIN_CONFIRMED') {
+          statusEl.textContent = '✅ Score submitted on-chain!';
+        } else if (data.type === 'ONCHAIN_ERROR') {
+          statusEl.textContent = 'Error: ' + (data.message || 'unknown');
+        }
+      });
+
       async function submitScoreOnChain(score) {
         const statusEl = document.getElementById('onchainStatus');
         if (!statusEl) return;
@@ -1032,7 +1051,9 @@
         // eslint-disable-next-line no-undef
         const eth = window.ethereum;
         if (!eth) {
-          statusEl.textContent = 'No wallet found.';
+          // Fallback: ask parent (React app) to submit via wagmi/OnchainKit
+          statusEl.textContent = 'Using app wallet…';
+          window.parent?.postMessage({ type: 'SUBMIT_ONCHAIN_SCORE', score }, window.location.origin);
           return;
         }
 
@@ -1045,7 +1066,7 @@
           const userAddress = accounts[0];
 
           // Contract details (değişken olarak da tanımlayabiliriz ya da URL'den çekebiliriz)
-          const contractAddress = '0x0000000000000000000000000000000000000000'; // NEXT_PUBLIC_LEADERBOARD_CONTRACT placeholder
+          const contractAddress = '0x0000000000000000000000000000000000000000'; // Replaced by parent bridge if not available
           if (contractAddress === '0x0000000000000000000000000000000000000000') {
             statusEl.textContent = 'Contract not deployed yet.';
             return;

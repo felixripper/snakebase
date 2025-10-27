@@ -1,15 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import styles from "../page.module.css";
 
 export function GameFrame() {
-  const [isIframeLoaded, setIsIframeLoaded] = useState(false);
+  // We don't need to track iframe load state for functionality
   const hasSignaledReadyRef = useRef(false);
 
+  // Call ready() immediately when component mounts
   useEffect(() => {
-    if (!isIframeLoaded || hasSignaledReadyRef.current) {
+    if (hasSignaledReadyRef.current) {
       return;
     }
 
@@ -37,11 +38,7 @@ export function GameFrame() {
     return () => {
       isCancelled = true;
     };
-  }, [isIframeLoaded]);
-
-  const handleLoad = useCallback(() => {
-    setIsIframeLoaded(true);
-  }, []);
+  }, []); // No dependency on isIframeLoaded
 
   return (
     <div className={styles.container}>
@@ -50,7 +47,6 @@ export function GameFrame() {
         title="Eat & Grow"
         className={styles.frame}
         allow="accelerometer; fullscreen"
-        onLoad={handleLoad}
       />
     </div>
   );
