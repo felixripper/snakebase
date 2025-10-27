@@ -6,6 +6,9 @@ import { getUserById } from '@/lib/user-store';
 export async function GET() {
   try {
     const session = await getAppRouterSession();
+    // DEBUG: log session for troubleshooting auth issues
+    // eslint-disable-next-line no-console
+    console.log('DEBUG session:', JSON.stringify({ isLoggedIn: session.isLoggedIn, userId: session.userId, username: session.username }));
     if (!session.isLoggedIn || !session.userId) {
       return NextResponse.json({ success: false, message: 'auth required', history: [] }, { status: 401 });
     }
