@@ -64,8 +64,10 @@ const LEADERBOARD_ABI = [
   }
 ] as const;
 
+import { GAME_CONTRACT_ADDRESS } from '@/lib/contract';
+
 // Contract address - deploy sonrası güncellenecek
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_LEADERBOARD_CONTRACT as `0x${string}` || '0x0000000000000000000000000000000000000000';
+const CONTRACT_ADDRESS = GAME_CONTRACT_ADDRESS || '0x0000000000000000000000000000000000000000';
 
 type LeaderboardEntry = {
   playerAddress: string;

@@ -8,7 +8,9 @@ import Image from 'next/image';
 import styles from './Profile.module.css';
 import { useUser } from '../_contexts/UserContext';
 
-const LEADERBOARD_CONTRACT = process.env.NEXT_PUBLIC_LEADERBOARD_CONTRACT as `0x${string}`;
+import { GAME_CONTRACT_ADDRESS } from '@/lib/contract';
+
+const LEADERBOARD_CONTRACT = GAME_CONTRACT_ADDRESS as `0x${string}`;
 
 const LEADERBOARD_ABI = [
   {

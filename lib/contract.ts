@@ -6,7 +6,12 @@
 import { type Address } from 'viem';
 
 // Contract address on Base Mainnet (will be set after deployment)
-export const GAME_CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_GAME_CONTRACT as Address) || '0x0000000000000000000000000000000000000000';
+// Prefer `NEXT_PUBLIC_GAME_CONTRACT`, but fall back to legacy `NEXT_PUBLIC_LEADERBOARD_CONTRACT`
+export const GAME_CONTRACT_ADDRESS = (
+  (process.env.NEXT_PUBLIC_GAME_CONTRACT as Address) ||
+  (process.env.NEXT_PUBLIC_LEADERBOARD_CONTRACT as Address) ||
+  '0x0000000000000000000000000000000000000000'
+) as Address;
 
 // Chain ID for Base Mainnet
 export const BASE_CHAIN_ID = 8453;
