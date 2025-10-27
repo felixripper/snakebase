@@ -77,8 +77,12 @@ type LeaderboardEntry = {
 };
 
 export default function Leaderboard() {
+  const blockchainEnabled = process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true';
   const { address, isConnected } = useAccount();
   const [displayCount, setDisplayCount] = useState(10);
+
+  // Note: Hooks must be called unconditionally. We use the `enabled` flag below
+  // to prevent read hooks from firing when blockchain is disabled.
 
   // Top players data
   const { data: topPlayers, isLoading: loadingPlayers, refetch: refetchLeaderboard } = useReadContract({
@@ -87,7 +91,7 @@ export default function Leaderboard() {
     functionName: 'getTopPlayers',
     args: [BigInt(displayCount)],
     query: {
-      enabled: CONTRACT_ADDRESS !== '0x0000000000000000000000000000000000000000',
+      enabled: blockchainEnabled && CONTRACT_ADDRESS !== '0x0000000000000000000000000000000000000000',
     }
   });
 
@@ -97,7 +101,7 @@ export default function Leaderboard() {
     abi: LEADERBOARD_ABI,
     functionName: 'getTotalPlayers',
     query: {
-      enabled: CONTRACT_ADDRESS !== '0x0000000000000000000000000000000000000000',
+      enabled: blockchainEnabled && CONTRACT_ADDRESS !== '0x0000000000000000000000000000000000000000',
     }
   });
 
@@ -108,7 +112,7 @@ export default function Leaderboard() {
     functionName: 'getPlayerRank',
     args: address ? [address] : undefined,
     query: {
-      enabled: isConnected && !!address && CONTRACT_ADDRESS !== '0x0000000000000000000000000000000000000000',
+      enabled: blockchainEnabled && isConnected && !!address && CONTRACT_ADDRESS !== '0x0000000000000000000000000000000000000000',
     }
   });
 
@@ -119,7 +123,7 @@ export default function Leaderboard() {
     functionName: 'getPlayer',
     args: address ? [address] : undefined,
     query: {
-      enabled: isConnected && !!address && CONTRACT_ADDRESS !== '0x0000000000000000000000000000000000000000',
+      enabled: blockchainEnabled && isConnected && !!address && CONTRACT_ADDRESS !== '0x0000000000000000000000000000000000000000',
     }
   });
 

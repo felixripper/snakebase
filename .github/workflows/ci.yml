@@ -21,7 +21,9 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        # Use legacy-peer-deps to avoid ERESOLVE failures from onchainkit/viem peer conflicts
+        # (the project pins viem to a newer version while some peer deps require an older range)
+        run: npm ci --legacy-peer-deps
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps

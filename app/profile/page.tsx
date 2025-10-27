@@ -39,6 +39,7 @@ const LEADERBOARD_ABI = [
 ] as const;
 
 function ProfileContent() {
+  const blockchainEnabled = process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true';
   const { address: connectedAddress } = useAccount();
   const { user, authenticated } = useUser();
   const searchParams = useSearchParams();
@@ -148,6 +149,16 @@ function ProfileContent() {
       setUploadingAvatar(false);
     }
   };
+
+  if (!blockchainEnabled) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.notice}>
+          🔒 Blockchain devre dışı. Profil bilgilerini görmek için NEXT_PUBLIC_BLOCKCHAIN_ENABLED=true yapın.
+        </div>
+      </div>
+    );
+  }
 
   if (!targetAddress) {
     return (

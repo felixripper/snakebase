@@ -1,0 +1,37 @@
+Proposed deletions (admin panels consolidation) - branch: refactor/ux-cleanup
+
+These files are proposed to be REMOVED to consolidate admin UI into a single admin page.
+Confirm before I perform the deletions.
+
+app/admin/
+  app/admin/page.tsx
+  app/admin/Admin.module.css
+  app/admin/settings/page.tsx
+  app/admin/settings-advanced/page.tsx
+  app/admin/settings-advanced/AdvancedSettings.module.css
+  app/admin/ui-customization/page.tsx
+  app/admin/ui-customization/UICustomization.module.css
+  app/admin/_screens/SettingsScreen.tsx
+  app/admin/_screens/UICustomizationScreen.tsx
+  app/admin/_screens/AdvancedSettingsScreen.tsx
+  app/admin/_components/UISettings.tsx
+  app/admin/_components/UISettings.module.css
+  app/admin/_components/LeaderboardUISettings.tsx
+  app/admin/_components/LeaderboardUISettings.module.css
+  app/admin/_components/FoodSettings.tsx
+  app/admin/_components/FoodSettings.module.css
+  app/admin/_components/Preview.tsx
+  app/admin/_components/Preview.module.css
+
+app/control-panel/
+  app/control-panel/control-panel/page.tsx
+
+app/api/admin/
+  app/api/admin/sync-scores/route.ts
+
+Notes:
+- This PREVIEW lists only admin-related pages/components and the control-panel page.
+- I will NOT delete wallet/auth, contracts, artifacts, typechain, or other on-chain related files unless you explicitly confirm.
+- After you confirm, I'll delete these files, run `npm run build` on the branch and report any breakages.
+
+Please confirm with one reply: "DELETE_ADMIN_NOW" to proceed, or "KEEP_AND_REVIEW" to adjust the list.

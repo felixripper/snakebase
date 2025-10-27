@@ -9,6 +9,7 @@ function truncateAddress(addr: string) {
 }
 
 export default function WalletBar() {
+  const blockchainEnabled = process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true';
   const { user, authenticated } = useUser();
   const { address: wagmiAddress, isConnected } = useAccount();
   const [address, setAddress] = useState<string | null>(null);
@@ -103,6 +104,9 @@ export default function WalletBar() {
         <div style={{ opacity: 0.9 }}>OnchainKit Wallet</div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {!blockchainEnabled && (
+            <div style={{ color: '#fff', opacity: 0.9, fontSize: 13 }}>Blockchain devre dışı</div>
+          )}
           {authenticated && user && (
             <Link
               href="/profile"
@@ -121,7 +125,7 @@ export default function WalletBar() {
             </Link>
           )}
           
-          {(isConnected || !!effectiveAddress) ? (
+          {(blockchainEnabled && (isConnected || !!effectiveAddress)) ? (
             <>
               <span
                 style={{
