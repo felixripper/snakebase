@@ -12,9 +12,9 @@ async function main() {
   const address = await leaderboard.getAddress();
 
   console.log("SnakeGameLeaderboard deployed to:", address);
-  console.log("\nAdd this to your .env.local file:");
+  console.log("\nAdd this to your .env.local / Vercel env:");
   console.log(`NEXT_PUBLIC_LEADERBOARD_CONTRACT=${address}`);
-  console.log("\nVerify the contract on Basescan:");
+  console.log("\nVerify the contract on Basescan (optional):");
   console.log(`npx hardhat verify --network baseSepolia ${address}`);
 }
 
