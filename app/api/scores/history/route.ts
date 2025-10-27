@@ -1,10 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { getAppRouterSession } from '@/lib/session';
 import { getHistoryByWallet } from '@/lib/score-store';
 import { getUserById } from '@/lib/user-store';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    // Log incoming Cookie header to ensure the browser/client is sending the session cookie
+    // eslint-disable-next-line no-console
+    console.log('DEBUG Request Cookie header:', String(req.headers.get('cookie'))?.slice(0, 200));
     const session = await getAppRouterSession();
   // DEBUG: log session for troubleshooting auth issues
   // eslint-disable-next-line no-console
