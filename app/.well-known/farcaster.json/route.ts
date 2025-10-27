@@ -1,8 +1,11 @@
+import { NextResponse } from 'next/server';
 import { minikitConfig } from "../../../minikit.config";
+
+export const dynamic = 'force-static';
+export const revalidate = 300; // 5 minutes
 
 export async function GET() {
   try {
-    // Return manifest directly without validation wrapper
     const manifest = {
       accountAssociation: minikitConfig.accountAssociation,
       frame: {
@@ -19,17 +22,17 @@ export async function GET() {
       ...(minikitConfig.baseBuilder ? { baseBuilder: minikitConfig.baseBuilder } : {}),
     };
 
-    return Response.json(manifest, {
+    return NextResponse.json(manifest, {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=300',
+        'Cache-Control': 'public, max-age=300, s-maxage=300',
       },
     });
   } catch (error) {
-    console.error('Manifest error:', error);
-    return Response.json(
-      { error: 'Failed to generate manifest' },
-      { status: 500 }
+    console.error('Manifest generation error:', error);
+    return NextResponse.json(
+      { error: 'Manifest generation failed' },
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }
