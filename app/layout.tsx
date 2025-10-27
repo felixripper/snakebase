@@ -30,13 +30,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <RootProvider>
-      <html lang="en">
-        <body>
+    <html lang="en">
+      <body>
+        <RootProvider>
           <WalletBar />
           {children}
-        </body>
-      </html>
-    </RootProvider>
+        </RootProvider>
+      </body>
+    </html>
   );
 }
