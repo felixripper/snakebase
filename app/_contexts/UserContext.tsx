@@ -5,10 +5,10 @@ import { useAccount, useSignMessage } from 'wagmi';
 
 interface User {
   id: string;
-  email: string;
   username: string;
-  walletAddress?: string;
+  walletAddress: string;
   createdAt: number;
+  avatarUrl?: string;
 }
 
 interface UserContextType {

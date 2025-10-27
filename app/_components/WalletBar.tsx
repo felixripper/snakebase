@@ -9,7 +9,7 @@ function truncateAddress(addr: string) {
 }
 
 export default function WalletBar() {
-  const { user, authenticated, refreshUser } = useUser();
+  const { user, authenticated } = useUser();
   const { address: wagmiAddress, isConnected } = useAccount();
   const [address, setAddress] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
@@ -73,27 +73,7 @@ export default function WalletBar() {
     setError(null);
   };
 
-  // Kullanıcı login ise ve cüzdan adresi varsa otomatik linkle
   const effectiveAddress = wagmiAddress ?? address;
-  useEffect(() => {
-    const run = async () => {
-      try {
-        if (!authenticated || !user || !effectiveAddress) return;
-        if (user.walletAddress && user.walletAddress.toLowerCase() === effectiveAddress.toLowerCase()) return;
-        const res = await fetch('/api/auth/link-wallet', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ walletAddress: effectiveAddress })
-        });
-        if (res.ok) {
-          await refreshUser();
-        }
-      } catch {
-        // ignore
-      }
-    };
-    void run();
-  }, [authenticated, user, effectiveAddress, refreshUser]);
 
   return (
     <div
@@ -125,7 +105,7 @@ export default function WalletBar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {authenticated && user && (
             <Link
-              href="/account"
+              href="/profile"
               style={{
                 color: '#fff',
                 textDecoration: 'none',
@@ -139,37 +119,6 @@ export default function WalletBar() {
             >
               👤 {user.username}
             </Link>
-          )}
-          {/* Eğer kullanıcı authenticated değilse VE cüzdan bağlı değilse login/register göster */}
-          {!authenticated && !address && (
-            <>
-              <Link
-                href="/signin"
-                style={{
-                  color: '#fff',
-                  textDecoration: 'none',
-                  padding: '6px 12px',
-                  fontSize: 13,
-                  fontWeight: 500,
-                }}
-              >
-                Giriş
-              </Link>
-              <Link
-                href="/register"
-                style={{
-                  color: '#fff',
-                  textDecoration: 'none',
-                  padding: '6px 12px',
-                  background: 'rgba(102, 126, 234, 0.5)',
-                  borderRadius: 8,
-                  fontSize: 13,
-                  fontWeight: 600,
-                }}
-              >
-                Kayıt Ol
-              </Link>
-            </>
           )}
           
           {(isConnected || !!effectiveAddress) ? (
