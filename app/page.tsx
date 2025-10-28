@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
 import styles from "./page.module.css";
-import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useWriteContract, useWaitForTransactionReceipt, useReadContract, useAccount } from "wagmi";
 
 const LEADERBOARD_ABI = [
   {
@@ -21,6 +21,13 @@ const LEADERBOARD_ABI = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [{ name: "_player", type: "address" }],
+    name: "isPlayerRegistered",
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  },
 ] as const;
 
 const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_GAME_CONTRACT as `0x${string}`) || "0x0000000000000000000000000000000000000000";
@@ -35,9 +42,21 @@ export default function Home() {
   // Wagmi write + receipt tracking - always call hooks, conditionally use results
   const wagmiWriteContract = useWriteContract();
   const wagmiWaitForReceipt = useWaitForTransactionReceipt({ hash: wagmiWriteContract.data });
+  const { address } = useAccount();
 
   const { data: hash, writeContract, isPending, error } = blockchainEnabled ? wagmiWriteContract : {};
   const { isLoading: isConfirming, isSuccess: isConfirmed } = blockchainEnabled ? wagmiWaitForReceipt : {};
+
+  // Check if current user is registered
+  const { data: isRegistered } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: LEADERBOARD_ABI,
+    functionName: "isPlayerRegistered",
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address && CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000",
+    },
+  });
 
   // Notify Mini App readiness ASAP
   useEffect(() => {
@@ -110,6 +129,14 @@ export default function Home() {
 
         if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
           child.postMessage({ type: "ONCHAIN_ERROR", message: "Contract not configured" }, window.location.origin);
+          return;
+        }
+
+        // Check if player is registered
+        if (isRegistered === false) {
+          child.postMessage({ type: "ONCHAIN_ERROR", message: "Please register first to submit scores on-chain" }, window.location.origin);
+          // Redirect to profile page for registration
+          window.location.href = "/profile";
           return;
         }
 

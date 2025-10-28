@@ -9,6 +9,7 @@ import styles from './Profile.module.css';
 import { useUser } from '../_contexts/UserContext';
 
 import { GAME_CONTRACT_ADDRESS } from '@/lib/contract';
+import PlayerRegistration from '../_components/PlayerRegistration';
 
 const LEADERBOARD_CONTRACT = GAME_CONTRACT_ADDRESS as `0x${string}`;
 
@@ -206,7 +207,9 @@ function ProfileContent() {
           <h3>Player Not Registered</h3>
           <p>This address has not registered for the leaderboard yet.</p>
           {isOwnProfile && (
-            <Link href="/" className={styles.registerLink}>Register Now</Link>
+            <div style={{ marginTop: 20 }}>
+              <PlayerRegistration />
+            </div>
           )}
         </div>
       </div>
