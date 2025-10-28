@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
 import styles from './PlayerRegistration.module.css';
+import { useUser } from '../_contexts/UserContext';
 
 const LEADERBOARD_ABI = [
   {
@@ -35,6 +36,7 @@ const CONTRACT_ADDRESS = GAME_CONTRACT_ADDRESS || '0x000000000000000000000000000
 export default function PlayerRegistration() {
   const blockchainEnabled = process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true';
   const { address, isConnected } = useAccount();
+  const { authenticated } = useUser();
   const [username, setUsername] = useState('');
   const [checking, setChecking] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
@@ -67,11 +69,8 @@ export default function PlayerRegistration() {
 
     setChecking(true);
     try {
-      const available = await fetch('/api/check-username', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, contractAddress: CONTRACT_ADDRESS }),
-      }).then(res => res.json());
+      const response = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`);
+      const available = await response.json();
       
       setUsernameAvailable(available.available);
     } catch (error) {
@@ -125,6 +124,17 @@ export default function PlayerRegistration() {
         <div className={styles.notice}>
           <h3>🎮 Lider Tablosuna Katıl</h3>
           <p>Skorunu kaydetmek ve yarışmaya katılmak için önce cüzdanını bağla!</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!authenticated) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.notice}>
+          <h3>🔐 Oturum Açmanız Gerekiyor</h3>
+          <p>Blockchain kaydı için önce uygulamaya giriş yapmanız gerekiyor.</p>
         </div>
       </div>
     );

@@ -73,7 +73,7 @@ function ProfileContent() {
   const [history, setHistory] = useState<Array<{ ts: number; score: number }>>([]);
   useEffect(() => {
     const load = async () => {
-      if (!isOwnProfile) return;
+      if (!isOwnProfile || !authenticated) return;
       try {
         const res = await fetch('/api/scores/history');
         if (!res.ok) return;
@@ -82,7 +82,7 @@ function ProfileContent() {
       } catch {}
     };
     void load();
-  }, [isOwnProfile]);
+  }, [isOwnProfile, authenticated]);
 
   // Username editing state
   const [isEditingUsername, setIsEditingUsername] = useState(false);
