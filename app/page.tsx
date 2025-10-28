@@ -45,7 +45,12 @@ export default function Home() {
   // Bridge on-chain requests from the game (iframe) to the app wallet (wagmi)
   useEffect(() => {
     const handler = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
+      console.log('Received message from iframe:', event.data);
+      
+      if (event.origin !== window.location.origin) {
+        console.log('Ignoring message from different origin:', event.origin);
+        return;
+      }
       const data = event.data;
       if (!data || typeof data !== "object") return;
 
@@ -146,8 +151,7 @@ export default function Home() {
         src="/eat-grow.html"
         title="Eat & Grow"
         className={styles.frame}
-        allow="accelerometer; fullscreen; camera; microphone; geolocation"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
+        allow="accelerometer; fullscreen; camera; microphone; geolocation; autoplay; encrypted-media; gyroscope; magnetometer"
       />
     </div>
   );

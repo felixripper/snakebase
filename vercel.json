@@ -23,6 +23,19 @@
       ]
     },
     {
+      "source": "/eat-grow.html",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://*.farcade.com; connect-src 'self' https://*.base.org https://*.farcade.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'"
+        }
+      ]
+    },
+    {
       "source": "/api/(.*)",
       "headers": [
         {
