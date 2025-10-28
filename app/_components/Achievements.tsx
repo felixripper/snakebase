@@ -80,7 +80,7 @@ export default function Achievements() {
 
   useEffect(() => {
     if (playerAchievements) {
-      setUnlockedAchievements(playerAchievements as number[]);
+      setUnlockedAchievements(playerAchievements.map((id: bigint) => Number(id)));
     }
   }, [playerAchievements]);
 
