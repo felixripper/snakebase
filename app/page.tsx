@@ -146,7 +146,8 @@ export default function Home() {
         src="/eat-grow.html"
         title="Eat & Grow"
         className={styles.frame}
-        allow="accelerometer; fullscreen"
+        allow="accelerometer; fullscreen; camera; microphone; geolocation"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
       />
     </div>
   );
