@@ -49,6 +49,40 @@ export default function Home() {
       const data = event.data;
       if (!data || typeof data !== "object") return;
 
+      if (data.type === "REGISTER_PLAYER") {
+        const username = String(data.username || "");
+        const child = iframeRef.current?.contentWindow;
+        if (!child) return;
+
+        if (!blockchainEnabled || !writeContract) {
+          child.postMessage({ type: "ONCHAIN_ERROR", message: "Blockchain features disabled" }, window.location.origin);
+          return;
+        }
+
+        if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
+          child.postMessage({ type: "ONCHAIN_ERROR", message: "Contract not configured" }, window.location.origin);
+          return;
+        }
+
+        if (!username.trim()) {
+          child.postMessage({ type: "ONCHAIN_ERROR", message: "Username is required" }, window.location.origin);
+          return;
+        }
+
+        try {
+          child.postMessage({ type: "ONCHAIN_STATUS", message: "Registering player…" }, window.location.origin);
+          writeContract({
+            address: CONTRACT_ADDRESS,
+            abi: LEADERBOARD_ABI,
+            functionName: "registerPlayer",
+            args: [username.trim()],
+          });
+        } catch (e: unknown) {
+          const message = e instanceof Error ? e.message : "Unknown error";
+          child.postMessage({ type: "ONCHAIN_ERROR", message }, window.location.origin);
+        }
+      }
+
       if (data.type === "SUBMIT_ONCHAIN_SCORE") {
         const score = Number(data.score);
         const child = iframeRef.current?.contentWindow;

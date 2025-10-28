@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useUser } from '../_contexts/UserContext';
 import Link from 'next/link';
-import { useAccount } from 'wagmi';
+import { useAccount, useDisconnect } from 'wagmi';
 
 function truncateAddress(addr: string) {
   return addr.slice(0, 6) + '…' + addr.slice(-4);
@@ -13,6 +13,7 @@ export default function WalletBar() {
   const { user, authenticated } = useUser();
   const wagmiAccount = useAccount();
   const { address: wagmiAddress, isConnected } = blockchainEnabled ? wagmiAccount : { address: undefined, isConnected: false };
+  const { disconnect: wagmiDisconnect } = useDisconnect();
   const [address, setAddress] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +75,9 @@ export default function WalletBar() {
   };
 
   const disconnect = () => {
+    if (blockchainEnabled) {
+      wagmiDisconnect();
+    }
     // Tarayıcı cüzdanlarında programatik disconnect çoğu zaman desteklenmez.
     // Uygulama durumunu sıfırlıyoruz.
     setAddress(null);
