@@ -100,7 +100,52 @@ export function UserProvider({ children }: { children: ReactNode }) {
         const until = untilStr ? Number(untilStr) : 0;
         if (until && Date.now() < until) return;
 
-        await refreshUser(true);
+        // If we already have an app session, skip signing
+        const resp = await fetch('/api/auth/session');
+        const ds = await resp.json().catch(() => ({}));
+        if (ds?.authenticated) {
+          await refreshUser(true);
+          return;
+        }
+
+        // Perform SIWE-lite: request nonce, sign message, verify
+        if (typeof signMessageAsync === 'function') {
+          try {
+            const nonceRes = await fetch('/api/auth/wallet/nonce', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ address }),
+            });
+            const nonceData = await nonceRes.json();
+            if (!nonceData?.message) {
+              // fallback to refreshUser which may show anonymous
+              await refreshUser(true);
+              return;
+            }
+
+            const message = nonceData.message as string;
+            const signature = await signMessageAsync({ message });
+
+            const verifyRes = await fetch('/api/auth/wallet/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ address, signature }),
+            });
+            const verifyData = await verifyRes.json().catch(() => ({}));
+            if (verifyData?.success) {
+              await refreshUser(true);
+            } else {
+              // verification failed — still refresh to clear any stale session
+              await refreshUser(true);
+            }
+          } catch {
+            // ignore signing errors but refresh user state
+            await refreshUser(true);
+          }
+        } else {
+          // No signer available — just refresh
+          await refreshUser(true);
+        }
       } catch {
         // ignore
       }
