@@ -54,7 +54,7 @@ export function RootProvider({ children }: { children: ReactNode }) {
           <UserProvider>{children}</UserProvider>
         </WagmiConfig>
       ) : (
-        // If blockchain is disabled, don't render Wagmi/OnchainKit providers.
+        // If blockchain is disabled, don't render Wagmi providers.
         <UserProvider>{children}</UserProvider>
       )}
     </QueryClientProvider>

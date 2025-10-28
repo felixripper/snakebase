@@ -123,7 +123,7 @@ export default function WalletBar() {
           fontSize: 14,
         }}
       >
-        <div style={{ opacity: 0.9 }}>OnchainKit Wallet</div>
+        <div style={{ opacity: 0.9 }}>Snakebase Wallet</div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {!blockchainEnabled && (
