@@ -3,7 +3,6 @@ import { getAppRouterSession } from '@/lib/session';
 import { submitScoreForSession, getTopHighScores } from '@/lib/score-store';
 import { verifyScoreSignature, isScoreSubmissionValid } from '@/lib/score-validation';
 import { getUserById } from '@/lib/user-store';
-import { checkAndUnlockAchievements, progressDailyQuest } from '@/lib/achievements';
 
 export async function POST(req: NextRequest) {
   try {
@@ -43,13 +42,7 @@ export async function POST(req: NextRequest) {
     const stats = await submitScoreForSession(session.userId, nScore);
     const top = await getTopHighScores(25);
 
-    // Check achievements
-    const newAchievements = await checkAndUnlockAchievements(session.userId, stats);
-
-    // Progress daily quest
-    await progressDailyQuest(session.userId, 1);
-
-    return NextResponse.json({ success: true, top, achievements: newAchievements });
+    return NextResponse.json({ success: true, top, stats });
   } catch {
     return NextResponse.json({ success: false, message: 'submit failed' }, { status: 500 });
   }

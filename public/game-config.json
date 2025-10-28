@@ -1,8 +1,0 @@
-{
-  "snakeSpeed": 10,
-  "snakeColor": "#FFFFFF",
-  "foodColor": "#FFFF00",
-  "backgroundColor": "#0052FF",
-  "pointsPerFood": 10,
-  "interfaceTitle": "SnakeBase Game"
-}

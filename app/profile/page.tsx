@@ -10,6 +10,9 @@ import { useUser } from '../_contexts/UserContext';
 
 import { GAME_CONTRACT_ADDRESS } from '@/lib/contract';
 
+// Disable static generation for this page
+export const dynamic = 'force-dynamic';
+
 const LEADERBOARD_CONTRACT = GAME_CONTRACT_ADDRESS as `0x${string}`;
 
 const LEADERBOARD_ABI = [
