@@ -1,6 +1,6 @@
 'use client';
 
-import { useAccount, useReadContract } from 'wagmi';
+import { useAccount, useReadContract } from '@/lib/noop-wagmi';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense, useEffect, useState, useRef } from 'react';
@@ -298,9 +298,9 @@ function ProfileContent() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <h2 style={{ margin: 0 }}>{user.username}</h2>
+                    <h2 style={{ margin: 0 }}>{user.username ?? ''}</h2>
                   <button
-                    onClick={() => { setIsEditingUsername(true); setNewUsername(user.username); }}
+                    onClick={() => { setIsEditingUsername(true); setNewUsername(user.username ?? ''); }}
                     style={{ padding: '4px 8px', fontSize: 12, cursor: 'pointer' }}
                   >
                     ✏️ Edit

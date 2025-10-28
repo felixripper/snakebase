@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAccount, useReadContract, useWriteContract } from 'wagmi';
+import { useAccount, useReadContract, useWriteContract } from '@/lib/noop-wagmi';
 import styles from './DailyQuests.module.css';
 
 const LEADERBOARD_ABI = [

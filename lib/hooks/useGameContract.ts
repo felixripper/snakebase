@@ -3,7 +3,7 @@
  * React hooks for interacting with SnakeGameScore contract on Base
  */
 
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from '@/lib/noop-wagmi';
 import { getContractConfig, type PlayerData, isContractAvailable } from '@/lib/contract';
 import type { Address } from 'viem';
 

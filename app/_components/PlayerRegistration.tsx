@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from '@/lib/noop-wagmi';
 import styles from './PlayerRegistration.module.css';
 import { useUser } from '../_contexts/UserContext';
 

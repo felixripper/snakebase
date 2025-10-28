@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { minikitConfig } from '../minikit.config';
 import { RootProvider } from './rootProvider';
 import './globals.css';
-import WalletBar from './_components/WalletBar';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -33,7 +32,6 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <RootProvider>
-          <WalletBar />
           {children}
         </RootProvider>
       </body>

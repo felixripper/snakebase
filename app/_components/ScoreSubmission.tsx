@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from '@/lib/noop-wagmi';
 import styles from './ScoreSubmission.module.css';
 
 interface ScoreSubmissionProps {

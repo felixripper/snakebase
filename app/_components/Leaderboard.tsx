@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useAccount, useReadContract } from 'wagmi';
+import { useAccount, useReadContract } from '@/lib/noop-wagmi';
 import styles from './Leaderboard.module.css';
 
 // Contract ABI - sadece gerekli fonksiyonlar

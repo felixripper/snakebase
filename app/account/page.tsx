@@ -191,8 +191,8 @@ export default function AccountPage() {
               ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span>{user.username}</span>
-                  <button
-                    onClick={() => { setIsEditingUsername(true); setNewUsername(user.username); }}
+                    <button
+                      onClick={() => { setIsEditingUsername(true); setNewUsername(user.username ?? ''); }}
                     style={{ padding: '4px 8px', fontSize: 12, cursor: 'pointer' }}
                   >
                     ✏️ Edit
@@ -206,7 +206,7 @@ export default function AccountPage() {
             </div>
             <div className={styles.infoItem}>
               <label>Member Since:</label>
-              <span>{new Date(user.createdAt).toLocaleDateString()}</span>
+              <span>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : ''}</span>
             </div>
           </div>
 

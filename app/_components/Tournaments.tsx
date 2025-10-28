@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAccount, useReadContract, useWriteContract } from 'wagmi';
+import { useAccount, useReadContract, useWriteContract } from '@/lib/noop-wagmi';
 import { formatEther } from 'viem';
 import styles from './Tournaments.module.css';
 
