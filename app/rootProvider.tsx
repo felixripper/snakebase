@@ -7,7 +7,22 @@ import { OnchainKitProvider } from "@coinbase/onchainkit";
 import "@coinbase/onchainkit/styles.css";
 import { UserProvider } from "./_contexts/UserContext";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes
+      retry: (failureCount, error) => {
+        // Don't retry on 429 (rate limit) errors
+        if (error && typeof error === 'object' && 'status' in error && error.status === 429) {
+          return false;
+        }
+        return failureCount < 3;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    },
+  },
+});
 
 const blockchainEnabled = process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true';
 
@@ -17,6 +32,9 @@ const wagmiConfig = blockchainEnabled
       chains: [base],
       transports: {
         [base.id]: http(),
+      },
+      batch: {
+        multicall: true,
       },
     })
   : undefined;
