@@ -90,6 +90,14 @@ export default function Home() {
         }
       }
 
+      if (data.type === "NAVIGATE") {
+        const path = String(data.path || "");
+        console.log('Navigation request from iframe:', path);
+        if (path && typeof window !== 'undefined') {
+          window.location.href = path;
+        }
+      }
+
       if (data.type === "SUBMIT_ONCHAIN_SCORE") {
         const score = Number(data.score);
         const child = iframeRef.current?.contentWindow;

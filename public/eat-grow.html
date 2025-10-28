@@ -930,12 +930,12 @@
         const leaderboardBtn = document.getElementById('leaderboardBtn');
         if (profileBtn) {
           profileBtn.addEventListener('click', () => {
-            window.location.href = '/profile';
+            window.parent.postMessage({ type: 'NAVIGATE', path: '/profile' }, '*');
           });
         }
         if (leaderboardBtn) {
           leaderboardBtn.addEventListener('click', () => {
-            window.location.href = '/leaderboard';
+            window.parent.postMessage({ type: 'NAVIGATE', path: '/leaderboard' }, '*');
           });
         }
         const submitOnChainBtn = document.getElementById('submitOnChainBtn');
