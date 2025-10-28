@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
 import styles from "./page.module.css";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
@@ -29,6 +29,8 @@ const blockchainEnabled = process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true';
 
 export default function Home() {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [iframeError, setIframeError] = useState(false);
 
   // Wagmi write + receipt tracking - always call hooks, conditionally use results
   const wagmiWriteContract = useWriteContract();
@@ -146,12 +148,44 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
+      {!iframeLoaded && !iframeError && (
+        <div style={{ 
+          position: 'absolute', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)',
+          color: 'white',
+          fontSize: '18px'
+        }}>
+          Oyun yükleniyor...
+        </div>
+      )}
+      {iframeError && (
+        <div style={{ 
+          position: 'absolute', 
+          top: '50%', 
+          left: '50%', 
+          transform: 'translate(-50%, -50%)',
+          color: 'red',
+          fontSize: '18px'
+        }}>
+          Oyun yüklenirken hata oluştu. Lütfen sayfayı yenileyin.
+        </div>
+      )}
       <iframe
         ref={iframeRef}
         src="/eat-grow.html"
         title="Eat & Grow"
         className={styles.frame}
         allow="accelerometer; fullscreen; camera; microphone; geolocation; autoplay; encrypted-media; gyroscope; magnetometer"
+        onLoad={() => {
+          console.log('Iframe loaded successfully');
+          setIframeLoaded(true);
+        }}
+        onError={() => {
+          console.log('Iframe failed to load');
+          setIframeError(true);
+        }}
       />
     </div>
   );
