@@ -67,8 +67,6 @@ export async function POST(request: Request) {
     const session = await getIronSession<SessionData>(cookieStore, sessionOptions);
     session.isLoggedIn = true;
     await session.save();
-    // eslint-disable-next-line no-console
-    console.log('DEBUG login session saved:', { isLoggedIn: session.isLoggedIn, userId: session.userId, username: session.username });
     return NextResponse.json({ ok: true });
   }
 

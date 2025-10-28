@@ -61,7 +61,7 @@ interface Tournament {
 }
 
 function TournamentCard({ tournament }: { tournament: Tournament }) {
-  const { address } = useAccount();
+  const { address: _address } = useAccount();
   const { writeContract, isPending } = useWriteContract();
 
   const statusText = {
@@ -174,26 +174,30 @@ export default function Tournaments() {
     }
   }, [playerTournamentIds]);
 
+  // Create individual hooks for each tournament
+  const tournamentHooks = activeTournamentIds?.map((id: bigint) =>
+    useReadContract({
+      address: process.env.NEXT_PUBLIC_GAME_CONTRACT as `0x${string}`,
+      abi: LEADERBOARD_ABI,
+      functionName: 'tournaments',
+      args: [id],
+      query: {
+        enabled: !!activeTournamentIds,
+      },
+    })
+  ) || [];
+
   useEffect(() => {
-    const fetchTournaments = async () => {
-      if (!activeTournamentIds) return;
-
-      const tournamentPromises = (activeTournamentIds as bigint[]).map(async (id) => {
-        const { data: tournament } = await useReadContract({
-          address: process.env.NEXT_PUBLIC_GAME_CONTRACT as `0x${string}`,
-          abi: LEADERBOARD_ABI,
-          functionName: 'tournaments',
-          args: [id],
-        });
-        return tournament as Tournament;
-      });
-
-      const tournamentData = await Promise.all(tournamentPromises);
-      setTournaments(tournamentData.filter(Boolean));
-    };
-
-    fetchTournaments();
-  }, [activeTournamentIds]);
+    if (tournamentHooks.length > 0) {
+      const tournamentData = tournamentHooks
+        .map((hook: any) => hook.data)
+        .filter(Boolean)
+        .map((data: any) => data as Tournament);
+      setTournaments(tournamentData);
+    } else {
+      setTournaments([]);
+    }
+  }, [tournamentHooks]);
 
   return (
     <div className={styles.container}>

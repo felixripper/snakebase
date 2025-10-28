@@ -164,7 +164,7 @@ export default function Home() {
 
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
-  }, [writeContract]);
+  }, [writeContract, isRegistered]);
 
   // Stream tx status back to the iframe
   useEffect(() => {

@@ -45,7 +45,7 @@ interface AchievementProps {
   unlocked: boolean;
 }
 
-function AchievementCard({ id, name, description, icon, reward, unlocked }: AchievementProps) {
+function AchievementCard({ id: _id, name, description, icon, reward, unlocked }: AchievementProps) {
   return (
     <div className={`${styles.achievement} ${unlocked ? styles.unlocked : styles.locked}`}>
       <div className={styles.icon}>

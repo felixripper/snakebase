@@ -57,7 +57,7 @@ const QUEST_DATA = [
   { id: 5, description: 'Arkadaşını davet et', targetScore: 0, reward: 15, icon: '👥' },
 ];
 
-function QuestCard({ quest, completed, onComplete }: {
+function QuestCard({ quest, completed, onComplete: _onComplete }: {
   quest: DailyQuest;
   completed: boolean;
   onComplete: (id: bigint) => void;
