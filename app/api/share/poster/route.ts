@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import sharp from 'sharp';
+// import sharp from 'sharp'; // Removed sharp dependency
 
 export async function GET(req: NextRequest) {
   try {
@@ -31,31 +31,27 @@ export async function GET(req: NextRequest) {
       <stop offset="100%" style="stop-color:#0b1228;stop-opacity:1" />
     </linearGradient>
   </defs>
-  
+
   <rect width="800" height="1000" fill="url(#bg)"/>
-  
+
   <text x="400" y="100" text-anchor="middle" font-size="48" font-weight="bold" fill="#ffffff" font-family="system-ui">🐍 Snakebase</text>
-  
+
   <text x="400" y="350" text-anchor="middle" font-size="96" font-weight="bold" fill="#3ee686" font-family="system-ui">${score}</text>
   <text x="400" y="400" text-anchor="middle" font-size="32" fill="#aaaaaa" font-family="system-ui">SCORE</text>
-  
+
   <text x="400" y="500" text-anchor="middle" font-size="36" font-weight="bold" fill="#ffffff" font-family="system-ui">${displayName}</text>
-  
+
   ${rankText}
-  
+
   <text x="400" y="920" text-anchor="middle" font-size="24" fill="#888888" font-family="system-ui">Play on Base • snakebase.vercel.app</text>
 </svg>
     `.trim();
 
-    // SVG'yi PNG'ye çevir
-    const pngBuffer = await sharp(Buffer.from(svg))
-      .png()
-      .toBuffer();
-
-    return new Response(pngBuffer as unknown as BodyInit, {
+    // Return SVG directly instead of converting to PNG
+    return new Response(svg, {
       status: 200,
       headers: {
-        'Content-Type': 'image/png',
+        'Content-Type': 'image/svg+xml',
         'Cache-Control': 'public, max-age=3600',
       },
     });
