@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     return config;
   },
+  experimental: {
+    serverComponentsExternalPackages: ['@farcaster/miniapp-sdk'],
+  },
   async headers() {
     return [
       {
@@ -24,7 +27,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.farcade.com https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com; connect-src 'self' https://*.base.org https://*.farcade.com https://privy.farcaster.xyz; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com; frame-ancestors *;"
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.farcade.com https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com https://*.vercel.app https://*.vercel-preview.app; connect-src 'self' https://*.base.org https://*.farcade.com https://privy.farcaster.xyz https://*.vercel.app https://*.vercel-preview.app; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com https://*.vercel.app https://*.vercel-preview.app; frame-ancestors *;"
           }
         ]
       },
