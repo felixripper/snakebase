@@ -6,6 +6,10 @@ export async function GET() {
   try {
     const session = await getAppRouterSession();
 
+    console.log('DEBUG session.isLoggedIn:', session.isLoggedIn);
+    console.log('DEBUG session.userId:', session.userId);
+    console.log('DEBUG session.username:', session.username);
+
     if (!session.isLoggedIn || !session.userId) {
       return NextResponse.json({
         authenticated: false,
@@ -16,6 +20,8 @@ export async function GET() {
     // Get fresh user data
     const user = await getUserById(session.userId);
     
+    console.log('DEBUG getUserById result:', user ? 'found' : 'null');
+
     if (!user) {
       // User deleted, destroy session
       session.destroy();

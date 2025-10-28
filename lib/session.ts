@@ -30,8 +30,7 @@ export const sessionOptions: SessionOptions = {
 };
 
 export async function getAppRouterSession(): Promise<IronSession<SessionData>> {
-  // Next 15 ortamında bazı tiplerde cookies() Promise olarak tiplenebiliyor.
-  // Await ile kesin olarak CookieStore elde ediyoruz.
+  // Next.js 15'te API routes'ta cookies() hala Promise olabilir.
   const cookieStore = await cookies();
   // DEBUG: log cookie keys present for troubleshooting
   try {

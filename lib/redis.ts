@@ -39,6 +39,7 @@ export async function kvGet(key: string): Promise<string | null> {
       // Fall back to memory
     }
   }
+  console.log('DEBUG kvGet memory key:', key, 'found:', memory.has(key));
   return memory.get(key) ?? null;
 }
 
@@ -53,6 +54,7 @@ export async function kvSet(key: string, value: string): Promise<void> {
       // Fall back to memory
     }
   }
+  console.log('DEBUG kvSet memory key:', key, 'value length:', value.length);
   memory.set(key, value);
 }
 

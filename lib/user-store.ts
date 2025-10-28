@@ -76,7 +76,9 @@ export async function getUserById(id: string): Promise<User | null> {
   const cached = memoryCache.get<User>(cacheKey, 300_000);
   if (cached) return cached;
 
+  console.log('DEBUG getUserById kvGet key:', USER_BY_ID_KEY(id));
   const userData = await kvGet(USER_BY_ID_KEY(id));
+  console.log('DEBUG getUserById userData:', userData ? 'found' : 'null');
   if (!userData) return null;
   
   const user = JSON.parse(userData) as User;

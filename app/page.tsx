@@ -25,12 +25,17 @@ const LEADERBOARD_ABI = [
 
 const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_GAME_CONTRACT as `0x${string}`) || "0x0000000000000000000000000000000000000000";
 
+const blockchainEnabled = process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true';
+
 export default function Home() {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
-  // Wagmi write + receipt tracking
-  const { data: hash, writeContract, isPending, error } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+  // Wagmi write + receipt tracking - always call hooks, conditionally use results
+  const wagmiWriteContract = useWriteContract();
+  const wagmiWaitForReceipt = useWaitForTransactionReceipt({ hash: wagmiWriteContract.data });
+
+  const { data: hash, writeContract, isPending, error } = blockchainEnabled ? wagmiWriteContract : {};
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = blockchainEnabled ? wagmiWaitForReceipt : {};
 
   // Notify Mini App readiness ASAP
   useEffect(() => {
@@ -48,6 +53,11 @@ export default function Home() {
         const score = Number(data.score);
         const child = iframeRef.current?.contentWindow;
         if (!child) return;
+
+        if (!blockchainEnabled || !writeContract) {
+          child.postMessage({ type: "ONCHAIN_ERROR", message: "Blockchain features disabled" }, window.location.origin);
+          return;
+        }
 
         if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
           child.postMessage({ type: "ONCHAIN_ERROR", message: "Contract not configured" }, window.location.origin);

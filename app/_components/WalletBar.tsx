@@ -11,11 +11,13 @@ function truncateAddress(addr: string) {
 export default function WalletBar() {
   const blockchainEnabled = process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true';
   const { user, authenticated } = useUser();
-  const { address: wagmiAddress, isConnected } = useAccount();
+  const wagmiAccount = useAccount();
+  const { address: wagmiAddress, isConnected } = blockchainEnabled ? wagmiAccount : { address: undefined, isConnected: false };
   const [address, setAddress] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMiniApp, setIsMiniApp] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   // MiniApp ortamını algıla ve mevcut hesapları tespit et
   useEffect(() => {
@@ -42,6 +44,10 @@ export default function WalletBar() {
     };
     void detect();
     return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   const connect = async () => {
@@ -125,7 +131,7 @@ export default function WalletBar() {
             </Link>
           )}
           
-          {(blockchainEnabled && (isConnected || !!effectiveAddress)) ? (
+          {(mounted && blockchainEnabled && (isConnected || !!effectiveAddress)) ? (
             <>
               <span
                 style={{

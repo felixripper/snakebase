@@ -48,6 +48,12 @@ function ProfileContent() {
   const targetAddress = profileAddress || connectedAddress;
   const isOwnProfile = targetAddress === connectedAddress;
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { data: playerData, isLoading: isLoadingPlayer } = useReadContract({
     address: LEADERBOARD_CONTRACT,
     abi: LEADERBOARD_ABI,
@@ -149,6 +155,17 @@ function ProfileContent() {
       setUploadingAvatar(false);
     }
   };
+
+  if (!mounted) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>
+          <div className={styles.spinner}></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!blockchainEnabled) {
     return (

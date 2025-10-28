@@ -13,6 +13,7 @@ export async function POST(req: Request) {
   if (!wallet) return NextResponse.json({ success: false, message: 'wallet required' }, { status: 400 });
 
   const user = await createUserWithWallet(wallet as string);
+  console.log('DEBUG force-auth created user:', user.id);
   const session = await getAppRouterSession();
   session.isLoggedIn = true;
   session.userId = user.id;

@@ -80,6 +80,11 @@ export default function Leaderboard() {
   const blockchainEnabled = process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true';
   const { address, isConnected } = useAccount();
   const [displayCount, setDisplayCount] = useState(10);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Note: Hooks must be called unconditionally. We use the `enabled` flag below
   // to prevent read hooks from firing when blockchain is disabled.
@@ -150,6 +155,14 @@ export default function Leaderboard() {
         <div className={styles.notice}>
           📝 Leaderboard contract henüz deploy edilmedi. Lütfen .env dosyasında NEXT_PUBLIC_LEADERBOARD_CONTRACT adresini ayarlayın.
         </div>
+      </div>
+    );
+  }
+
+  if (!mounted) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>Yükleniyor...</div>
       </div>
     );
   }

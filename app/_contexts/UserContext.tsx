@@ -4,6 +4,8 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { useCallback } from 'react';
 import { useAccount, useSignMessage } from 'wagmi';
 
+const blockchainEnabled = process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true';
+
 interface User {
   id: string;
   username: string;
@@ -28,8 +30,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
   const [_walletLoginBusy, _setWalletLoginBusy] = useState(false);
   const [sessionCache, setSessionCache] = useState<{ user: User | null; timestamp: number } | null>(null);
-  const { address, isConnected } = useAccount();
-  const { signMessageAsync } = useSignMessage();
+  const wagmiAccount = useAccount();
+  const { address, isConnected } = blockchainEnabled ? wagmiAccount : { address: undefined, isConnected: false };
+  const wagmiSignMessage = useSignMessage();
+  const { signMessageAsync } = blockchainEnabled ? wagmiSignMessage : { signMessageAsync: undefined };
 
   const SESSION_CACHE_TTL = 60_000; // 60 seconds cache
 
@@ -86,6 +90,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   // Auto wallet-only login: if wallet connects and no app session, do SIWE-lite
   useEffect(() => {
+    if (!blockchainEnabled) return; // Skip wallet login if blockchain disabled
     const run = async () => {
       try {
         if (!isConnected || !address) return;
