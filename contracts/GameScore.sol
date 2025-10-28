@@ -2,10 +2,10 @@
 pragma solidity ^0.8.24;
 
 /**
- * @title SnakeGameLeaderboard
+ * @title SnakeGameScore
  * @dev Advanced leaderboard contract with player registration, score tracking, and rankings
  */
-contract SnakeGameLeaderboard {
+contract SnakeGameScore {
     struct Player {
         address playerAddress;
         string username;
@@ -28,13 +28,45 @@ contract SnakeGameLeaderboard {
     mapping(address => Player) public players;
     mapping(string => address) public usernameToAddress;
     
-    // Arrays for leaderboard
-    address[] public playerAddresses;
+    struct Achievement {
+        uint256 id;
+        string name;
+        string description;
+        uint256 rewardTokens;
+        bool active;
+    }
+
+    struct Tournament {
+        uint256 id;
+        string name;
+        uint256 startTime;
+        uint256 endTime;
+        uint256 entryFee;
+        uint256 prizePool;
+        uint256 maxParticipants;
+        uint256 currentParticipants;
+        uint8 status; // 0: Active, 1: Completed, 2: Cancelled
+        address winner;
+        bool active;
+        mapping(address => bool) participants;
+        address[] participantList;
+    }
+
+    // Token contract address (BLAST or other reward token)
+    address public rewardToken;
     
-    // Events
-    event PlayerRegistered(address indexed player, string username, uint256 timestamp);
-    event ScoreSubmitted(address indexed player, uint256 score, uint256 newHighScore, uint256 timestamp);
-    event UsernameUpdated(address indexed player, string oldUsername, string newUsername);
+    // Achievements
+    mapping(uint256 => Achievement) public achievements;
+    mapping(address => mapping(uint256 => bool)) public playerAchievements;
+    uint256 public achievementCount;
+    
+    // Tournaments
+    mapping(uint256 => Tournament) public tournaments;
+    uint256 public tournamentCount;
+    
+    // Daily quests
+    mapping(address => uint256) public lastQuestCompletion;
+    mapping(address => uint256) public dailyQuestStreak;
 
     // Modifiers
     modifier onlyRegistered() {
@@ -208,5 +240,232 @@ contract SnakeGameLeaderboard {
      */
     function isPlayerRegistered(address _player) public view returns (bool) {
         return players[_player].isRegistered;
+    }
+
+    // Events
+    event AchievementUnlocked(address indexed player, uint256 achievementId, uint256 rewardTokens);
+    event TournamentCreated(uint256 indexed tournamentId, string name, uint256 prizePool);
+    event TournamentJoined(uint256 indexed tournamentId, address indexed player);
+    event DailyQuestCompleted(address indexed player, uint256 streak, uint256 rewardTokens);
+
+    /**
+     * @dev Set reward token contract address
+     * @param _tokenAddress Address of the reward token contract
+     */
+    function setRewardToken(address _tokenAddress) public {
+        // Only owner can set this - in production, add access control
+        rewardToken = _tokenAddress;
+    }
+
+    /**
+     * @dev Create a new achievement
+     * @param _name Achievement name
+     * @param _description Achievement description
+     * @param _rewardTokens Token reward amount
+     */
+    function createAchievement(string memory _name, string memory _description, uint256 _rewardTokens) public {
+        achievementCount++;
+        achievements[achievementCount] = Achievement({
+            id: achievementCount,
+            name: _name,
+            description: _description,
+            rewardTokens: _rewardTokens,
+            active: true
+        });
+    }
+
+    /**
+     * @dev Unlock achievement for player
+     * @param _player Player address
+     * @param _achievementId Achievement ID
+     */
+    function unlockAchievement(address _player, uint256 _achievementId) public {
+        require(achievements[_achievementId].active, "Achievement not active");
+        require(!playerAchievements[_player][_achievementId], "Achievement already unlocked");
+        
+        playerAchievements[_player][_achievementId] = true;
+        
+        // Transfer reward tokens if token contract is set
+        if (rewardToken != address(0) && achievements[_achievementId].rewardTokens > 0) {
+            // ERC20 transfer logic would go here
+            // IERC20(rewardToken).transfer(_player, achievements[_achievementId].rewardTokens);
+        }
+        
+        emit AchievementUnlocked(_player, _achievementId, achievements[_achievementId].rewardTokens);
+    }
+
+    /**
+     * @dev Create a new tournament
+     * @param _name Tournament name
+     * @param _duration Duration in seconds
+     * @param _entryFee Entry fee in wei
+     */
+    function createTournament(string memory _name, uint256 _duration, uint256 _entryFee, uint256 _maxParticipants) public payable {
+        tournamentCount++;
+        Tournament storage newTournament = tournaments[tournamentCount];
+        newTournament.id = tournamentCount;
+        newTournament.name = _name;
+        newTournament.startTime = block.timestamp;
+        newTournament.endTime = block.timestamp + _duration;
+        newTournament.entryFee = _entryFee;
+        newTournament.prizePool = msg.value;
+        newTournament.maxParticipants = _maxParticipants;
+        newTournament.currentParticipants = 0;
+        newTournament.status = 0; // Active
+        newTournament.active = true;
+        
+        emit TournamentCreated(tournamentCount, _name, msg.value);
+    }
+
+    /**
+     * @dev Join a tournament
+     * @param _tournamentId Tournament ID
+     */
+    function joinTournament(uint256 _tournamentId) public payable {
+        Tournament storage tournament = tournaments[_tournamentId];
+        require(tournament.active, "Tournament not active");
+        require(tournament.status == 0, "Tournament not active");
+        require(block.timestamp >= tournament.startTime && block.timestamp < tournament.endTime, "Tournament not in active period");
+        require(tournament.currentParticipants < tournament.maxParticipants, "Tournament full");
+        require(!tournament.participants[msg.sender], "Already joined");
+        require(msg.value >= tournament.entryFee, "Insufficient entry fee");
+        
+        tournament.participants[msg.sender] = true;
+        tournament.participantList.push(msg.sender);
+        tournament.currentParticipants++;
+        tournament.prizePool += msg.value;
+        
+        emit TournamentJoined(_tournamentId, msg.sender);
+    }
+        
+        emit TournamentJoined(_tournamentId, msg.sender);
+    }
+
+    /**
+     * @dev Complete daily quest
+     */
+    function completeDailyQuest() public onlyRegistered {
+        uint256 today = block.timestamp / 86400; // Days since epoch
+        uint256 lastCompletion = lastQuestCompletion[msg.sender] / 86400;
+        
+        if (today > lastCompletion) {
+            if (today == lastCompletion + 1) {
+                dailyQuestStreak[msg.sender]++;
+            } else {
+                dailyQuestStreak[msg.sender] = 1;
+            }
+            lastQuestCompletion[msg.sender] = block.timestamp;
+            
+            uint256 reward = dailyQuestStreak[msg.sender] * 10; // 10 tokens per day streak
+            emit DailyQuestCompleted(msg.sender, dailyQuestStreak[msg.sender], reward);
+        }
+    }
+
+    /**
+     * @dev Get player achievements
+     * @param _player Player address
+     * @return Array of unlocked achievement IDs
+     */
+    function getPlayerAchievements(address _player) public view returns (uint256[] memory) {
+        uint256[] memory unlockedAchievements = new uint256[](achievementCount);
+        uint256 count = 0;
+        
+        for (uint256 i = 1; i <= achievementCount; i++) {
+            if (playerAchievements[_player][i]) {
+                unlockedAchievements[count] = i;
+                count++;
+            }
+        }
+        
+        // Resize array to actual count
+        uint256[] memory result = new uint256[](count);
+        for (uint256 i = 0; i < count; i++) {
+            result[i] = unlockedAchievements[i];
+        }
+        
+        return result;
+    }
+
+    /**
+     * @dev Get active tournaments
+     * @return Array of active tournament IDs
+     */
+    function getActiveTournaments() public view returns (uint256[] memory) {
+        uint256[] memory activeTournaments = new uint256[](tournamentCount);
+        uint256 count = 0;
+        
+        for (uint256 i = 1; i <= tournamentCount; i++) {
+            if (tournaments[i].active && tournaments[i].status == 0) {
+                activeTournaments[count] = i;
+                count++;
+            }
+        }
+        
+        // Resize array to actual count
+        uint256[] memory result = new uint256[](count);
+        for (uint256 i = 0; i < count; i++) {
+            result[i] = activeTournaments[i];
+        }
+        
+        return result;
+    }
+
+    /**
+     * @dev Get player's tournaments
+     * @param _player Player address
+     * @return Array of tournament IDs the player joined
+     */
+    function getPlayerTournaments(address _player) public view returns (uint256[] memory) {
+        uint256[] memory playerTournaments = new uint256[](tournamentCount);
+        uint256 count = 0;
+        
+        for (uint256 i = 1; i <= tournamentCount; i++) {
+            if (tournaments[i].participants[_player]) {
+                playerTournaments[count] = i;
+                count++;
+            }
+        }
+        
+        // Resize array to actual count
+        uint256[] memory result = new uint256[](count);
+        for (uint256 i = 0; i < count; i++) {
+            result[i] = playerTournaments[i];
+        }
+        
+        return result;
+    }
+
+    /**
+     * @dev Get player daily quests
+     * @param _player Player address
+     * @return Array of completed daily quest IDs
+     */
+    function getPlayerDailyQuests(address _player) public view returns (uint256[] memory) {
+        uint256[] memory completedQuests = new uint256[](dailyQuestCount);
+        uint256 count = 0;
+        
+        for (uint256 i = 1; i <= dailyQuestCount; i++) {
+            if (playerDailyQuests[_player][i]) {
+                completedQuests[count] = i;
+                count++;
+            }
+        }
+        
+        // Resize array to actual count
+        uint256[] memory result = new uint256[](count);
+        for (uint256 i = 0; i < count; i++) {
+            result[i] = completedQuests[i];
+        }
+        
+        return result;
+    }
+
+    /**
+     * @dev Get player streak
+     * @param _player Player address
+     * @return Current daily streak
+     */
+    function getPlayerStreak(address _player) public view returns (uint256) {
+        return playerStreaks[_player];
     }
 }

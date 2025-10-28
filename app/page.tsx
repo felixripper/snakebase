@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { useEffect, useRef } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
 import styles from "./page.module.css";
 import { useWriteContract, useWaitForTransactionReceipt, useReadContract, useAccount } from "wagmi";
+import Leaderboard from "./_components/Leaderboard";
+import Achievements from "./_components/Achievements";
+import Tournaments from "./_components/Tournaments";
+import DailyQuests from "./_components/DailyQuests";
 
 const LEADERBOARD_ABI = [
   {
@@ -13,7 +18,6 @@ const LEADERBOARD_ABI = [
     stateMutability: "nonpayable",
     type: "function",
   },
-  // Optional: registerPlayer to support future requests
   {
     inputs: [{ name: "_username", type: "string" }],
     name: "registerPlayer",
@@ -34,10 +38,13 @@ const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_GAME_CONTRACT as `0x${string}`
 
 const blockchainEnabled = process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true';
 
+type TabType = 'game' | 'leaderboard' | 'achievements' | 'tournaments' | 'quests';
+
 export default function Home() {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [iframeError, setIframeError] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('game');
 
   // Wagmi write + receipt tracking - always call hooks, conditionally use results
   const wagmiWriteContract = useWriteContract();
@@ -67,7 +74,7 @@ export default function Home() {
   useEffect(() => {
     const handler = (event: MessageEvent) => {
       console.log('Received message from iframe:', event.data);
-      
+
       if (event.origin !== window.location.origin) {
         console.log('Ignoring message from different origin:', event.origin);
         return;
@@ -181,47 +188,77 @@ export default function Home() {
     }
   }, [isPending, hash, isConfirming, isConfirmed, error]);
 
+  const tabs = [
+    { id: 'game' as TabType, label: '🎮 Oyun', icon: '🎮' },
+    { id: 'leaderboard' as TabType, label: '🏆 Liderlik', icon: '🏆' },
+    { id: 'achievements' as TabType, label: '🏅 Başarılar', icon: '🏅' },
+    { id: 'tournaments' as TabType, label: '⚔️ Turnuvalar', icon: '⚔️' },
+    { id: 'quests' as TabType, label: '📅 Görevler', icon: '📅' },
+  ];
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'game':
+        return (
+          <div className={styles.gameContainer}>
+            {!iframeLoaded && !iframeError && (
+              <div className={styles.loading}>
+                Oyun yükleniyor...
+              </div>
+            )}
+            {iframeError && (
+              <div className={styles.error}>
+                Oyun yüklenirken hata oluştu. Lütfen sayfayı yenileyin.
+              </div>
+            )}
+            <iframe
+              ref={iframeRef}
+              src="/eat-grow.html"
+              title="Eat & Grow"
+              className={styles.frame}
+              allow="accelerometer; fullscreen; camera; microphone; geolocation; autoplay; encrypted-media; gyroscope; magnetometer"
+              onLoad={() => {
+                console.log('Iframe loaded successfully');
+                setIframeLoaded(true);
+              }}
+              onError={() => {
+                console.log('Iframe failed to load');
+                setIframeError(true);
+              }}
+            />
+          </div>
+        );
+      case 'leaderboard':
+        return <Leaderboard />;
+      case 'achievements':
+        return <Achievements />;
+      case 'tournaments':
+        return <Tournaments />;
+      case 'quests':
+        return <DailyQuests />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className={styles.container}>
-      {!iframeLoaded && !iframeError && (
-        <div style={{ 
-          position: 'absolute', 
-          top: '50%', 
-          left: '50%', 
-          transform: 'translate(-50%, -50%)',
-          color: 'white',
-          fontSize: '18px'
-        }}>
-          Oyun yükleniyor...
-        </div>
-      )}
-      {iframeError && (
-        <div style={{ 
-          position: 'absolute', 
-          top: '50%', 
-          left: '50%', 
-          transform: 'translate(-50%, -50%)',
-          color: 'red',
-          fontSize: '18px'
-        }}>
-          Oyun yüklenirken hata oluştu. Lütfen sayfayı yenileyin.
-        </div>
-      )}
-      <iframe
-        ref={iframeRef}
-        src="/eat-grow.html"
-        title="Eat & Grow"
-        className={styles.frame}
-        allow="accelerometer; fullscreen; camera; microphone; geolocation; autoplay; encrypted-media; gyroscope; magnetometer"
-        onLoad={() => {
-          console.log('Iframe loaded successfully');
-          setIframeLoaded(true);
-        }}
-        onError={() => {
-          console.log('Iframe failed to load');
-          setIframeError(true);
-        }}
-      />
+      <div className={styles.tabBar}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`${styles.tabButton} ${activeTab === tab.id ? styles.active : ''}`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            <span className={styles.tabIcon}>{tab.icon}</span>
+            <span className={styles.tabLabel}>{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className={styles.tabContent}>
+        {renderTabContent()}
+      </div>
     </div>
   );
 }

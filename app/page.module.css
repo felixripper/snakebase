@@ -1,9 +1,7 @@
 .container {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   width: 100%;
-  /* fallback */
   min-height: 100vh;
   background: radial-gradient(120% 120% at 50% 0%, #020411 0%, #020108 70%, #010006 100%);
   padding: 16px;
@@ -22,9 +20,69 @@
   }
 }
 
-.frame {
+.tabBar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 0 16px;
+  flex-wrap: wrap;
+}
+
+.tabButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 25px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.tabButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tabButton.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.tabIcon {
+  font-size: 16px;
+}
+
+.tabLabel {
+  white-space: nowrap;
+}
+
+.tabContent {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.gameContainer {
+  position: relative;
   width: min(100%, 460px);
   aspect-ratio: 2 / 3;
+}
+
+.frame {
+  width: 100%;
+  height: 100%;
   border: none;
   border-radius: 18px;
   box-shadow:
@@ -32,4 +90,44 @@
     inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   overflow: hidden;
   background: #05070f;
+}
+
+.loading, .error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 18px;
+  text-align: center;
+  z-index: 10;
+}
+
+.error {
+  color: #ff6b6b;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 12px;
+  }
+
+  .tabBar {
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+
+  .tabButton {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .tabIcon {
+    font-size: 14px;
+  }
+
+  .tabLabel {
+    display: none;
+  }
 }
