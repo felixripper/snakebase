@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { OnchainKitProvider } from "@coinbase/onchainkit";
 import "@coinbase/onchainkit/styles.css";
 import { UserProvider } from "./_contexts/UserContext";
+import { injected } from "wagmi/connectors";
+import { coinbaseWallet } from "@wagmi/connectors";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,6 +35,13 @@ const wagmiConfig = blockchainEnabled
       transports: {
         [base.id]: http(),
       },
+      connectors: [
+        injected(),
+        coinbaseWallet({
+          appName: 'Snakebase',
+          appLogoUrl: 'https://snakebase.vercel.app/favicon.ico',
+        }),
+      ],
       batch: {
         multicall: true,
       },

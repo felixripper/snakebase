@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useUser } from '../_contexts/UserContext';
 import Link from 'next/link';
-import { useAccount, useDisconnect } from 'wagmi';
+import { useAccount, useDisconnect, useConnect } from 'wagmi';
 
 function truncateAddress(addr: string) {
   return addr.slice(0, 6) + '…' + addr.slice(-4);
@@ -14,6 +14,7 @@ export default function WalletBar() {
   const wagmiAccount = useAccount();
   const { address: wagmiAddress, isConnected } = blockchainEnabled ? wagmiAccount : { address: undefined, isConnected: false };
   const { disconnect: wagmiDisconnect } = useDisconnect();
+  const { connect: connectWagmi, connectors } = useConnect();
   const [address, setAddress] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +56,13 @@ export default function WalletBar() {
     setConnecting(true);
     setError(null);
     try {
+      if (blockchainEnabled && connectors.length > 0) {
+        // Wagmi ile bağlan
+        connectWagmi({ connector: connectors[0] }); // İlk connector'ı kullan
+        return;
+      }
+
+      // Fallback: direct ethereum
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const eth = (window as any)?.ethereum;
       if (eth?.request) {
@@ -66,7 +74,7 @@ export default function WalletBar() {
         setError('Farcaster Base App içinde cüzdan bağlantısı uygulama tarafından yönetilir. Oyun sırasında yetki istenebilir.');
         return;
       }
-      setError('Cüzdan bulunamadı. Lütfen MetaMask kurun veya Base App içinde açın.');
+      setError('Cüzdan bulunamadı. Lütfen MetaMask, Rabby veya Coinbase Wallet kurun.');
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Bağlantı hatası');
     } finally {
