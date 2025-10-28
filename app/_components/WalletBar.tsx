@@ -57,12 +57,16 @@ export default function WalletBar() {
     setError(null);
     try {
       if (blockchainEnabled && connectors.length > 0) {
-        // Wagmi ile bağlan
-        connectWagmi({ connector: connectors[0] }); // İlk connector'ı kullan
+        // Kullanılabilir connector'ları dene (injected önce, sonra coinbase)
+        const injectedConnector = connectors.find(c => c.id === 'injected');
+        const coinbaseConnector = connectors.find(c => c.id === 'coinbaseWallet');
+        
+        const connector = injectedConnector || coinbaseConnector || connectors[0];
+        connectWagmi({ connector });
         return;
       }
 
-      // Fallback: direct ethereum
+      // Fallback: direct ethereum (eski yöntem)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const eth = (window as any)?.ethereum;
       if (eth?.request) {

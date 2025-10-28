@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.farcade.com https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com https://*.vercel.app https://*.vercel-preview.app; connect-src 'self' https://*.base.org https://*.farcade.com https://privy.farcaster.xyz https://cca-lite.coinbase.com https://*.vercel.app https://*.vercel-preview.app; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com https://*.vercel.app https://*.vercel-preview.app; font-src 'self' https://fonts.gstatic.com; frame-ancestors *;"
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; frame-ancestors *;"
           }
         ]
       },

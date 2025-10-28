@@ -3,8 +3,6 @@ import { ReactNode } from "react";
 import { base } from "wagmi/chains";
 import { WagmiConfig, createConfig, http } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { OnchainKitProvider } from "@coinbase/onchainkit";
-import "@coinbase/onchainkit/styles.css";
 import { UserProvider } from "./_contexts/UserContext";
 import { injected } from "wagmi/connectors";
 import { coinbaseWallet } from "@wagmi/connectors";
@@ -53,9 +51,7 @@ export function RootProvider({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       {blockchainEnabled && wagmiConfig ? (
         <WagmiConfig config={wagmiConfig}>
-          <OnchainKitProvider apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY ?? ''} chain={base}>
-            <UserProvider>{children}</UserProvider>
-          </OnchainKitProvider>
+          <UserProvider>{children}</UserProvider>
         </WagmiConfig>
       ) : (
         // If blockchain is disabled, don't render Wagmi/OnchainKit providers.

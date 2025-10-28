@@ -36,7 +36,6 @@
     ]
   },
   "dependencies": {
-    "@coinbase/onchainkit": "^0.20.0",
     "@farcaster/miniapp-sdk": "^0.1.8",
     "@tanstack/react-query": "^5.81.5",
     "@upstash/redis": "^1.35.6",
@@ -53,7 +52,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@coinbase/onchaintestkit": "^0.0.0",
     "@eslint/eslintrc": "^3",
     "@farcaster/quick-auth": "^0.0.7",
     "@next/eslint-plugin-next": "^15.3.4",
