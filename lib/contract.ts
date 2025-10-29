@@ -3,15 +3,15 @@
  * Simple on-chain score tracking
  */
 
-import { type Address } from 'viem';
+// Blockchain integration removed for game-only mode; use plain string types for addresses
 
 // Contract address on Base Mainnet (will be set after deployment)
 // Prefer `NEXT_PUBLIC_GAME_CONTRACT`, but fall back to legacy `NEXT_PUBLIC_LEADERBOARD_CONTRACT`
-export const GAME_CONTRACT_ADDRESS = (
-  (process.env.NEXT_PUBLIC_GAME_CONTRACT as Address) ||
-  (process.env.NEXT_PUBLIC_LEADERBOARD_CONTRACT as Address) ||
+export const GAME_CONTRACT_ADDRESS: string = (
+  process.env.NEXT_PUBLIC_GAME_CONTRACT ||
+  process.env.NEXT_PUBLIC_LEADERBOARD_CONTRACT ||
   '0x0000000000000000000000000000000000000000'
-) as Address;
+);
 
 // Chain ID for Base Mainnet
 export const BASE_CHAIN_ID = 8453;
@@ -100,15 +100,13 @@ export interface PlayerData {
 }
 
 export interface TopPlayersData {
-  addresses: Address[];
+  addresses: string[];
   usernames: string[];
   scores: bigint[];
 }
 
 // Check if blockchain integration is enabled
-export const BLOCKCHAIN_ENABLED = 
-  process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === 'true' && 
-  GAME_CONTRACT_ADDRESS !== '0x0000000000000000000000000000000000000000';
+export const BLOCKCHAIN_ENABLED = false;
 
 // Helper to check if contract is available
 export function isContractAvailable(): boolean {

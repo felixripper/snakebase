@@ -5,7 +5,6 @@
 
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from '@/lib/noop-wagmi';
 import { getContractConfig, type PlayerData, isContractAvailable } from '@/lib/contract';
-import type { Address } from 'viem';
 
 /**
  * Main hook for writing to the contract
@@ -71,7 +70,7 @@ export function useGameContract() {
 /**
  * Hook to read player data from blockchain
  */
-export function usePlayerData(playerAddress?: Address) {
+export function usePlayerData(playerAddress?: string) {
   const contractConfig = getContractConfig();
   const available = isContractAvailable();
 
@@ -104,7 +103,7 @@ export function usePlayerData(playerAddress?: Address) {
 /**
  * Hook to check if player is registered
  */
-export function useIsPlayerRegistered(playerAddress?: Address) {
+export function useIsPlayerRegistered(playerAddress?: string) {
   const contractConfig = getContractConfig();
   const available = isContractAvailable();
 
@@ -143,8 +142,8 @@ export function useTopPlayers(limit: number = 10) {
   });
 
   // Transform the response to TopPlayersData
-  const topPlayers: { address: Address; username: string; score: bigint }[] = data ? 
-    (data[0] as Address[]).map((addr, i) => ({
+  const topPlayers: { address: string; username: string; score: bigint }[] = data ? 
+    (data[0] as string[]).map((addr, i) => ({
       address: addr,
       username: (data[1] as string[])[i],
       score: (data[2] as bigint[])[i],

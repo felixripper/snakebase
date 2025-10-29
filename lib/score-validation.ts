@@ -1,6 +1,4 @@
-import { verifyMessage } from 'viem';
-
-// Skor doğrulama için helper fonksiyonlar
+// Score validation helpers (simplified for game-only mode)
 
 export function buildScoreMessage(walletAddress: string, score: number, nonce: string, timestamp: number): string {
   return [
@@ -9,31 +7,23 @@ export function buildScoreMessage(walletAddress: string, score: number, nonce: s
     `Wallet: ${walletAddress}`,
     `Score: ${score}`,
     `Nonce: ${nonce}`,
-    `Timestamp: ${timestamp}`
+    `Timestamp: ${timestamp}`,
   ].join('\n');
 }
 
+// In game-only mode we don't verify on-chain signatures. This function
+// returns true to allow score processing in the simplified flow.
 export async function verifyScoreSignature(
-  walletAddress: string,
-  score: number,
-  nonce: string,
-  timestamp: number,
-  signature: string
+  _walletAddress: string,
+  _score: number,
+  _nonce: string,
+  _timestamp: number,
+  _signature: string
 ): Promise<boolean> {
-  try {
-    const message = buildScoreMessage(walletAddress, score, nonce, timestamp);
-    const valid = await verifyMessage({
-      address: walletAddress as `0x${string}`,
-      message,
-      signature: signature as `0x${string}`
-    });
-    return valid;
-  } catch {
-    return false;
-  }
+  return true;
 }
 
-// Nonce ve timestamp yaşını kontrol et (5 dakikalık pencere)
+// Nonce and timestamp age check (5 minute window)
 export function isScoreSubmissionValid(timestamp: number, maxAgeMs = 5 * 60 * 1000): boolean {
   const now = Date.now();
   const age = now - timestamp;
