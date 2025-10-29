@@ -13,6 +13,37 @@ export default function Home() {
     void sdk.actions.ready();
   }, []);
 
+  // Poll iframe document.readyState as a fallback in case onLoad doesn't fire
+  useEffect(() => {
+    if (loaded) return;
+    let id: number | null = null;
+    const tryCheck = () => {
+      const el = iframeRef.current;
+      if (!el) return false;
+      try {
+        const doc = el.contentDocument || el.contentWindow?.document;
+        if (doc && doc.readyState === 'complete') {
+          setLoaded(true);
+          return true;
+        }
+      } catch (e) {
+        // cross-origin or not ready yet
+      }
+      return false;
+    };
+
+    id = window.setInterval(() => {
+      if (tryCheck() && id != null) {
+        clearInterval(id);
+      }
+    }, 500);
+
+    // cleanup
+    return () => {
+      if (id != null) clearInterval(id);
+    };
+  }, [loaded]);
+
   return (
     <div className={styles.container}>
       <div className={styles.gameContainer}>
