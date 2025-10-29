@@ -108,6 +108,13 @@
           0 12px 40px rgba(0, 0, 0, 0.45),
           inset 0 0 0 1px rgba(255, 255, 255, 0.04);
       }
+      .panel.show {
+        animation: popIn 260ms cubic-bezier(.2,.9,.2,1);
+      }
+      @keyframes popIn {
+        from { transform: scale(.92); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
       .title {
         font-size: 28px;
         font-weight: 900;
@@ -123,8 +130,8 @@
       .btn {
         display: inline-block;
         margin-top: 10px;
-        padding: 14px 18px;
-        min-width: 200px;
+        padding: 12px 18px;
+        min-width: 160px;
         border-radius: 12px;
         border: none;
         font-size: 16px;
@@ -137,6 +144,10 @@
       }
       .btn:active {
         transform: translateY(1px);
+      }
+      @media (max-width: 520px) {
+        .panel { width: calc(100vw - 32px); padding: 16px; }
+        .btn { min-width: 140px; padding: 12px 14px; font-size: 15px; }
       }
       .gesture-hint {
         position: fixed;
@@ -768,10 +779,9 @@
           localStorage.setItem("eatgrow_best", String(state.best));
         }
         hudBest.textContent = state.best;
-        showGameOver();
+  showGameOver();
         tryGameOver(state.score);
-        // Game over sonrası: skor gönder ve lider tablosunu göster
-        submitScoreAndShowLeaderboard(state.score);
+  // Game over sonrası: on-chain / leaderboard disabled in game-only mode
       }
 
       function drawFoodIcon(kind, cx, cy, size) {
@@ -868,10 +878,16 @@
       function showStart() {
         overlay.style.display = "grid";
         gameOverEl.style.display = "none";
+        gameOverEl.classList.remove('show');
       }
       function showGameOver() {
         overlay.style.display = "none";
         gameOverEl.style.display = "grid";
+        // animate and focus Play Again for accessibility
+        gameOverEl.classList.add('show');
+        setTimeout(() => {
+          try { if (againBtn && typeof againBtn.focus === 'function') againBtn.focus(); } catch (e) {}
+        }, 60);
       }
 
       function startGame() {
@@ -973,50 +989,7 @@
         return '#' + rank;
       }
 
-      async function submitScoreAndShowLeaderboard(score) {
-        const lbBox = document.getElementById('leaderboardBox');
-        const lbList = document.getElementById('leaderboardList');
-        if (!lbBox || !lbList) return;
-        lbBox.style.display = 'block';
-        lbList.innerHTML = '<div style="grid-column:1/-1; opacity:.8">Loading leaderboard…</div>';
-
-        // Önce session var mı bak
-        const sess = await fetchJSON('/api/auth/session');
-        let isAuth = false;
-        if (sess && sess.authenticated && sess.user) {
-          isAuth = true;
-          await fetchJSON('/api/scores/submit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ score })
-          });
-        }
-
-        // On-chain submit butonu göster (eğer cüzdanlı kullanıcı ise)
-        const onchainBox = document.getElementById('onchainSubmitBox');
-        if (isAuth && onchainBox) {
-          onchainBox.style.display = 'block';
-        }
-
-        const top = await fetchJSON('/api/leaderboard/top?limit=25');
-        const arr = (top && top.top) ? top.top : [];
-        lbList.innerHTML = '';
-        arr.forEach((row, idx) => {
-          const rank = idx + 1;
-          const divRank = document.createElement('div');
-          divRank.textContent = trophyForRank(rank);
-          divRank.style.fontWeight = '800';
-          const divPlayer = document.createElement('div');
-          const name = row.username || (row.walletAddress.slice(0,6)+'…'+row.walletAddress.slice(-4));
-          divPlayer.textContent = name;
-          const divScore = document.createElement('div');
-          divScore.style.textAlign = 'right';
-          divScore.textContent = String(row.score);
-          lbList.appendChild(divRank);
-          lbList.appendChild(divPlayer);
-          lbList.appendChild(divScore);
-        });
-      }
+      // Leaderboard and on-chain submission disabled in game-only mode.
 
       // Listen for on-chain status messages from parent
       window.addEventListener('message', (event) => {
