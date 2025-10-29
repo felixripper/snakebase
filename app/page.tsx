@@ -26,7 +26,7 @@ export default function Home() {
           setLoaded(true);
           return true;
         }
-      } catch (e) {
+      } catch {
         // cross-origin or not ready yet
       }
       return false;
