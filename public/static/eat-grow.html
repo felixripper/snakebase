@@ -148,6 +148,20 @@
       @media (max-width: 520px) {
         .panel { width: calc(100vw - 32px); padding: 16px; }
         .btn { min-width: 140px; padding: 12px 14px; font-size: 15px; }
+        .game-over-buttons { gap: 10px; }
+      }
+      @media (max-width: 380px) {
+        .panel { width: calc(100vw - 24px); padding: 12px; }
+        .btn { min-width: 120px; padding: 10px 12px; font-size: 14px; }
+        .title { font-size: 28px; }
+        .subtitle { font-size: 13px; }
+        .final-score { font-size: 20px; margin: 16px 0; }
+        .game-over-buttons { gap: 8px; }
+      }
+      @media (max-width: 320px) {
+        .btn { min-width: 100px; padding: 8px 10px; font-size: 13px; }
+        .title { font-size: 24px; }
+        .final-score { font-size: 18px; margin: 12px 0; }
       }
       .gesture-hint {
         position: fixed;
@@ -166,10 +180,19 @@
         font-size: 12px;
         opacity: 0.8;
       }
-      .final-score {
-        font-size: 24px;
-        margin: 20px 0;
-        text-align: center;
+      .game-over-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .btn-secondary {
+        background: linear-gradient(180deg, #6b7fd7 0%, #4a5fc1 100%);
+        box-shadow: 0 8px 20px rgba(74, 95, 193, 0.35);
+      }
+      .btn-secondary:active {
+        transform: translateY(1px);
       }
       .game-over {
         display: none;
@@ -222,7 +245,10 @@
       <div class="panel">
         <div id="gameOverTitle" class="title">Game Over</div>
         <div class="final-score">Score: <span id="finalScore">0</span></div>
-        <button id="againBtn" class="btn">Play Again</button>
+        <div class="game-over-buttons">
+          <button id="againBtn" class="btn">Play Again</button>
+          <button id="mainPageBtn" class="btn btn-secondary">Ana Sayfaya Git</button>
+        </div>
       </div>
     </div>
 
@@ -313,6 +339,7 @@
       const finalScoreEl = document.getElementById("finalScore");
       const startBtn = document.getElementById("startBtn");
       const againBtn = document.getElementById("againBtn");
+      const mainPageBtn = document.getElementById("mainPageBtn");
       const hintEl = document.getElementById("hint");
       const gameTitleEl = document.getElementById("gameTitle");
       const subtitleEl = document.getElementById("subtitle");
@@ -879,6 +906,9 @@
         againBtn.addEventListener("click", () => {
           resetGame();
           startGame();
+        });
+        mainPageBtn.addEventListener("click", () => {
+          window.location.href = '/';
         });
         // Sharing and profile/leaderboard navigation removed in game-only mode
         requestAnimationFrame(loop);
