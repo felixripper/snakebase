@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+// Temporarily disabled OnchainKit wallet
+// import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import { SimpleConfig } from "@/lib/config-store";
 import styles from "./page.module.css";
 
@@ -78,7 +79,8 @@ export default function AdminPage() {
       <div className={styles.header}>
         <h1 className={styles.title}>Snakebase Admin</h1>
         <div className={styles.walletSection}>
-          <ConnectWallet />
+          {/* Temporarily disabled wallet connection */}
+          {/* <ConnectWallet /> */}
         </div>
       </div>
 

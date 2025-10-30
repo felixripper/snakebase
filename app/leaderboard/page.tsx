@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+// Temporarily disabled OnchainKit wallet
+// import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import styles from "../page.module.css";
 
 export default function LeaderboardPage() {
@@ -20,7 +21,8 @@ export default function LeaderboardPage() {
       <div className={styles.header}>
         <h1 className={styles.title}>Snakebase</h1>
         <div className={styles.walletSection}>
-          <ConnectWallet />
+          {/* Temporarily disabled wallet connection */}
+          {/* <ConnectWallet /> */}
         </div>
       </div>
 

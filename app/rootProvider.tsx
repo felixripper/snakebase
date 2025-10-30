@@ -4,7 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // Temporarily disabled OnchainKit due to dependency conflicts
 // import { OnchainKitProvider } from '@coinbase/onchainkit';
 // import { base } from 'viem/chains';
-import { UserProvider } from "./_contexts/UserContext";
+// Temporarily disabled UserProvider due to Wagmi dependency
+// import { UserProvider } from "./_contexts/UserContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,9 +32,10 @@ export function RootProvider({ children }: { children: ReactNode }) {
         apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
         chain={base}
       > */}
-        <UserProvider>
+        {/* Temporarily disabled UserProvider */}
+        {/* <UserProvider> */}
           {children}
-        </UserProvider>
+        {/* </UserProvider> */}
       {/* </OnchainKitProvider> */}
     </QueryClientProvider>
   );

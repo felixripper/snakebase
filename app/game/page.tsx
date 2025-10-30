@@ -4,8 +4,10 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ConnectWallet } from '@coinbase/onchainkit/wallet';
-import { useUser } from '../_contexts/UserContext';
+// Temporarily disabled OnchainKit wallet
+// import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+// Temporarily disabled UserContext
+// import { useUser } from '../_contexts/UserContext';
 import styles from "../page.module.css";
 
 type TabType = 'game' | 'leaderboard' | 'profile' | 'settings';
@@ -15,73 +17,77 @@ export default function GamePage() {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
   const pathname = usePathname();
-  const { user, authenticated } = useUser();
+  // Temporarily disabled user context
+  // const { user, authenticated } = useUser();
 
   useEffect(() => {
     void sdk.actions.ready();
   }, []);
 
   // Send user info to iframe when loaded and authenticated
-  useEffect(() => {
-    if (loaded && authenticated && user && iframeRef.current) {
-      const message = {
-        type: 'REGISTER_PLAYER',
-        user: {
-          id: user.id,
-          username: user.username,
-          walletAddress: user.walletAddress,
-        }
-      };
-      iframeRef.current.contentWindow?.postMessage(message, '*');
-    }
-  }, [loaded, authenticated, user]);
+  // Temporarily disabled user registration
+  // useEffect(() => {
+  //   if (loaded && authenticated && user && iframeRef.current) {
+  //     const message = {
+  //       type: 'REGISTER_PLAYER',
+  //       user: {
+  //         id: user.id,
+  //         username: user.username,
+  //         walletAddress: user.walletAddress,
+  //       }
+  //     };
+  //     iframeRef.current.contentWindow?.postMessage(message, '*');
+  //   }
+  // }, [loaded, authenticated, user]);
 
   const handleScoreSubmission = useCallback(async (score: number) => {
-    if (!user) return;
+    // Temporarily disabled score submission
+    // if (!user) return;
 
-    try {
-      // Send status update to iframe
-      if (iframeRef.current) {
-        iframeRef.current.contentWindow?.postMessage({
-          type: 'ONCHAIN_STATUS',
-          message: 'Skor gönderiliyor...'
-        }, '*');
-      }
+    // try {
+    //   // Send status update to iframe
+    //   if (iframeRef.current) {
+    //     iframeRef.current.contentWindow?.postMessage({
+    //       type: 'ONCHAIN_STATUS',
+    //       message: 'Skor gönderiliyor...'
+    //     }, '*');
+    //   }
 
-      // Submit score to API
-      const response = await fetch('/api/score/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          score,
-          userId: user.id,
-          walletAddress: user.walletAddress,
-        }),
-      });
+    //   // Submit score to API
+    //   const response = await fetch('/api/score/submit', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({
+    //       score,
+    //       userId: user.id,
+    //       walletAddress: user.walletAddress,
+    //     }),
+    //   });
 
-      if (response.ok) {
-        const result = await response.json();
-        // Send success message to iframe
-        if (iframeRef.current) {
-          iframeRef.current.contentWindow?.postMessage({
-            type: 'ONCHAIN_CONFIRMED',
-            hash: result.transactionHash
-          }, '*');
-        }
-      } else {
-        throw new Error('Score submission failed');
-      }
-    } catch (error) {
-      console.error('Score submission error:', error);
-      // Send error message to iframe
-      if (iframeRef.current) {
-        iframeRef.current.contentWindow?.postMessage({
-          type: 'ONCHAIN_ERROR',
-          message: 'Skor gönderilemedi'
-        }, '*');
-      }
-    }
-  }, [user]);
+    //   if (response.ok) {
+    //     const result = await response.json();
+    //     // Send success message to iframe
+    //     if (iframeRef.current) {
+    //       iframeRef.current.contentWindow?.postMessage({
+    //         type: 'ONCHAIN_CONFIRMED',
+    //         hash: result.transactionHash
+    //       }, '*');
+    //     }
+    //   } else {
+    //     throw new Error('Score submission failed');
+    //   }
+    // } catch (error) {
+    //   console.error('Score submission error:', error);
+    //   // Send error message to iframe
+    //   if (iframeRef.current) {
+    //     iframeRef.current.contentWindow?.postMessage({
+    //       type: 'ONCHAIN_ERROR',
+    //       message: 'Skor gönderilemedi'
+    //     }, '*');
+    //   }
+    // }
+    // }, [user]);
+  }, []);
 
   // Listen for messages from iframe
   useEffect(() => {
@@ -158,7 +164,8 @@ export default function GamePage() {
         </Link>
         <h1 className={styles.title}>Snakebase</h1>
         <div className={styles.walletSection}>
-          <ConnectWallet />
+          {/* Temporarily disabled wallet connection */}
+          {/* <ConnectWallet /> */}
         </div>
       </div>
 

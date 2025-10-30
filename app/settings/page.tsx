@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ConnectWallet } from '@coinbase/onchainkit/wallet';
+// Temporarily disabled OnchainKit wallet
+// import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import styles from "../page.module.css";
 
 export default function SettingsPage() {
@@ -24,7 +25,8 @@ export default function SettingsPage() {
       <div className={styles.header}>
         <h1 className={styles.title}>Snakebase</h1>
         <div className={styles.walletSection}>
-          <ConnectWallet />
+          {/* Temporarily disabled wallet connection */}
+          {/* <ConnectWallet /> */}
         </div>
       </div>
 
