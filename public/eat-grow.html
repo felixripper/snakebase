@@ -166,6 +166,17 @@
         font-size: 12px;
         opacity: 0.8;
       }
+      .final-score {
+        font-size: 24px;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .game-over {
+        display: none;
+      }
+      .game-over.show {
+        display: grid;
+      }
     </style>
   </head>
   <body>
@@ -173,6 +184,50 @@
     <div id="wrap">
       <canvas id="canvas" width="600" height="900"></canvas>
     </div>
+
+    <!-- HUD -->
+    <div id="hud" class="hud">
+      <div id="scoreLabel">Score</div>
+      <div id="score">0</div>
+      <div id="bestLabel">Best</div>
+      <div id="best">0</div>
+    </div>
+
+    <!-- Start/Game Over Overlay -->
+    <div id="overlay" class="overlay">
+      <div class="panel">
+        <div id="gameTitle" class="title">Eat & Grow</div>
+        <div id="subtitle" class="subtitle">Collect the food, don't hit walls or your tail!</div>
+
+        <div id="howTitle" class="title">How to Play</div>
+        <ul id="howList">
+          <li>Controls: Swipe (mobile) • Arrow Keys (desktop)</li>
+          <li>Top dark area is a no-play zone — food never spawns there. Depending on settings it acts as wrap or a wall.</li>
+        </ul>
+
+        <div id="itemsTitle" class="title">Items</div>
+        <ul id="itemsList">
+          <li>Heart: +Score, slightly increases your speed</li>
+          <li>Burger: +Score, slightly increases your speed</li>
+        </ul>
+
+        <div id="controlsHint" class="config-hint">Controls: Swipe (mobile) • Arrow Keys (desktop)</div>
+
+        <button id="startBtn" class="btn">Play</button>
+      </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOver" class="overlay game-over">
+      <div class="panel">
+        <div id="gameOverTitle" class="title">Game Over</div>
+        <div class="final-score">Score: <span id="finalScore">0</span></div>
+        <button id="againBtn" class="btn">Play Again</button>
+      </div>
+    </div>
+
+    <!-- Gesture Hint -->
+    <div id="hint" class="gesture-hint">Swipe to move</div>
     <script>
       let CONFIG = {};
 
