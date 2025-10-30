@@ -10,7 +10,6 @@
     "build": "node scripts/generate-manifest.js && next build",
     "start": "next start -p 3000",
     "lint": "next lint",
-    
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -20,8 +19,11 @@
     "test:e2e:contract": "playwright test e2e/contract-deployment.spec.ts",
     "test:e2e:wallet": "ENABLE_WALLET_TESTS=true playwright test e2e/wallet-integration.spec.ts",
     "test:e2e:transaction": "playwright test e2e/transaction-flow.spec.ts",
-    
     "anvil": "anvil --port 8545 --chain-id 31337",
+    "deploy:base": "npx hardhat run scripts/deploy.js --network base",
+    "deploy:baseSepolia": "npx hardhat run scripts/deploy.js --network baseSepolia",
+    "verify:base": "npx hardhat verify --network base",
+    "compile": "npx hardhat compile",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -34,6 +36,7 @@
     ]
   },
   "dependencies": {
+    "@coinbase/onchainkit": "^1.1.2",
     "@farcaster/miniapp-sdk": "^0.1.8",
     "@tanstack/react-query": "^5.81.5",
     "@upstash/redis": "^1.35.6",
@@ -43,6 +46,8 @@
     "next": "^15.5.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "viem": "^2.38.5",
+    "wagmi": "^2.19.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -54,15 +59,17 @@
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.1.1",
     "@testing-library/user-event": "^14.6.1",
-    "@types/chai": "^5.2.3",
+    "@types/chai": "^4.2.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@upstash/ratelimit": "^2.0.5",
-    "chai": "^6.2.0",
+    "chai": "^4.2.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
+    "hardhat": "^2.19.4",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "husky": "^9.1.7",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",

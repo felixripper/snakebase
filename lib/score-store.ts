@@ -14,7 +14,7 @@ export type LeaderboardRow = {
   score: number;
 };
 
-type HistoryEntry = { ts: number; score: number };
+export type HistoryEntry = { ts: number; score: number };
 
 async function addWalletToSet(wallet: string): Promise<void> {
   const raw = await kvGet(WALLETS_SET_KEY);

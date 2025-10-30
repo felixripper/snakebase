@@ -1,54 +1,17 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/workspaces/snakebase/contracts/GameScore.sol": {
-      "lastModificationDate": 1761511850432,
-      "contentHash": "a17f3733920ae6276d9d352aec499cee",
-      "sourceName": "contracts/GameScore.sol",
-      "solcConfig": {
-        "version": "0.8.24",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.24"
-      ],
-      "artifacts": [
-        "SnakeGameLeaderboard"
-      ]
-    },
     "/workspaces/snakebase/contracts/SnakeGameScore.sol": {
-      "lastModificationDate": 1761551476375,
-      "contentHash": "48acc464dda069279c562fa78ddd350f",
+      "lastModificationDate": 1761853395870,
+      "contentHash": "64ac3cbc1ae0cfc238fe03aec7aecb4b",
       "sourceName": "contracts/SnakeGameScore.sol",
       "solcConfig": {
-        "version": "0.8.24",
+        "version": "0.8.19",
         "settings": {
           "optimizer": {
             "enabled": true,
             "runs": 200
           },
-          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -67,7 +30,7 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.24"
+        "^0.8.19"
       ],
       "artifacts": [
         "SnakeGameScore"

@@ -1,31 +1,84 @@
-// Score validation helpers (simplified for game-only mode)
+// Score validation helpers with anti-cheat measures
 
-export function buildScoreMessage(walletAddress: string, score: number, nonce: string, timestamp: number): string {
-  return [
-    'Snake Game Score Submission',
-    '',
-    `Wallet: ${walletAddress}`,
-    `Score: ${score}`,
-    `Nonce: ${nonce}`,
-    `Timestamp: ${timestamp}`,
-  ].join('\n');
+import type { HistoryEntry } from './score-store';
+
+export interface ScoreValidationResult {
+  valid: boolean;
+  error?: string;
+  score?: number;
 }
 
-// In game-only mode we don't verify on-chain signatures. This function
-// returns true to allow score processing in the simplified flow.
-export async function verifyScoreSignature(
-  _walletAddress: string,
-  _score: number,
-  _nonce: string,
-  _timestamp: number,
-  _signature: string
-): Promise<boolean> {
-  return true;
+// Basic score validation
+export function validateScore(score: unknown): ScoreValidationResult {
+  if (typeof score !== 'number') {
+    return { valid: false, error: 'Score must be a number' };
+  }
+
+  if (!Number.isFinite(score)) {
+    return { valid: false, error: 'Score must be finite' };
+  }
+
+  if (score < 0) {
+    return { valid: false, error: 'Score cannot be negative' };
+  }
+
+  if (score > 1000000) {
+    return { valid: false, error: 'Score too high (max: 1,000,000)' };
+  }
+
+  // Check for suspicious patterns (all same digits, etc.)
+  const scoreStr = score.toString();
+  if (scoreStr.length > 1) {
+    const firstDigit = scoreStr[0];
+    const allSame = scoreStr.split('').every(digit => digit === firstDigit);
+    if (allSame && score > 111) {
+      return { valid: false, error: 'Suspicious score pattern detected' };
+    }
+  }
+
+  return { valid: true, score: Math.floor(score) };
 }
 
-// Nonce and timestamp age check (5 minute window)
-export function isScoreSubmissionValid(timestamp: number, maxAgeMs = 5 * 60 * 1000): boolean {
-  const now = Date.now();
-  const age = now - timestamp;
-  return age >= 0 && age <= maxAgeMs;
+// Advanced validation with user history
+export async function validateScoreWithHistory(
+  userId: string,
+  score: number,
+  walletAddress: string
+): Promise<ScoreValidationResult> {
+  const basicValidation = validateScore(score);
+  if (!basicValidation.valid) {
+    return basicValidation;
+  }
+
+  try {
+    // Import here to avoid circular dependencies
+    const { getHistoryByWallet } = await import('./score-store');
+
+    const history = await getHistoryByWallet(walletAddress);
+
+    // Check for rapid submissions (anti-spam)
+    const recentSubmissions = history.filter((entry: HistoryEntry) => {
+      const age = Date.now() - entry.ts;
+      return age < 30 * 1000; // Last 30 seconds
+    });
+
+    if (recentSubmissions.length >= 3) {
+      return { valid: false, error: 'Too many submissions in short time' };
+    }
+
+    // Check for unrealistic score progression
+    const lastScore = Math.max(...history.map((entry: HistoryEntry) => entry.score));
+    const improvement = score - lastScore;
+
+    if (improvement > 500 && lastScore > 100) {
+      // Allow some improvement but flag suspicious jumps
+      console.warn(`Suspicious score improvement: ${lastScore} -> ${score} for ${walletAddress}`);
+    }
+
+    return { valid: true, score: Math.floor(score) };
+  } catch (error) {
+    console.error('History validation error:', error);
+    // If history check fails, still allow the score but log the error
+    return { valid: true, score: Math.floor(score) };
+  }
 }
