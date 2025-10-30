@@ -1,11 +1,16 @@
 "use client";
 
+import { useEffect } from "react";
+import { sdk } from "@farcaster/miniapp-sdk";
 import Link from "next/link";
 // Temporarily disabled OnchainKit wallet
 // import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import styles from "../page.module.css";
 
 export default function LoginPage() {
+  useEffect(() => {
+    void sdk.actions.ready();
+  }, []);
 
   return (
     <div className={styles.loginContainer}>
