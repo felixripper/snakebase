@@ -1,20 +1,38 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 
-type AdminTab = 'gameplay' | 'appearance' | 'typography' | 'buttons' | 'presets' | 'data';
+type AdminTab = 'gameplay' | 'appearance' | 'typography' | 'buttons' | 'presets' | 'data' | 'content';
 
 export default function AdminPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<AdminTab>('gameplay');
   const [config, setConfig] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [clearingData, setClearingData] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    loadConfig();
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/admin/check');
+      if (!response.ok) {
+        router.push('/admin/login');
+        return;
+      }
+      setAuthChecked(true);
+      loadConfig();
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      router.push('/admin/login');
+    }
+  };
 
   const loadConfig = async () => {
     try {
@@ -88,7 +106,7 @@ export default function AdminPage() {
     setConfig(newConfig);
   };
 
-  if (loading) {
+  if (!authChecked || loading) {
     return (
       <div className={styles.container}>
         <div className={styles.loading}>Admin paneli yükleniyor...</div>
@@ -127,6 +145,7 @@ export default function AdminPage() {
           { id: 'appearance' as AdminTab, label: 'Görünüm', icon: '🎨' },
           { id: 'typography' as AdminTab, label: 'Yazı Tipi', icon: '📝' },
           { id: 'buttons' as AdminTab, label: 'Butonlar', icon: '🔘' },
+          { id: 'content' as AdminTab, label: 'Sayfa İçeriği', icon: '📄' },
           { id: 'presets' as AdminTab, label: 'Hazır Temalar', icon: '⚙️' },
           { id: 'data' as AdminTab, label: 'Veri Yönetimi', icon: '🗃️' },
         ].map((tab) => (
@@ -155,6 +174,9 @@ export default function AdminPage() {
           )}
           {activeTab === 'buttons' && (
             <ButtonsTab config={config} updateNestedConfig={updateNestedConfig} />
+          )}
+          {activeTab === 'content' && (
+            <ContentTab config={config} updateNestedConfig={updateNestedConfig} />
           )}
           {activeTab === 'presets' && (
             <PresetsTab config={config} updateConfig={updateConfig} />
@@ -561,6 +583,225 @@ function ButtonsTab({ config, updateNestedConfig }: {
             type="checkbox"
             checked={config.buttons?.shadow || false}
             onChange={(e) => updateNestedConfig(['buttons', 'shadow'], e.target.checked)}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Content Tab Component
+function ContentTab({ config, updateNestedConfig }: {
+  config: any;
+  updateNestedConfig: (path: string[], value: any) => void;
+}) {
+  const [selectedLanguage, setSelectedLanguage] = useState('tr');
+
+  const languages = [
+    { code: 'tr', name: 'Türkçe' },
+    { code: 'en', name: 'English' },
+    { code: 'es', name: 'Español' },
+    { code: 'fr', name: 'Français' },
+    { code: 'de', name: 'Deutsch' },
+  ];
+
+  const getLocalizedContent = (key: string) => {
+    return config.content?.locales?.[selectedLanguage]?.[key] ||
+           config.content?.[key] ||
+           '';
+  };
+
+  const updateLocalizedContent = (key: string, value: string) => {
+    const path = ['content', 'locales', selectedLanguage, key];
+    updateNestedConfig(path, value);
+  };
+
+  return (
+    <div className={styles.settingsSection}>
+      <h2>📄 Sayfa İçeriği Yönetimi</h2>
+
+      <div className={styles.settingGroup}>
+        <h3>Dil Seçimi</h3>
+        <div className={styles.settingRow}>
+          <label>Dil:</label>
+          <select
+            value={selectedLanguage}
+            onChange={(e) => setSelectedLanguage(e.target.value)}
+          >
+            {languages.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <p>Seçili dil için metinleri düzenleyin. Kaydedildiğinde tüm diller için içerik korunur.</p>
+      </div>
+
+      <div className={styles.settingGroup}>
+        <h3>Ana Sayfa Metinleri</h3>
+        <div className={styles.settingRow}>
+          <label>Ana Başlık:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('mainTitle')}
+            onChange={(e) => updateLocalizedContent('mainTitle', e.target.value)}
+            placeholder="Ana başlık metni"
+          />
+        </div>
+        <div className={styles.settingRow}>
+          <label>Alt Başlık:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('subtitle')}
+            onChange={(e) => updateLocalizedContent('subtitle', e.target.value)}
+            placeholder="Alt başlık metni"
+          />
+        </div>
+        <div className={styles.settingRow}>
+          <label>Açıklama:</label>
+          <textarea
+            value={getLocalizedContent('description')}
+            onChange={(e) => updateLocalizedContent('description', e.target.value)}
+            placeholder="Sayfa açıklaması"
+            rows={3}
+          />
+        </div>
+      </div>
+
+      <div className={styles.settingGroup}>
+        <h3>Oyun Ekranı Metinleri</h3>
+        <div className={styles.settingRow}>
+          <label>Başlama Butonu:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('startButton')}
+            onChange={(e) => updateLocalizedContent('startButton', e.target.value)}
+            placeholder="Başlama butonu metni"
+          />
+        </div>
+        <div className={styles.settingRow}>
+          <label>Ana Sayfa Butonu:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('mainPageButton')}
+            onChange={(e) => updateLocalizedContent('mainPageButton', e.target.value)}
+            placeholder="Ana sayfa butonu metni"
+          />
+        </div>
+        <div className={styles.settingRow}>
+          <label>Oyun Bitti Başlığı:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('gameOverTitle')}
+            onChange={(e) => updateLocalizedContent('gameOverTitle', e.target.value)}
+            placeholder="Oyun bitiş başlığı"
+          />
+        </div>
+        <div className={styles.settingRow}>
+          <label>Skor Metni:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('scoreText')}
+            onChange={(e) => updateLocalizedContent('scoreText', e.target.value)}
+            placeholder="Skor gösterimi metni"
+          />
+        </div>
+      </div>
+
+      <div className={styles.settingGroup}>
+        <h3>Lider Tablosu Metinleri</h3>
+        <div className={styles.settingRow}>
+          <label>Lider Tablosu Başlığı:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('leaderboardTitle')}
+            onChange={(e) => updateLocalizedContent('leaderboardTitle', e.target.value)}
+            placeholder="Lider tablosu başlığı"
+          />
+        </div>
+        <div className={styles.settingRow}>
+          <label>On-chain Liderler:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('onchainLeadersTitle')}
+            onChange={(e) => updateLocalizedContent('onchainLeadersTitle', e.target.value)}
+            placeholder="On-chain liderler başlığı"
+          />
+        </div>
+        <div className={styles.settingRow}>
+          <label>Toplam Liderler:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('totalLeadersTitle')}
+            onChange={(e) => updateLocalizedContent('totalLeadersTitle', e.target.value)}
+            placeholder="Toplam liderler başlığı"
+          />
+        </div>
+      </div>
+
+      <div className={styles.settingGroup}>
+        <h3>Başarılar Metinleri</h3>
+        <div className={styles.settingRow}>
+          <label>Başarılar Başlığı:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('achievementsTitle')}
+            onChange={(e) => updateLocalizedContent('achievementsTitle', e.target.value)}
+            placeholder="Başarılar başlığı"
+          />
+        </div>
+        <div className={styles.settingRow}>
+          <label>Henüz Başarı Yok:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('noAchievementsText')}
+            onChange={(e) => updateLocalizedContent('noAchievementsText', e.target.value)}
+            placeholder="Başarı bulunamama metni"
+          />
+        </div>
+      </div>
+
+      <div className={styles.settingGroup}>
+        <h3>Turnuvalar Metinleri</h3>
+        <div className={styles.settingRow}>
+          <label>Turnuvalar Başlığı:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('tournamentsTitle')}
+            onChange={(e) => updateLocalizedContent('tournamentsTitle', e.target.value)}
+            placeholder="Turnuvalar başlığı"
+          />
+        </div>
+        <div className={styles.settingRow}>
+          <label>Yakında Gelecek:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('comingSoonText')}
+            onChange={(e) => updateLocalizedContent('comingSoonText', e.target.value)}
+            placeholder="Yakında gelecek metni"
+          />
+        </div>
+      </div>
+
+      <div className={styles.settingGroup}>
+        <h3>Görevler Metinleri</h3>
+        <div className={styles.settingRow}>
+          <label>Görevler Başlığı:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('tasksTitle')}
+            onChange={(e) => updateLocalizedContent('tasksTitle', e.target.value)}
+            placeholder="Görevler başlığı"
+          />
+        </div>
+        <div className={styles.settingRow}>
+          <label>Günlük Görevler:</label>
+          <input
+            type="text"
+            value={getLocalizedContent('dailyTasksTitle')}
+            onChange={(e) => updateLocalizedContent('dailyTasksTitle', e.target.value)}
+            placeholder="Günlük görevler başlığı"
           />
         </div>
       </div>

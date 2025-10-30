@@ -1,13 +1,21 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { sessionOptions } from './lib/session';
 
 export function middleware(request: NextRequest) {
-  // Basit kontrol: admin çerezi var mı?
-  const hasSession = request.cookies.get(sessionOptions.cookieName);
-  if (!hasSession) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  // Admin sayfaları için oturum kontrolü
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    // Login sayfasını hariç tut
+    if (request.nextUrl.pathname === '/admin/login') {
+      return NextResponse.next();
+    }
+
+    // Basit oturum kontrolü - çerez var mı?
+    const sessionCookie = request.cookies.get('snakebase-session');
+    if (!sessionCookie) {
+      return NextResponse.redirect(new URL('/admin/login', request.url));
+    }
   }
+
   return NextResponse.next();
 }
 
