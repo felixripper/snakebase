@@ -45,7 +45,7 @@ export default function GamePage() {
         iframeRef.current.contentWindow?.postMessage({
           type: 'ONCHAIN_STATUS',
           message: 'Skor gönderiliyor...'
-        }, window.location.origin);
+        }, '*');
       }
 
       // Submit score to API
