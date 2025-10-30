@@ -15,7 +15,7 @@ export default function Home() {
     <div className={styles.container}>
       <iframe
         ref={iframeRef}
-        src="/eat-grow.game"
+        src="/static/eat-grow.html"
         title="Eat & Grow"
         className={styles.frame}
         allow="accelerometer; fullscreen; camera; microphone; geolocation; autoplay; encrypted-media; gyroscope; magnetometer"

@@ -27,7 +27,7 @@
       ]
     },
     {
-      "source": "/eat-grow.game",
+      "source": "/static/eat-grow.html",
       "headers": [
         {
           "key": "X-Frame-Options",

@@ -32,7 +32,7 @@ export default function LoginPage() {
           <div className={styles.logoSubtitle}>Base Ağında Blockchain Snake</div>
         </div>
         <div className={styles.headerActions}>
-          <Link href="/eat-grow.game" className={styles.skipLink}>
+          <Link href="/static/eat-grow.html" className={styles.skipLink}>
             Oyunu Görüntüle →
           </Link>
         </div>
@@ -70,7 +70,7 @@ export default function LoginPage() {
             <div className={styles.heroActions}>
               {/* Temporarily disabled wallet connection */}
               {/* <ConnectWallet /> */}
-              <button className={styles.playButton} onClick={() => window.location.href = '/eat-grow.game'}>
+              <button className={styles.playButton} onClick={() => window.location.href = '/static/eat-grow.html'}>
                 <span className={styles.playIcon}>🎮</span>
                 Şimdi Oyna
               </button>
