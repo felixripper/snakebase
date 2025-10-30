@@ -168,7 +168,20 @@
       }
     </style>
   </head>
-      // Sharing, on-chain messaging and submission removed for game-only mode
+  <body>
+    <script>
+      // Game configuration and asset management
+      let CONFIG = {};
+
+      async function initConfig() {
+        try {
+          const response = await fetch('/api/game-config?format=full');
+          CONFIG = await response.json();
+        } catch (error) {
+          console.error('Failed to load config:', error);
+          // Fallback config
+          CONFIG = {
+            startScreen: {
               hudFontWeight: 700,
               hudBackground: "rgba(0, 0, 0, 0.35)",
               hudBorderRadius: 12
@@ -176,9 +189,7 @@
             difficulty: "normal"
           };
         }
-
         applyUIFromConfig();
-
         window.addEventListener("message", (event) => {
           if (event.origin !== window.location.origin) return;
           if (event.data && event.data.type === "UPDATE_CONFIG") {
@@ -188,7 +199,7 @@
           }
         });
       }
-
+      // Asset management
       let ASSETS = {};
       const loadedImages = {};
       const loadedSounds = {};
