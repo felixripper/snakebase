@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Snakebase Ölçek Testi</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        .info {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        .button {
+            background: linear-gradient(135deg, #3ee686 0%, #94f7b7 100%);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: #0b0f1a;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+        }
+        .scale-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .scale-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Snakebase Ölçek Testi</h1>
+
+        <div class="test-section">
+            <h2>📊 Ekran Bilgileri</h2>
+            <div class="info">
+                <div id="screen-info">Ekran bilgileri yükleniyor...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Ölçeklendirme Testi</h2>
+            <div class="scale-info">
+                <div class="scale-item">
+                    <h3>Viewport Genişlik</h3>
+                    <div id="vw-info">-</div>
+                </div>
+                <div class="scale-item">
+                    <h3>Viewport Yükseklik</h3>
+                    <div id="vh-info">-</div>
+                </div>
+                <div class="scale-item">
+                    <h3>Device Pixel Ratio</h3>
+                    <div id="dpr-info">-</div>
+                </div>
+                <div class="scale-item">
+                    <h3>Orientasyon</h3>
+                    <div id="orientation-info">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎮 Oyun Testi</h2>
+            <p>Farklı ekran boyutlarında oyun nasıl görünüyor?</p>
+            <button class="button" onclick="openGame()">Oyunu Aç</button>
+            <button class="button" onclick="openGameInNewTab()">Yeni Sekmede Aç</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📱 Mobil Test</h2>
+            <p>Bu sayfayı farklı cihazlarda test edin:</p>
+            <ul>
+                <li>📱 Telefon (portrait/landscape)</li>
+                <li>📱 Tablet</li>
+                <li>💻 Desktop (farklı çözünürlükler)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function updateScreenInfo() {
+            const screenInfo = document.getElementById('screen-info');
+            const vwInfo = document.getElementById('vw-info');
+            const vhInfo = document.getElementById('vh-info');
+            const dprInfo = document.getElementById('dpr-info');
+            const orientationInfo = document.getElementById('orientation-info');
+
+            // Ekran bilgileri
+            screenInfo.innerHTML = `
+                <strong>Screen:</strong> ${screen.width}x${screen.height}<br>
+                <strong>Available:</strong> ${screen.availWidth}x${screen.availHeight}<br>
+                <strong>Window:</strong> ${window.innerWidth}x${window.innerHeight}<br>
+                <strong>Document:</strong> ${document.documentElement.clientWidth}x${document.documentElement.clientHeight}
+            `;
+
+            // Ölçek bilgileri
+            vwInfo.textContent = window.innerWidth + 'px';
+            vhInfo.textContent = window.innerHeight + 'px';
+            dprInfo.textContent = window.devicePixelRatio || 1;
+
+            // Oryantasyon
+            if (window.screen && window.screen.orientation) {
+                orientationInfo.textContent = window.screen.orientation.type;
+            } else {
+                orientationInfo.textContent = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+            }
+        }
+
+        function openGame() {
+            window.location.href = '/static/eat-grow.html';
+        }
+
+        function openGameInNewTab() {
+            window.open('/static/eat-grow.html', '_blank');
+        }
+
+        // Sayfa yüklendiğinde ve resize olduğunda güncelle
+        window.addEventListener('load', updateScreenInfo);
+        window.addEventListener('resize', updateScreenInfo);
+        window.addEventListener('orientationchange', function() {
+            setTimeout(updateScreenInfo, 100);
+        });
+
+        // İlk güncelleme
+        updateScreenInfo();
+    </script>
+</body>
+</html>

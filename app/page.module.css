@@ -1259,32 +1259,86 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .loginContainer {
+    padding: 0;
+  }
+
   .loginHeader {
-    padding: 1.5rem 2rem;
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
   }
 
   .logo h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
+  }
+
+  .logoSubtitle {
+    font-size: 0.8rem;
+  }
+
+  .headerActions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .skipLink {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .loginMain {
+    padding: 2rem 1rem;
   }
 
   .heroSection {
     grid-template-columns: 1fr;
-    gap: 3rem;
+    gap: 2rem;
     text-align: center;
+    margin-bottom: 3rem;
   }
 
   .heroTitle {
-    font-size: 2.5rem;
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+
+  .heroDescription {
+    font-size: 1rem;
+    line-height: 1.5;
   }
 
   .heroFeatures {
     justify-content: center;
     flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .feature {
+    font-size: 0.9rem;
   }
 
   .heroActions {
     flex-direction: column;
     gap: 1rem;
+    align-items: center;
+  }
+
+  .playButton {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .heroVisual {
+    order: -1;
+  }
+
+  .gamePreview {
+    max-width: 280px;
+    margin: 0 auto;
   }
 
   .statsGrid {
@@ -1297,6 +1351,99 @@
     gap: 1rem;
     text-align: center;
   }
+}
+
+@media (max-width: 480px) {
+  .loginHeader {
+    padding: 0.8rem 1rem;
+  }
+
+  .logo h1 {
+    font-size: 1.5rem;
+  }
+
+  .loginMain {
+    padding: 1rem 0.5rem;
+  }
+
+  .heroTitle {
+    font-size: 1.8rem;
+  }
+
+  .heroDescription {
+    font-size: 0.9rem;
+  }
+
+  .heroFeatures {
+    gap: 0.8rem;
+  }
+
+  .feature {
+    font-size: 0.8rem;
+    gap: 0.3rem;
+  }
+
+  .featureIcon {
+    font-size: 1.2rem;
+  }
+
+  .playButton {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .gamePreview {
+    max-width: 240px;
+  }
+
+  .floatingShapes > div {
+    font-size: 1.5rem;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .heroSection {
+    gap: 3rem;
+  }
+
+  .heroTitle {
+    font-size: 3rem;
+  }
+
+  .heroFeatures {
+    gap: 1.5rem;
+  }
+
+  .heroActions {
+    gap: 1.5rem;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1200px) {
+  .loginMain {
+    padding: 6rem 4rem;
+  }
+
+  .heroTitle {
+    font-size: 4rem;
+  }
+
+  .heroDescription {
+    font-size: 1.4rem;
+  }
+}
+
+/* Safe area support for notched devices */
+@supports (padding: max(0px)) {
+  .loginContainer {
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}
 
   .footerLinks {
     justify-content: center;

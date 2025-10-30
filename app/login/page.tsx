@@ -35,6 +35,9 @@ export default function LoginPage() {
           <Link href="/static/eat-grow.html" className={styles.skipLink}>
             Oyunu Görüntüle →
           </Link>
+          <Link href="/scale-test.html" className={styles.skipLink}>
+            Ölçek Testi →
+          </Link>
         </div>
       </header>
 
