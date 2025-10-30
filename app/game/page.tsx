@@ -199,7 +199,7 @@ export default function GamePage() {
           {error && <div className={styles.error}>Oyun yüklenirken hata oluştu. Lütfen sayfayı yenileyin.</div>}
           <iframe
             ref={iframeRef}
-            src="/eat-grow.html"
+            src="/eat-grow.game"
             title="Eat & Grow"
             className={styles.frame}
             allow="accelerometer; fullscreen; camera; microphone; geolocation; autoplay; encrypted-media; gyroscope; magnetometer"

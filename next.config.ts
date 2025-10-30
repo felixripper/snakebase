@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
         ]
       },
       {
-        source: '/eat-grow.html',
+        source: '/eat-grow.game',
         headers: [
           {
             key: 'X-Frame-Options',
