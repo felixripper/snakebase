@@ -1046,5 +1046,61 @@
 
       main();
     </script>
+
+    <!-- Game UI Elements -->
+    <div id="wrap">
+      <canvas id="canvas" width="600" height="900"></canvas>
+    </div>
+
+    <div id="hud">
+      <div id="scoreLabel">Score</div>
+      <div id="score">0</div>
+      <div id="bestLabel">Best</div>
+      <div id="best">0</div>
+    </div>
+
+    <div id="overlay" class="overlay">
+      <div class="panel">
+        <div id="gameTitle">Eat & Grow</div>
+        <div id="subtitle">Collect the food, don't hit walls or your tail!</div>
+
+        <div id="howTitle">How to Play</div>
+        <ul id="howList">
+          <li>Controls: Swipe (mobile) • Arrow Keys (desktop)</li>
+          <li>Top dark area is a no-play zone — food never spawns there. Depending on settings it acts as wrap or a wall.</li>
+        </ul>
+
+        <div id="itemsTitle">Items</div>
+        <ul id="itemsList">
+          <li>Heart: +Score, slightly increases your speed</li>
+          <li>Burger: +Score, slightly increases your speed</li>
+        </ul>
+
+        <button id="startBtn" class="btn">Start Game</button>
+      </div>
+    </div>
+
+    <div id="gameOver" class="overlay">
+      <div class="panel">
+        <div id="gameOverTitle">Game Over</div>
+        <div id="finalScore">Score: 0</div>
+        <button id="againBtn" class="btn">Play Again</button>
+      </div>
+    </div>
+
+    <div id="hint" class="gesture-hint">
+      <div id="controlsHint">Swipe to move</div>
+      <div class="config-hint">Tap to continue</div>
+    </div>
+
+    <!-- Hidden game assets -->
+    <script type="application/json" id="game-assets">
+      {
+        "sounds": {
+          "eat": "/sounds/eat.mp3",
+          "hit": "/sounds/hit.mp3"
+        }
+      }
+    </script>
   </body>
 </html>
