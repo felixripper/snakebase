@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.farcade.com https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com; style-src 'self' 'unsafe-inline' https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com; img-src 'self' data: https:; connect-src 'self' https: https://cca-lite.coinbase.com https://*.base.org https://*.farcade.com https://privy.farcaster.xyz; frame-ancestors *;"
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.farcade.com https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com https://*.walletconnect.com https://*.walletconnect.org; style-src 'self' 'unsafe-inline' https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com; img-src 'self' data: https:; connect-src 'self' https: https://cca-lite.coinbase.com https://*.base.org https://*.farcade.com https://privy.farcaster.xyz https://*.walletconnect.com https://*.walletconnect.org https://pulse.walletconnect.org https://explorer-api.walletconnect.com; frame-ancestors *;"
           }
         ]
       },
@@ -38,7 +38,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; frame-ancestors *; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://*.farcade.com https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com; connect-src 'self' https://*.base.org https://*.farcade.com https://privy.farcaster.xyz https://cca-lite.coinbase.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com;"
+            value: "default-src 'self'; frame-ancestors *; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://*.farcade.com https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com https://*.walletconnect.com https://*.walletconnect.org; connect-src 'self' https://*.base.org https://*.farcade.com https://privy.farcaster.xyz https://cca-lite.coinbase.com https://*.walletconnect.com https://*.walletconnect.org https://pulse.walletconnect.org https://explorer-api.walletconnect.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://gc.kis.v2.scr.kaspersky-labs.com wss://gc.kis.v2.scr.kaspersky-labs.com;"
           }
         ]
       },

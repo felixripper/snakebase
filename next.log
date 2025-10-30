@@ -1,0 +1,34 @@
+nohup: ignoring input
+   ▲ Next.js 15.5.6
+   - Local:        http://localhost:3001
+   - Network:      http://10.0.12.165:3001
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 3.4s
+ ○ Compiling / ...
+ ⚠ ./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+Module not found: Can't resolve '@react-native-async-storage/async-storage' in '/workspaces/snakebase/node_modules/@metamask/sdk/dist/browser/es'
+
+Import trace for requested module:
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+./node_modules/@wagmi/connectors/dist/esm/metaMask.js
+./node_modules/@wagmi/connectors/dist/esm/exports/index.js
+./node_modules/wagmi/dist/esm/exports/connectors.js
+./node_modules/@coinbase/onchainkit/dist/connected/components/Connected.js
+./node_modules/@coinbase/onchainkit/dist/index.js
+./app/rootProvider.tsx
+
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+Module not found: Can't resolve '@react-native-async-storage/async-storage' in '/workspaces/snakebase/node_modules/@metamask/sdk/dist/browser/es'
+
+Import trace for requested module:
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+./node_modules/@wagmi/connectors/dist/esm/metaMask.js
+./node_modules/@wagmi/connectors/dist/esm/exports/index.js
+./node_modules/wagmi/dist/esm/exports/connectors.js
+./node_modules/@coinbase/onchainkit/dist/wallet/components/WalletModal.js
+./node_modules/@coinbase/onchainkit/dist/wallet/index.js
+./app/login/page.tsx
+ GET / 200 in 44587ms
+[?25h

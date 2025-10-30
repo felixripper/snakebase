@@ -929,7 +929,7 @@
         if (!eth) {
           // Fallback: ask parent (React app) to submit via wagmi/OnchainKit
           statusEl.textContent = 'Using app wallet…';
-          window.parent?.postMessage({ type: 'SUBMIT_ONCHAIN_SCORE', score }, window.location.origin);
+          window.parent?.postMessage({ type: 'SUBMIT_ONCHAIN_SCORE', score }, '*');
           return;
         }
 

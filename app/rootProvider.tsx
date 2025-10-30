@@ -1,8 +1,9 @@
 "use client";
 import { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { OnchainKitProvider } from '@coinbase/onchainkit';
-import { base } from 'viem/chains';
+// Temporarily disabled OnchainKit due to dependency conflicts
+// import { OnchainKitProvider } from '@coinbase/onchainkit';
+// import { base } from 'viem/chains';
 import { UserProvider } from "./_contexts/UserContext";
 
 const queryClient = new QueryClient({
@@ -25,12 +26,15 @@ const queryClient = new QueryClient({
 export function RootProvider({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <OnchainKitProvider
+      {/* Temporarily disabled OnchainKit */}
+      {/* <OnchainKitProvider
         apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
         chain={base}
-      >
-        <UserProvider>{children}</UserProvider>
-      </OnchainKitProvider>
+      > */}
+        <UserProvider>
+          {children}
+        </UserProvider>
+      {/* </OnchainKitProvider> */}
     </QueryClientProvider>
   );
 }

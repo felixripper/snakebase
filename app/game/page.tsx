@@ -32,7 +32,7 @@ export default function GamePage() {
           walletAddress: user.walletAddress,
         }
       };
-      iframeRef.current.contentWindow?.postMessage(message, window.location.origin);
+      iframeRef.current.contentWindow?.postMessage(message, '*');
     }
   }, [loaded, authenticated, user]);
 
@@ -66,7 +66,7 @@ export default function GamePage() {
           iframeRef.current.contentWindow?.postMessage({
             type: 'ONCHAIN_CONFIRMED',
             hash: result.transactionHash
-          }, window.location.origin);
+          }, '*');
         }
       } else {
         throw new Error('Score submission failed');
@@ -78,7 +78,7 @@ export default function GamePage() {
         iframeRef.current.contentWindow?.postMessage({
           type: 'ONCHAIN_ERROR',
           message: 'Skor gönderilemedi'
-        }, window.location.origin);
+        }, '*');
       }
     }
   }, [user]);
@@ -86,8 +86,16 @@ export default function GamePage() {
   // Listen for messages from iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      // Only accept messages from our iframe
-      if (event.origin !== window.location.origin) return;
+      // Accept messages from our iframe (same origin) or Farcaster domains
+      const allowedOrigins = [
+        window.location.origin,
+        'https://farcaster.xyz',
+        'https://client.farcaster.xyz',
+        'https://warpcast.com',
+        'https://client.warpcast.com'
+      ];
+
+      if (!allowedOrigins.includes(event.origin)) return;
 
       const { type, score } = event.data;
 
