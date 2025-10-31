@@ -30,19 +30,19 @@ export default function LoginPage() {
         <div className={styles.simpleContent}>
           <div className={styles.simpleHero}>
             <h1 className={styles.simpleTitle}>
-              Snakebase'e Hoş Geldiniz
+              Welcome to Snakebase
             </h1>
             <p className={styles.simpleDescription}>
-              Base ağında blockchain destekli yılan oyununu oynayın.
-              Skorlarınızı kaydedin ve liderlik tablolarında yerinizi alın.
+              Play the blockchain-powered Snake game on Base network.
+              Save your scores and claim your place on the leaderboards.
             </p>
 
             <div className={styles.simpleActions}>
               <Link href="/static/eat-grow.html" className={styles.primaryButton}>
-                Oyunu Başlat
+                Start Game
               </Link>
               <Link href="/leaderboard" className={styles.secondaryButton}>
-                Liderlik Tablosu
+                Leaderboard
               </Link>
             </div>
           </div>
@@ -54,11 +54,11 @@ export default function LoginPage() {
             </div>
             <div className={styles.feature}>
               <span className={styles.featureIcon}>🏆</span>
-              <span>Global liderlik</span>
+              <span>Global leaderboard</span>
             </div>
             <div className={styles.feature}>
               <span className={styles.featureIcon}>⚡</span>
-              <span>Anlık senkronizasyon</span>
+              <span>Real-time sync</span>
             </div>
           </div>
         </div>
@@ -67,9 +67,9 @@ export default function LoginPage() {
       {/* Simple Footer */}
       <footer className={styles.simpleFooter}>
         <div className={styles.footerLinks}>
-          <Link href="/about">Hakkında</Link>
-          <Link href="/privacy">Gizlilik</Link>
-          <Link href="/terms">Şartlar</Link>
+          <Link href="/about">About</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
         </div>
         <div className={styles.footerText}>
           Built on Base ⚡

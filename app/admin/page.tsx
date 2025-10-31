@@ -56,20 +56,20 @@ export default function AdminPage() {
         body: JSON.stringify(config),
       });
       if (response.ok) {
-        alert('Ayarlar başarıyla kaydedildi!');
+        alert('Settings saved successfully!');
       } else {
-        alert('Ayarlar kaydedilirken hata oluştu.');
+        alert('Error saving settings.');
       }
     } catch (error) {
       console.error('Config kaydedilirken hata:', error);
-      alert('Ayarlar kaydedilirken hata oluştu.');
+      alert('Error saving settings.');
     } finally {
       setSaving(false);
     }
   };
 
   const clearTestData = async () => {
-    if (!confirm('Bu işlem tüm test verilerini silecektir. Emin misiniz?')) return;
+    if (!confirm('This will delete all test data. Are you sure?')) return;
 
     setClearingData(true);
     try {
@@ -77,13 +77,13 @@ export default function AdminPage() {
         method: 'POST',
       });
       if (response.ok) {
-        alert('Test verileri başarıyla temizlendi!');
+        alert('Test data cleared successfully!');
       } else {
-        alert('Veriler temizlenirken hata oluştu.');
+        alert('Error clearing data.');
       }
     } catch (error) {
       console.error('Veri temizlenirken hata:', error);
-      alert('Veriler temizlenirken hata oluştu.');
+      alert('Error clearing data.');
     } finally {
       setClearingData(false);
     }
@@ -109,7 +109,7 @@ export default function AdminPage() {
   if (!authChecked || loading) {
     return (
       <div className={styles.container}>
-        <div className={styles.loading}>Admin paneli yükleniyor...</div>
+        <div className={styles.loading}>Loading admin panel...</div>
       </div>
     );
   }
@@ -117,7 +117,7 @@ export default function AdminPage() {
   if (!config) {
     return (
       <div className={styles.container}>
-        <div className={styles.error}>Konfigürasyon yüklenemedi.</div>
+        <div className={styles.error}>Configuration could not be loaded.</div>
       </div>
     );
   }
@@ -141,14 +141,14 @@ export default function AdminPage() {
       {/* Admin Navigation */}
       <div className={styles.adminNav}>
         {[
-          { id: 'gameplay' as AdminTab, label: 'Oyun Mekaniği', icon: '🎮' },
-          { id: 'appearance' as AdminTab, label: 'Görünüm', icon: '🎨' },
-          { id: 'typography' as AdminTab, label: 'Yazı Tipi', icon: '📝' },
-          { id: 'theme' as AdminTab, label: 'Tema', icon: '🎭' },
-          { id: 'buttons' as AdminTab, label: 'Butonlar', icon: '🔘' },
-          { id: 'content' as AdminTab, label: 'Sayfa İçeriği', icon: '📄' },
-          { id: 'presets' as AdminTab, label: 'Hazır Temalar', icon: '⚙️' },
-          { id: 'data' as AdminTab, label: 'Veri Yönetimi', icon: '🗃️' },
+          { id: 'gameplay' as AdminTab, label: 'Game Mechanics', icon: '🎮' },
+          { id: 'appearance' as AdminTab, label: 'Appearance', icon: '🎨' },
+          { id: 'typography' as AdminTab, label: 'Typography', icon: '📝' },
+          { id: 'theme' as AdminTab, label: 'Theme', icon: '🎭' },
+          { id: 'buttons' as AdminTab, label: 'Buttons', icon: '🔘' },
+          { id: 'content' as AdminTab, label: 'Page Content', icon: '📄' },
+          { id: 'presets' as AdminTab, label: 'Preset Themes', icon: '⚙️' },
+          { id: 'data' as AdminTab, label: 'Data Management', icon: '🗃️' },
         ].map((tab) => (
           <button
             key={tab.id}

@@ -33,8 +33,6 @@ export type FullGameConfig = {
     subtitle: string;
     howToPlayTitle: string;
     howToPlayItems: string[];
-    itemsTitle: string;
-    itemsList: string[];
     startButtonLabel: string;
     playAgainLabel: string;
     gameOverTitle: string;
@@ -113,21 +111,16 @@ export const DEFAULT_FULL_CONFIG: FullGameConfig = {
   },
   startScreen: {
     title: "Eat & Grow",
-    subtitle: "Collect the food, don’t hit walls or your tail!",
+    subtitle: "Collect the food, don't hit walls or your tail!",
     howToPlayTitle: "How to Play",
     howToPlayItems: [
-      "Controls: Swipe (mobile) • Arrow Keys (desktop)",
-      "Top dark area is a no-play zone — food never spawns there. Depending on settings it acts as wrap or a wall."
-    ],
-    itemsTitle: "Items",
-    itemsList: [
-      "Heart: +Score, slightly increases your speed",
-      "Burger: +Score, slightly increases your speed"
+      "Use arrow keys or swipe to move",
+      "Avoid walls and your own tail"
     ],
     startButtonLabel: "Play",
     playAgainLabel: "Play Again",
     gameOverTitle: "Game Over",
-    controlsHint: "Controls: Swipe (mobile) • Arrow Keys (desktop)",
+    controlsHint: "Arrow keys or swipe to move",
     scoreLabel: "Score",
     bestLabel: "Best",
     mainPageButtonLabel: "Go to Main Page",
@@ -449,21 +442,20 @@ export function validateFullConfig(input: Partial<FullGameConfig>): { ok: true; 
   // Validate startScreen (basic checks and clamping)
   if (cfg.startScreen) {
     const s = cfg.startScreen;
-    if (!Array.isArray(s.howToPlayItems) || !Array.isArray(s.itemsList)) {
-      return { ok: false, message: "startScreen lists must be arrays" };
+    if (!Array.isArray(s.howToPlayItems)) {
+      return { ok: false, message: "startScreen howToPlayItems must be an array" };
     }
     s.title = String(s.title ?? "").slice(0, 60);
     s.subtitle = String(s.subtitle ?? "").slice(0, 140);
     s.howToPlayTitle = String(s.howToPlayTitle ?? "").slice(0, 60);
-    s.itemsTitle = String(s.itemsTitle ?? "").slice(0, 60);
     s.startButtonLabel = String(s.startButtonLabel ?? "").slice(0, 30);
     s.playAgainLabel = String(s.playAgainLabel ?? "").slice(0, 30);
     s.gameOverTitle = String(s.gameOverTitle ?? "").slice(0, 40);
     s.controlsHint = String(s.controlsHint ?? "").slice(0, 120);
     s.howToPlayItems = s.howToPlayItems.map((x) => String(x).slice(0, 160)).slice(0, 8);
-    s.itemsList = s.itemsList.map((x) => String(x).slice(0, 160)).slice(0, 8);
     s.scoreLabel = String(s.scoreLabel ?? "").slice(0, 30);
     s.bestLabel = String(s.bestLabel ?? "").slice(0, 30);
+    s.mainPageButtonLabel = String(s.mainPageButtonLabel ?? "").slice(0, 40);
     if (s.hudFontSize < 10 || s.hudFontSize > 24) s.hudFontSize = 14;
     if (s.hudFontWeight < 100 || s.hudFontWeight > 900) s.hudFontWeight = 700;
     s.hudBackground = String(s.hudBackground ?? "").slice(0, 50);

@@ -22,8 +22,8 @@ export default function LeaderboardPage() {
           <span className={styles.logoText}>Snakebase</span>
         </div>
         <nav className={styles.simpleNav}>
-          <Link href="/static/eat-grow.html" className={styles.navLink}>Oyna</Link>
-          <Link href="/profile" className={styles.navLink}>Profil</Link>
+          <Link href="/static/eat-grow.html" className={styles.navLink}>Play</Link>
+          <Link href="/profile" className={styles.navLink}>Profile</Link>
           <Link href="/admin/login" className={styles.navLink}>Admin</Link>
         </nav>
       </header>
@@ -33,10 +33,10 @@ export default function LeaderboardPage() {
         <div className={styles.simpleContent}>
           <div className={styles.leaderboardHero}>
             <h1 className={styles.simpleTitle}>
-              🏆 Liderlik Tablosu
+              🏆 Leaderboard
             </h1>
             <p className={styles.simpleDescription}>
-              En yüksek skorları yapan oyuncuları görün. Siz de listenin başında yer almak için oynayın!
+              See the players with the highest scores. Play now to claim your spot at the top!
             </p>
           </div>
 
@@ -60,12 +60,12 @@ export default function LeaderboardPage() {
             </div>
           </div>
 
-          <div className={styles.leaderboardActions}>
+                    <div className={styles.leaderboardActions}>
             <Link href="/static/eat-grow.html" className={styles.primaryButton}>
-              Oyunu Başlat
+              Start Game
             </Link>
             <Link href="/profile" className={styles.secondaryButton}>
-              Profilimi Görüntüle
+              View Profile
             </Link>
           </div>
         </div>
@@ -74,9 +74,9 @@ export default function LeaderboardPage() {
       {/* Simple Footer */}
       <footer className={styles.simpleFooter}>
         <div className={styles.footerLinks}>
-          <Link href="/about">Hakkında</Link>
-          <Link href="/privacy">Gizlilik</Link>
-          <Link href="/terms">Şartlar</Link>
+          <Link href="/about">About</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
         </div>
         <div className={styles.footerText}>
           Built on Base ⚡

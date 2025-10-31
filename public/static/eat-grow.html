@@ -228,12 +228,6 @@
           <li>Top dark area is a no-play zone — food never spawns there. Depending on settings it acts as wrap or a wall.</li>
         </ul>
 
-        <div id="itemsTitle" class="title">Items</div>
-        <ul id="itemsList">
-          <li>Heart: +Score, slightly increases your speed</li>
-          <li>Burger: +Score, slightly increases your speed</li>
-        </ul>
-
         <div id="controlsHint" class="config-hint">Controls: Swipe (mobile) • Arrow Keys (desktop)</div>
 
         <button id="startBtn" class="btn">Play</button>
@@ -345,8 +339,6 @@
       const subtitleEl = document.getElementById("subtitle");
       const howTitleEl = document.getElementById("howTitle");
       const howListEl = document.getElementById("howList");
-      const itemsTitleEl = document.getElementById("itemsTitle");
-      const itemsListEl = document.getElementById("itemsList");
       const controlsHintEl = document.getElementById("controlsHint");
       const gameOverTitleEl = document.getElementById("gameOverTitle");
 
@@ -410,20 +402,6 @@
             const li = document.createElement('li');
             li.textContent = text; // textContent prevents XSS
             howListEl.appendChild(li);
-          });
-        }
-        if (itemsTitleEl) itemsTitleEl.textContent = (CONFIG.startScreen?.itemsTitle) || "Items";
-        if (itemsListEl) {
-          // Safe DOM manipulation - prevents XSS
-          itemsListEl.innerHTML = '';
-          const items = CONFIG.startScreen?.itemsList || [
-            "Heart: +Score, slightly increases your speed",
-            "Burger: +Score, slightly increases your speed"
-          ];
-          items.forEach((text) => {
-            const li = document.createElement('li');
-            li.textContent = text; // textContent prevents XSS
-            itemsListEl.appendChild(li);
           });
         }
         if (controlsHintEl) controlsHintEl.textContent = (CONFIG.startScreen?.controlsHint) || "Controls: Swipe (mobile) • Arrow Keys (desktop)";

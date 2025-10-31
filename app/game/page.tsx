@@ -195,8 +195,8 @@ export default function GamePage() {
       {/* Game Content */}
       <div className={styles.content}>
         <div className={styles.gameContainer}>
-          {!loaded && !error && <div className={styles.loading}>Oyun yükleniyor...</div>}
-          {error && <div className={styles.error}>Oyun yüklenirken hata oluştu. Lütfen sayfayı yenileyin.</div>}
+          {!loaded && !error && <div className={styles.loading}>Loading game...</div>}
+          {error && <div className={styles.error}>Error loading game. Please refresh the page.</div>}
           <iframe
             ref={iframeRef}
             src="/static/eat-grow.html"
