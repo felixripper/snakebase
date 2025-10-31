@@ -199,7 +199,7 @@ export default function GamePage() {
           {error && <div className={styles.error}>Error loading game. Please refresh the page.</div>}
           <iframe
             ref={iframeRef}
-            src="/static/eat-grow.html"
+            src="/static/eat-grow.html?autoStart=true"
             title="Eat & Grow"
             className={styles.frame}
             allow="accelerometer; fullscreen; camera; microphone; geolocation; autoplay; encrypted-media; gyroscope; magnetometer"

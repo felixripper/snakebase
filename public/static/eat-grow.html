@@ -268,6 +268,14 @@
           };
         }
         applyUIFromConfig();
+        
+        // Check for auto-start parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('autoStart') === 'true') {
+          resetGame();
+          startGame();
+        }
+        
         window.addEventListener("message", (event) => {
           if (event.origin !== window.location.origin) return;
           if (event.data && event.data.type === "UPDATE_CONFIG") {
