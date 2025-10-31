@@ -247,13 +247,13 @@
         <div class="final-score">Score: <span id="finalScore">0</span></div>
         <div class="game-over-buttons">
           <button id="againBtn" class="btn">Play Again</button>
-          <button id="mainPageBtn" class="btn btn-secondary">Ana Sayfaya Git</button>
+          <button id="mainPageBtn" class="btn btn-secondary"></button>
         </div>
       </div>
     </div>
 
     <!-- Gesture Hint -->
-    <div id="hint" class="gesture-hint">Swipe to move</div>
+    <div id="hint" class="gesture-hint"></div>
     <script>
       let CONFIG = {};
 
@@ -427,9 +427,11 @@
           });
         }
         if (controlsHintEl) controlsHintEl.textContent = (CONFIG.startScreen?.controlsHint) || "Controls: Swipe (mobile) • Arrow Keys (desktop)";
+        if (hintEl) hintEl.textContent = CONFIG.ui?.swipeHintText || "Swipe to move";
         if (startBtn) startBtn.textContent = (CONFIG.startScreen?.startButtonLabel) || "Play";
         if (againBtn) againBtn.textContent = (CONFIG.startScreen?.playAgainLabel) || "Play Again";
         if (gameOverTitleEl) gameOverTitleEl.textContent = (CONFIG.startScreen?.gameOverTitle) || "Game Over";
+        if (mainPageBtn) mainPageBtn.textContent = (CONFIG.startScreen?.mainPageButtonLabel) || "Go to Main Page";
 
         // HUD labels and styles
         if (hudScoreLabel) hudScoreLabel.textContent = (CONFIG.startScreen?.scoreLabel) || "Score";

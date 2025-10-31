@@ -41,6 +41,7 @@ export type FullGameConfig = {
     controlsHint: string;
     scoreLabel: string;
     bestLabel: string;
+    mainPageButtonLabel: string;
     hudFontSize: number;
     hudFontWeight: number;
     hudBackground: string;
@@ -70,6 +71,7 @@ export type FullGameConfig = {
     showGrid: boolean;
     showSwipeHint: boolean;
     interfaceTitle: string;
+    swipeHintText: string;
   };
   typography: {
     fontFamily: string;
@@ -128,6 +130,7 @@ export const DEFAULT_FULL_CONFIG: FullGameConfig = {
     controlsHint: "Controls: Swipe (mobile) • Arrow Keys (desktop)",
     scoreLabel: "Score",
     bestLabel: "Best",
+    mainPageButtonLabel: "Go to Main Page",
     hudFontSize: 14,
     hudFontWeight: 700,
     hudBackground: "rgba(0, 0, 0, 0.35)",
@@ -156,7 +159,8 @@ export const DEFAULT_FULL_CONFIG: FullGameConfig = {
   ui: {
     showGrid: false,
     showSwipeHint: false,
-    interfaceTitle: "Eat & Grow"
+    interfaceTitle: "Eat & Grow",
+    swipeHintText: "Swipe to move"
   },
   typography: {
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
