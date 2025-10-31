@@ -5,6 +5,7 @@
     <!-- viewport-fit=cover eklendi -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Eat & Grow</title>
+    <link rel="stylesheet" href="/nes.css" />
     <script src="https://cdn.jsdelivr.net/npm/@farcade/game-sdk@0.2.1/dist/index.min.js"></script>
     <style>
       :root {
@@ -200,6 +201,61 @@
       .game-over.show {
         display: grid;
       }
+      .share-modal {
+        display: none;
+      }
+      .share-modal.show {
+        display: grid;
+      }
+      .share-title {
+        font-size: 24px;
+        font-weight: 900;
+        margin-bottom: 12px;
+        text-align: center;
+      }
+      .share-score {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        text-align: center;
+      }
+      .share-preview {
+        margin: 16px 0;
+        text-align: center;
+      }
+      .share-preview img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+      .share-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      @media (max-width: 480px) {
+        .share-options {
+          grid-template-columns: 1fr;
+        }
+        .share-option {
+          font-size: 16px;
+          padding: 12px 8px;
+        }
+      }
+      .share-option {
+        padding: 10px 8px;
+        font-size: 14px;
+        min-height: 44px;
+      }
+      .nft-option {
+        background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%);
+        box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
+      }
+      .nft-option:active {
+        transform: translateY(1px);
+      }
     </style>
   </head>
   <body>
@@ -219,18 +275,6 @@
     <!-- Start Overlay - Hidden by default -->
     <div id="overlay" class="overlay" style="display: none;">
       <div class="panel">
-        <div id="gameTitle" class="title">Eat & Grow</div>
-        <div id="subtitle" class="subtitle">Collect the food, don't hit walls or your tail!</div>
-
-        <div id="howTitle" class="title">How to Play</div>
-        <ul id="howList">
-          <li>Controls: Swipe (mobile) • Arrow Keys (desktop)</li>
-          <li>Top dark area is a no-play zone — food never spawns there. Depending on settings it acts as wrap or a wall.</li>
-        </ul>
-
-        <div id="controlsHint" class="config-hint">Controls: Swipe (mobile) • Arrow Keys (desktop)</div>
-
-        <button id="startBtn" class="btn">Play</button>
       </div>
     </div>
 
@@ -240,8 +284,9 @@
         <div id="gameOverTitle" class="title">Game Over</div>
         <div class="final-score">Score: <span id="finalScore">0</span></div>
         <div class="game-over-buttons">
-          <button id="againBtn" class="btn">Play Again</button>
-          <button id="mainPageBtn" class="btn btn-secondary"></button>
+          <button id="againBtn" class="nes-btn is-primary">Play Again</button>
+          <button id="shareBtn" class="nes-btn">Share Score</button>
+          <button id="mainPageBtn" class="nes-btn">Go to Main Page</button>
         </div>
       </div>
     </div>
@@ -264,11 +309,33 @@
         <button id="closeShareBtn" class="btn">Close</button>
       </div>
     </div>
-
-    <!-- Gesture Hint -->
-    <div id="hint" class="gesture-hint"></div>
     <script>
+      // Respond to parent AUTO_START messages and acknowledge.
+      window.addEventListener('message', (ev) => {
+        try {
+          const data = ev.data;
+          if (!data || typeof data !== 'object') return;
+          if (data.type === 'AUTO_START') {
+            console.log('iframe received AUTO_START from parent');
+            // Try to start the game; startGame guards internal state.
+            try {
+              if (typeof startGame === 'function') {
+                startGame();
+              }
+            } catch (err) {
+              console.warn('startGame threw', err);
+            }
+            // Acknowledge back to parent so it can stop retrying.
+            ev.source?.postMessage({ type: 'AUTO_START_ACK' }, ev.origin);
+          }
+        } catch (err) {
+          // defensive: ignore malformed messages
+        }
+      });
+
       let CONFIG = {};
+
+      let shouldAutoStart = false;
 
       async function initConfig() {
         try {
@@ -281,19 +348,42 @@
             startScreen: {
               hudFontWeight: 700,
               hudBackground: "rgba(0, 0, 0, 0.35)",
-              hudBorderRadius: 12
+              hudBorderRadius: 12,
+              scoreLabel: "Score",
+              bestLabel: "Best",
+              gameOverTitle: "Game Over",
+              playAgainLabel: "Play Again",
+              mainPageButtonLabel: "Go to Main Page"
             },
-            difficulty: "normal"
+            difficulty: "normal",
+            colors: {
+              background: "#0b0f1a"
+            },
+            player: {
+              baseSpeed: 8,
+              minStepMs: 50
+            },
+            buttons: {
+              primaryGradientStart: "#94f7b7",
+              primaryGradientEnd: "#3ee686",
+              textColor: "#0b0f1a",
+              borderRadius: 12,
+              shadow: true
+            },
+            ui: {
+              swipeHintText: "Swipe to move",
+              interfaceTitle: "Snake Game"
+            }
           };
         }
         applyUIFromConfig();
         
-        // Check for auto-start parameter
+        // Check for auto-start parameter AFTER config is loaded
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('autoStart') === 'true') {
-          resetGame();
-          startGame();
-        }
+        console.log('URL params:', window.location.search);
+        console.log('autoStart param:', urlParams.get('autoStart'));
+        shouldAutoStart = urlParams.get('autoStart') === 'true';
+        console.log('shouldAutoStart:', shouldAutoStart);
         
         window.addEventListener("message", (event) => {
           if (event.origin !== window.location.origin) return;
@@ -360,6 +450,7 @@
       const finalScoreEl = document.getElementById("finalScore");
       const startBtn = document.getElementById("startBtn");
       const againBtn = document.getElementById("againBtn");
+      const shareBtn = document.getElementById("shareBtn");
       const mainPageBtn = document.getElementById("mainPageBtn");
       const shareModal = document.getElementById("shareModal");
       const closeShareBtn = document.getElementById("closeShareBtn");
@@ -394,13 +485,13 @@
         tAccum: 0,
         lastTime: 0,
         stepMs: 120,
-        gridSize: 30,
-        cols: 20,
-        rows: 28,
+        gridSize: 20,
+        cols: 15,
+        rows: 20,
         snake: [],
         dir: { x: 1, y: 0 },
         nextDir: { x: 1, y: 0 },
-        food: { x: 10, y: 10 },
+        food: { x: 7, y: 7 },
         score: 0,
         best: Number(localStorage.getItem("eatgrow_best") || 0),
         particles: [],
@@ -421,26 +512,10 @@
       }
 
       function applyUIFromConfig() {
-                // Title and subtitles
-        gameTitleEl.textContent = CONFIG.ui?.interfaceTitle || (CONFIG.startScreen?.title) || "Eat & Grow";
-        if (subtitleEl) subtitleEl.textContent = (CONFIG.startScreen?.subtitle) || "Collect the food, don't hit walls or your tail!";
-        if (howTitleEl) howTitleEl.textContent = (CONFIG.startScreen?.howToPlayTitle) || "How to Play";
-        if (howListEl) {
-          // Safe DOM manipulation - prevents XSS
-          howListEl.innerHTML = '';
-          const items = CONFIG.startScreen?.howToPlayItems || [
-            "Controls: Swipe (mobile) • Arrow Keys (desktop)",
-            "Top dark area is a no-play zone — food never spawns there. Depending on settings it acts as wrap or a wall."
-          ];
-          items.forEach((text) => {
-            const li = document.createElement('li');
-            li.textContent = text; // textContent prevents XSS
-            howListEl.appendChild(li);
-          });
-        }
-        if (controlsHintEl) controlsHintEl.textContent = (CONFIG.startScreen?.controlsHint) || "Controls: Swipe (mobile) • Arrow Keys (desktop)";
+                // Title and subtitles - removed for streamlined start experience
+        // Start screen elements removed - direct game start enabled
         if (hintEl) hintEl.textContent = CONFIG.ui?.swipeHintText || "Swipe to move";
-        if (startBtn) startBtn.textContent = (CONFIG.startScreen?.startButtonLabel) || "Play";
+        // if (startBtn) startBtn.textContent = (CONFIG.startScreen?.startButtonLabel) || "Play";
         if (againBtn) againBtn.textContent = (CONFIG.startScreen?.playAgainLabel) || "Play Again";
         if (gameOverTitleEl) gameOverTitleEl.textContent = (CONFIG.startScreen?.gameOverTitle) || "Game Over";
         if (mainPageBtn) mainPageBtn.textContent = (CONFIG.startScreen?.mainPageButtonLabel) || "Go to Main Page";
@@ -460,7 +535,7 @@
         const btnColor = CONFIG.buttons?.textColor || '#0b0f1a';
         const radius = (CONFIG.buttons?.borderRadius ?? 12) + 'px';
         const shadow = CONFIG.buttons?.shadow ? '0 8px 20px rgba(62, 230, 134, 0.35)' : 'none';
-        [startBtn, againBtn].forEach((btn) => {
+        [startBtn, againBtn, shareBtn].forEach((btn) => {
           if (!btn) return;
           btn.style.background = btnBg;
           btn.style.color = btnColor;
@@ -482,10 +557,11 @@
       }
 
       function resetGame() {
+        console.log('resetGame called');
         state.gridSize = CONFIG.gameplay.gridSize;
         state.cols = CONFIG.gameplay.columns;
         state.rows = CONFIG.gameplay.rows;
-        gameTitleEl.textContent = CONFIG.ui.interfaceTitle;
+        // gameTitleEl removed - no title element in streamlined UI
         state.snake = [];
         const startLen = CONFIG.gameplay.startLength;
         const startX = Math.floor(state.cols / 2);
@@ -502,7 +578,8 @@
         state.particles = [];
         applyDifficulty();
         resizeCanvas();
-        hintEl.style.display = CONFIG.ui.showSwipeHint ? "block" : "none";
+        if (hintEl) hintEl.style.display = CONFIG.ui.showSwipeHint ? "block" : "none";
+        console.log('resetGame completed');
       }
 
       function cellInTopNoPlay(y) {
@@ -685,7 +762,7 @@
         }
         tryHaptic();
         touchStart = null;
-        hintEl.style.display = "none";
+        if (hintEl) hintEl.style.display = "none";
       }
       function onKey(e) {
         if (e.key === "ArrowUp") setDir(0, -1);
@@ -866,6 +943,7 @@
         gameOverEl.style.display = "none";
         gameOverEl.classList.remove('show');
       }
+
       function showGameOver() {
         overlay.style.display = "grid";
         gameOverEl.style.display = "grid";
@@ -875,7 +953,6 @@
         const screenshotDataUrl = canvas.toDataURL('image/png');
         showShareModal(state.score, screenshotDataUrl);
       }
-
       function showShareModal(score, screenshotDataUrl) {
         const modal = document.getElementById('shareModal');
         const shareScoreEl = document.getElementById('shareScore');
@@ -895,12 +972,18 @@
       }
 
       function startGame() {
-        if (state.gameState === "playing") return;
+        console.log('startGame called, current gameState:', state.gameState);
+        if (state.gameState === "playing") {
+          console.log('Game already playing, returning');
+          return;
+        }
+        console.log('Starting game...');
         AudioMgr.init();
         state.gameState = "playing";
         overlay.style.display = "none";
         gameOverEl.style.display = "none";
-        if (CONFIG.ui.showSwipeHint) hintEl.style.display = "block";
+        if (CONFIG.ui.showSwipeHint && hintEl) hintEl.style.display = "block";
+        console.log('Game started successfully');
       }
 
       window.onConfigUpdate = (cfg) => {
@@ -913,11 +996,22 @@
         await initConfig();
         initAssets();
         canvas.style.backgroundColor = CONFIG.colors.background;
-        gameTitleEl.textContent = CONFIG.ui.interfaceTitle;
+        // gameTitleEl removed - no title element in streamlined UI
         hudBest.textContent = state.best;
         applyDifficulty();
         resetGame();
-        showStart();
+        
+        // Only show start screen if not auto-starting
+        if (!shouldAutoStart) {
+          showStart();
+        } else {
+          // Auto-start the game
+          console.log('Auto-starting game...');
+          setTimeout(() => {
+            startGame();
+          }, 100);
+        }
+        
         tryReady();
         attachSDKListeners();
         const sdkPoll = setInterval(() => {
@@ -939,8 +1033,12 @@
           resetGame();
           startGame();
         });
-        mainPageBtn.addEventListener("click", () => {
-          window.location.href = '/';
+        shareBtn.addEventListener("click", () => {
+          // Take screenshot of the game canvas
+          const screenshotDataUrl = canvas.toDataURL('image/png');
+
+          // Create share modal with options
+          showShareModal(state.score, screenshotDataUrl);
         });
         closeShareBtn.addEventListener("click", hideShareModal);
         shareNativeBtn.addEventListener("click", async () => {
@@ -1013,6 +1111,9 @@
           }, '*');
 
           alert('NFT minting request sent! Check your wallet for the transaction.');
+        });
+        mainPageBtn.addEventListener("click", () => {
+          window.location.href = '/';
         });
         // Sharing and profile/leaderboard navigation removed in game-only mode
         requestAnimationFrame(loop);
@@ -1267,6 +1368,27 @@
         };
       }
 
+      // Listen for parent AUTO_START messages (postMessage handshake)
+      window.addEventListener('message', (event) => {
+        try {
+          if (event.origin !== window.location.origin) return;
+          const data = event.data;
+          if (!data || typeof data !== 'object') return;
+          if (data.type === 'AUTO_START') {
+            console.log('Received AUTO_START from parent');
+            try {
+              if (typeof startGame === 'function') startGame();
+              // Acknowledge so parent can stop retrying
+              window.parent?.postMessage({ type: 'AUTO_START_ACK' }, window.location.origin);
+            } catch (e) {
+              console.warn('AUTO_START failed', e);
+            }
+          }
+        } catch (e) {
+          // ignore
+        }
+      });
+
       main();
     </script>
     <!-- Hidden game assets -->
@@ -1278,5 +1400,8 @@
         }
       }
     </script>
+    
+    <!-- Gesture Hint -->
+    <div id="hint" class="gesture-hint">Swipe to move</div>
   </body>
 </html>
