@@ -49,7 +49,8 @@ export const GAME_PRESETS: GamePreset[] = [
       ui: {
         showGrid: false,
         showSwipeHint: false,
-        interfaceTitle: "Eat & Grow"
+        interfaceTitle: "Eat & Grow",
+        swipeHintText: "Swipe to move"
       },
       typography: {
         fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
@@ -117,7 +118,8 @@ export const GAME_PRESETS: GamePreset[] = [
       ui: {
         showGrid: true,
         showSwipeHint: false,
-        interfaceTitle: "⚡ SPEED MODE"
+        interfaceTitle: "⚡ SPEED MODE",
+        swipeHintText: "Swipe to move"
       },
       typography: {
         fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
@@ -185,7 +187,8 @@ export const GAME_PRESETS: GamePreset[] = [
       ui: {
         showGrid: true,
         showSwipeHint: false,
-        interfaceTitle: "🌈 Rainbow Snake"
+        interfaceTitle: "🌈 Rainbow Snake",
+        swipeHintText: "Swipe to move"
       },
       typography: {
         fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
@@ -253,7 +256,8 @@ export const GAME_PRESETS: GamePreset[] = [
       ui: {
         showGrid: true,
         showSwipeHint: false,
-        interfaceTitle: "SNAKE.EXE"
+        interfaceTitle: "SNAKE.EXE",
+        swipeHintText: "Swipe to move"
       },
       typography: {
         fontFamily: "monospace",
@@ -321,7 +325,8 @@ export const GAME_PRESETS: GamePreset[] = [
       ui: {
         showGrid: false,
         showSwipeHint: false,
-        interfaceTitle: "Snake"
+        interfaceTitle: "Snake",
+        swipeHintText: "Swipe to move"
       },
       typography: {
         fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
@@ -389,7 +394,8 @@ export const GAME_PRESETS: GamePreset[] = [
       ui: {
         showGrid: true,
         showSwipeHint: false,
-        interfaceTitle: "NEON SNAKE"
+        interfaceTitle: "NEON SNAKE",
+        swipeHintText: "Swipe to move"
       },
       typography: {
         fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
