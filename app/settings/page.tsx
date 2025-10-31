@@ -12,7 +12,7 @@ export default function SettingsPage() {
     musicEnabled: false,
     notificationsEnabled: true,
     theme: 'dark',
-    language: 'tr',
+    language: 'en',
   });
 
   const handleSettingChange = (key: string, value: string | number | boolean) => {

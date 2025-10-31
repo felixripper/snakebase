@@ -147,10 +147,10 @@ export default function GamePage() {
   }, [loaded]);
 
   const tabs = [
-    { id: 'game' as TabType, label: 'Oyun', path: '/game', icon: '🎮' },
-    { id: 'leaderboard' as TabType, label: 'Liderlik', path: '/leaderboard', icon: '🏆' },
-    { id: 'profile' as TabType, label: 'Profil', path: '/profile', icon: '👤' },
-    { id: 'settings' as TabType, label: 'Ayarlar', path: '/settings', icon: '⚙️' },
+    { id: 'game' as TabType, label: 'Game', path: '/game', icon: '🎮' },
+    { id: 'leaderboard' as TabType, label: 'Leaderboard', path: '/leaderboard', icon: '🏆' },
+    { id: 'profile' as TabType, label: 'Profile', path: '/profile', icon: '👤' },
+    { id: 'settings' as TabType, label: 'Settings', path: '/settings', icon: '⚙️' },
   ];
 
   const currentTab = pathname === '/game' ? 'game' : pathname.slice(1) as TabType;
@@ -160,7 +160,7 @@ export default function GamePage() {
       {/* Navigation Header */}
       <div className={styles.header}>
         <Link href="/" className={styles.backLink}>
-          ← Ana Sayfa
+          ← Home
         </Link>
         <h1 className={styles.title}>Snakebase</h1>
         <div className={styles.walletSection}>
@@ -181,15 +181,6 @@ export default function GamePage() {
             </button>
           </Link>
         ))}
-        {/* Admin Link - sadece geliştirme ortamında göster */}
-        {process.env.NODE_ENV === 'development' && (
-          <Link href="/admin" className={styles.tabLink}>
-            <button className={styles.tabButton}>
-              <span className={styles.tabIcon}>🔧</span>
-              <span className={styles.tabLabel}>Admin</span>
-            </button>
-          </Link>
-        )}
       </div>
 
       {/* Game Content */}

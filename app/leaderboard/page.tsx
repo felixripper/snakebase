@@ -7,7 +7,7 @@ export default function LeaderboardPage() {
   // Mock data - gerçek veriler API'den gelecek
   const leaderboard = [
     { rank: 1, username: "SnakeMaster", score: 15420, wallet: "0x1234...abcd" },
-    { rank: 2, username: "YılanAvcısı", score: 14850, wallet: "0x5678...efgh" },
+    { rank: 2, username: "SnakeHunter", score: 14850, wallet: "0x5678...efgh" },
     { rank: 3, username: "GameKing", score: 14200, wallet: "0x9abc...ijkl" },
     { rank: 4, username: "SnakeQueen", score: 13890, wallet: "0xdef0...mnop" },
     { rank: 5, username: "PixelHunter", score: 13560, wallet: "0x1234...qrst" },
@@ -24,7 +24,6 @@ export default function LeaderboardPage() {
         <nav className={styles.simpleNav}>
           <Link href="/static/eat-grow.html" className={styles.navLink}>Play</Link>
           <Link href="/profile" className={styles.navLink}>Profile</Link>
-          <Link href="/admin/login" className={styles.navLink}>Admin</Link>
         </nav>
       </header>
 

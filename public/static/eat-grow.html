@@ -200,6 +200,61 @@
       .game-over.show {
         display: grid;
       }
+      .share-modal {
+        display: none;
+      }
+      .share-modal.show {
+        display: grid;
+      }
+      .share-title {
+        font-size: 24px;
+        font-weight: 900;
+        margin-bottom: 12px;
+        text-align: center;
+      }
+      .share-score {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        text-align: center;
+      }
+      .share-preview {
+        margin: 16px 0;
+        text-align: center;
+      }
+      .share-preview img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+      .share-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      @media (max-width: 480px) {
+        .share-options {
+          grid-template-columns: 1fr;
+        }
+        .share-option {
+          font-size: 16px;
+          padding: 12px 8px;
+        }
+      }
+      .share-option {
+        padding: 10px 8px;
+        font-size: 14px;
+        min-height: 44px;
+      }
+      .nft-option {
+        background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%);
+        box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
+      }
+      .nft-option:active {
+        transform: translateY(1px);
+      }
     </style>
   </head>
   <body>
@@ -229,13 +284,30 @@
         <div class="final-score">Score: <span id="finalScore">0</span></div>
         <div class="game-over-buttons">
           <button id="againBtn" class="btn">Play Again</button>
-          <button id="mainPageBtn" class="btn btn-secondary"></button>
+          <button id="shareBtn" class="btn btn-secondary">Share Score</button>
+          <button id="mainPageBtn" class="btn btn-secondary">Go to Main Page</button>
         </div>
       </div>
     </div>
 
-    <!-- Gesture Hint -->
-    <div id="hint" class="gesture-hint"></div>
+    <!-- Share Modal -->
+    <div id="shareModal" class="overlay share-modal">
+      <div class="panel">
+        <div class="share-title">Share Your Score!</div>
+        <div class="share-score">Score: <span id="shareScore">0</span></div>
+        <div class="share-preview">
+          <img id="shareImage" src="" alt="Game Screenshot" />
+        </div>
+        <div class="share-options">
+          <button id="shareNativeBtn" class="btn share-option">📱 Share</button>
+          <button id="shareTwitterBtn" class="btn share-option">🐦 Twitter</button>
+          <button id="shareDiscordBtn" class="btn share-option">💬 Discord</button>
+          <button id="shareTelegramBtn" class="btn share-option">✈️ Telegram</button>
+          <button id="mintNFTBtn" class="btn share-option nft-option">🎨 Mint NFT</button>
+        </div>
+        <button id="closeShareBtn" class="btn btn-secondary">Close</button>
+      </div>
+    </div>
     <script>
       let CONFIG = {};
 
@@ -329,7 +401,15 @@
       const finalScoreEl = document.getElementById("finalScore");
       const startBtn = document.getElementById("startBtn");
       const againBtn = document.getElementById("againBtn");
+      const shareBtn = document.getElementById("shareBtn");
       const mainPageBtn = document.getElementById("mainPageBtn");
+      const shareModal = document.getElementById("shareModal");
+      const closeShareBtn = document.getElementById("closeShareBtn");
+      const shareNativeBtn = document.getElementById("shareNativeBtn");
+      const shareTwitterBtn = document.getElementById("shareTwitterBtn");
+      const shareDiscordBtn = document.getElementById("shareDiscordBtn");
+      const shareTelegramBtn = document.getElementById("shareTelegramBtn");
+      const mintNFTBtn = document.getElementById("mintNFTBtn");
       const hintEl = document.getElementById("hint");
       const gameTitleEl = document.getElementById("gameTitle");
       const subtitleEl = document.getElementById("subtitle");
@@ -383,26 +463,10 @@
       }
 
       function applyUIFromConfig() {
-                // Title and subtitles
-        gameTitleEl.textContent = CONFIG.ui?.interfaceTitle || (CONFIG.startScreen?.title) || "Eat & Grow";
-        if (subtitleEl) subtitleEl.textContent = (CONFIG.startScreen?.subtitle) || "Collect the food, don't hit walls or your tail!";
-        if (howTitleEl) howTitleEl.textContent = (CONFIG.startScreen?.howToPlayTitle) || "How to Play";
-        if (howListEl) {
-          // Safe DOM manipulation - prevents XSS
-          howListEl.innerHTML = '';
-          const items = CONFIG.startScreen?.howToPlayItems || [
-            "Controls: Swipe (mobile) • Arrow Keys (desktop)",
-            "Top dark area is a no-play zone — food never spawns there. Depending on settings it acts as wrap or a wall."
-          ];
-          items.forEach((text) => {
-            const li = document.createElement('li');
-            li.textContent = text; // textContent prevents XSS
-            howListEl.appendChild(li);
-          });
-        }
-        if (controlsHintEl) controlsHintEl.textContent = (CONFIG.startScreen?.controlsHint) || "Controls: Swipe (mobile) • Arrow Keys (desktop)";
+                // Title and subtitles - removed for streamlined start experience
+        // Start screen elements removed - direct game start enabled
         if (hintEl) hintEl.textContent = CONFIG.ui?.swipeHintText || "Swipe to move";
-        if (startBtn) startBtn.textContent = (CONFIG.startScreen?.startButtonLabel) || "Play";
+        // if (startBtn) startBtn.textContent = (CONFIG.startScreen?.startButtonLabel) || "Play";
         if (againBtn) againBtn.textContent = (CONFIG.startScreen?.playAgainLabel) || "Play Again";
         if (gameOverTitleEl) gameOverTitleEl.textContent = (CONFIG.startScreen?.gameOverTitle) || "Game Over";
         if (mainPageBtn) mainPageBtn.textContent = (CONFIG.startScreen?.mainPageButtonLabel) || "Go to Main Page";
@@ -422,7 +486,7 @@
         const btnColor = CONFIG.buttons?.textColor || '#0b0f1a';
         const radius = (CONFIG.buttons?.borderRadius ?? 12) + 'px';
         const shadow = CONFIG.buttons?.shadow ? '0 8px 20px rgba(62, 230, 134, 0.35)' : 'none';
-        [startBtn, againBtn].forEach((btn) => {
+        [startBtn, againBtn, shareBtn].forEach((btn) => {
           if (!btn) return;
           btn.style.background = btnBg;
           btn.style.color = btnColor;
@@ -828,12 +892,22 @@
         gameOverEl.style.display = "none";
         gameOverEl.classList.remove('show');
       }
-      function showGameOver() {
-        // Auto-restart after game over - skip overlay
-        setTimeout(() => {
-          resetGame();
-          startGame();
-        }, 1000); // 1 second delay to show game over briefly
+      function showShareModal(score, screenshotDataUrl) {
+        const modal = document.getElementById('shareModal');
+        const shareScoreEl = document.getElementById('shareScore');
+        const shareImageEl = document.getElementById('shareImage');
+
+        shareScoreEl.textContent = score;
+        shareImageEl.src = screenshotDataUrl;
+
+        modal.style.display = "grid";
+        modal.classList.add('show');
+      }
+
+      function hideShareModal() {
+        const modal = document.getElementById('shareModal');
+        modal.style.display = "none";
+        modal.classList.remove('show');
       }
 
       function startGame() {
@@ -880,6 +954,85 @@
         againBtn.addEventListener("click", () => {
           resetGame();
           startGame();
+        });
+        shareBtn.addEventListener("click", () => {
+          // Take screenshot of the game canvas
+          const screenshotDataUrl = canvas.toDataURL('image/png');
+
+          // Create share modal with options
+          showShareModal(state.score, screenshotDataUrl);
+        });
+        closeShareBtn.addEventListener("click", hideShareModal);
+        shareNativeBtn.addEventListener("click", async () => {
+          const score = state.score;
+          const screenshotDataUrl = document.getElementById('shareImage').src;
+          const text = `I scored ${score} points in Snakebase! Can you beat my score? 🎮🐍`;
+          const url = window.location.origin;
+
+          // Convert data URL to blob for sharing
+          const response = await fetch(screenshotDataUrl);
+          const blob = await response.blob();
+          const file = new File([blob], 'snakebase-score.png', { type: 'image/png' });
+
+          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                title: 'Snakebase Score',
+                text: text,
+                url: url,
+                files: [file]
+              });
+            } catch (error) {
+              console.log('Share failed:', error);
+              // Fallback to text-only share
+              navigator.share({
+                title: 'Snakebase Score',
+                text: text,
+                url: url
+              });
+            }
+          } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(`${text} ${url}`).then(() => {
+              alert('Score and link copied to clipboard!');
+            });
+          }
+        });
+        shareTwitterBtn.addEventListener("click", () => {
+          const score = state.score;
+          const text = encodeURIComponent(`I scored ${score} points in Snakebase! Can you beat my score? 🎮🐍`);
+          const url = encodeURIComponent(window.location.origin);
+          window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+        });
+        shareDiscordBtn.addEventListener("click", () => {
+          const score = state.score;
+          const text = `I scored ${score} points in Snakebase! Can you beat my score? 🎮🐍 ${window.location.origin}`;
+          navigator.clipboard.writeText(text).then(() => {
+            alert('Score copied to clipboard! You can now paste it in Discord.');
+          });
+        });
+        shareTelegramBtn.addEventListener("click", () => {
+          const score = state.score;
+          const text = encodeURIComponent(`I scored ${score} points in Snakebase! Can you beat my score? 🎮🐍`);
+          const url = encodeURIComponent(window.location.origin);
+          window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+        });
+        mintNFTBtn.addEventListener("click", async () => {
+          const score = state.score;
+          const screenshotDataUrl = document.getElementById('shareImage').src;
+
+          // Convert data URL to blob
+          const response = await fetch(screenshotDataUrl);
+          const blob = await response.blob();
+
+          // Send to parent for NFT minting
+          window.parent?.postMessage({
+            type: 'MINT_NFT',
+            score: score,
+            imageBlob: blob
+          }, '*');
+
+          alert('NFT minting request sent! Check your wallet for the transaction.');
         });
         mainPageBtn.addEventListener("click", () => {
           window.location.href = '/';

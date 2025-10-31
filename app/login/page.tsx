@@ -19,9 +19,8 @@ export default function LoginPage() {
           <span className={styles.logoText}>Snakebase</span>
         </div>
         <nav className={styles.simpleNav}>
-          <Link href="/static/eat-grow.html" className={styles.navLink}>Oyna</Link>
-          <Link href="/leaderboard" className={styles.navLink}>Liderlik</Link>
-          <Link href="/admin/login" className={styles.navLink}>Admin</Link>
+          <Link href="/static/eat-grow.html" className={styles.navLink}>Play</Link>
+          <Link href="/leaderboard" className={styles.navLink}>Leaderboard</Link>
         </nav>
       </header>
 
