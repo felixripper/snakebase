@@ -841,13 +841,11 @@
         gameOverEl.classList.remove('show');
       }
       function showGameOver() {
-        overlay.style.display = "none";
-        gameOverEl.style.display = "grid";
-        // animate and focus Play Again for accessibility
-        gameOverEl.classList.add('show');
+        // Auto-restart after game over - skip overlay
         setTimeout(() => {
-          try { if (againBtn && typeof againBtn.focus === 'function') againBtn.focus(); } catch (e) {}
-        }, 60);
+          resetGame();
+          startGame();
+        }, 1000); // 1 second delay to show game over briefly
       }
 
       function startGame() {
