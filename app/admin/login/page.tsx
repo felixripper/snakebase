@@ -26,10 +26,10 @@ export default function AdminLoginPage() {
         router.push("/admin");
       } else {
         const data = await response.json();
-        setError(data.error || "Giriş başarısız");
+        setError(data.error || "Login failed");
       }
     } catch (err) {
-      setError("Bir hata oluştu");
+      setError("An error occurred");
     } finally {
       setLoading(false);
     }
@@ -39,12 +39,12 @@ export default function AdminLoginPage() {
     <div className={styles.container}>
       <div className={styles.loginCard}>
         <h1 className={styles.title}>Snakebase Admin</h1>
-        <p className={styles.subtitle}>Yönetici paneline erişim için şifre girin</p>
+        <p className={styles.subtitle}>Enter password to access admin panel</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.inputGroup}>
             <label htmlFor="password" className={styles.label}>
-              Şifre
+              Password
             </label>
             <input
               type="password"
@@ -52,7 +52,7 @@ export default function AdminLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className={styles.input}
-              placeholder="Admin şifresi"
+              placeholder="Admin password"
               required
             />
           </div>
@@ -64,7 +64,7 @@ export default function AdminLoginPage() {
             disabled={loading}
             className={styles.loginButton}
           >
-            {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
       </div>

@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 
     if (!password || password !== ADMIN_PASSWORD) {
       return NextResponse.json(
-        { error: "Geçersiz şifre" },
+        { error: "Invalid password" },
         { status: 401 }
       );
     }
@@ -27,13 +27,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Giriş başarılı"
+      message: "Login successful"
     }, { status: 200 });
 
   } catch (error: unknown) {
     console.error("Admin login error:", error);
     return NextResponse.json(
-      { error: "Sunucu hatası" },
+      { error: "Server error" },
       { status: 500 }
     );
   }
