@@ -4,37 +4,37 @@ export default function AboutPage() {
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold text-center mb-8 text-gray-900 dark:text-white">
-            Snakebase Hakkında
+            About Snakebase
           </h1>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 space-y-6">
             <section>
               <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-                🎮 Proje Hakkında
+                🎮 About the Project
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                Snakebase, Base ağında çalışan yenilikçi bir blockchain oyunudur. Klasik Snake oyununu
-                modern web teknolojileri ve blockchain entegrasyonu ile birleştirerek, oyunculara
-                benzersiz bir deneyim sunar.
+                Snakebase is an innovative blockchain game running on the Base network. It combines the classic Snake game
+                with modern web technologies and blockchain integration to provide players with
+                a unique experience.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-                🚀 Özellikler
+                🚀 Features
               </h2>
               <ul className="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-300">
-                <li>Web3 cüzdan entegrasyonu ile güvenli giriş</li>
-                <li>On-chain skor kayıtları ve lider tabloları</li>
-                <li>Gerçek zamanlı çok oyunculu deneyim</li>
-                <li>Farcaster Mini App desteği</li>
-                <li>Modern ve responsive tasarım</li>
+                <li>Secure login with Web3 wallet integration</li>
+                <li>On-chain score records and leaderboards</li>
+                <li>Real-time multiplayer experience</li>
+                <li>Farcaster Mini App support</li>
+                <li>Modern and responsive design</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-                🛠️ Teknoloji Stack
+                🛠️ Technology Stack
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-center">
@@ -60,10 +60,10 @@ export default function AboutPage() {
 
             <section>
               <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-                📞 İletişim
+                📞 Contact
               </h2>
               <p className="text-gray-600 dark:text-gray-300">
-                Sorularınız ve önerileriniz için GitHub repository&apos;mizi ziyaret edebilirsiniz.
+                For questions and suggestions, you can visit our GitHub repository.
               </p>
               <div className="mt-4">
                 <a

@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-// Temporarily disabled OnchainKit wallet
-// import { ConnectWallet } from '@coinbase/onchainkit/wallet';
 import styles from "../page.module.css";
 
 export default function LeaderboardPage() {
@@ -16,63 +14,74 @@ export default function LeaderboardPage() {
   ];
 
   return (
-    <div className={styles.container}>
-      {/* Navigation Header */}
-      <div className={styles.header}>
-        <h1 className={styles.title}>Snakebase</h1>
-        <div className={styles.walletSection}>
-          {/* Temporarily disabled wallet connection */}
-          {/* <ConnectWallet /> */}
+    <div className={styles.simpleContainer}>
+      {/* Simple Header */}
+      <header className={styles.simpleHeader}>
+        <div className={styles.simpleLogo}>
+          <span className={styles.logoIcon}>🐍</span>
+          <span className={styles.logoText}>Snakebase</span>
         </div>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className={styles.tabBar}>
-        {[
-          { id: 'game', label: 'Oyun', path: '/', icon: '🎮' },
-          { id: 'leaderboard', label: 'Liderlik', path: '/leaderboard', icon: '🏆' },
-          { id: 'profile', label: 'Profil', path: '/profile', icon: '👤' },
-          { id: 'settings', label: 'Ayarlar', path: '/settings', icon: '⚙️' },
-        ].map((tab) => (
-          <Link key={tab.id} href={tab.path} className={styles.tabLink}>
-            <button
-              className={`${styles.tabButton} ${tab.id === 'leaderboard' ? styles.activeTab : ''}`}
-            >
-              <span className={styles.tabIcon}>{tab.icon}</span>
-              <span className={styles.tabLabel}>{tab.label}</span>
-            </button>
-          </Link>
-        ))}
-      </div>
+        <nav className={styles.simpleNav}>
+          <Link href="/static/eat-grow.html" className={styles.navLink}>Oyna</Link>
+          <Link href="/profile" className={styles.navLink}>Profil</Link>
+          <Link href="/admin/login" className={styles.navLink}>Admin</Link>
+        </nav>
+      </header>
 
       {/* Leaderboard Content */}
-      <div className={styles.content}>
-        <div className={styles.leaderboardContainer}>
-          <h2 className={styles.leaderboardTitle}>🏆 Liderlik Tablosu</h2>
-
-          <div className={styles.leaderboardList}>
-            {leaderboard.map((player) => (
-              <div key={player.rank} className={styles.leaderboardItem}>
-                <div className={styles.rank}>
-                  {player.rank === 1 && '🥇'}
-                  {player.rank === 2 && '🥈'}
-                  {player.rank === 3 && '🥉'}
-                  {player.rank > 3 && `#${player.rank}`}
-                </div>
-                <div className={styles.playerInfo}>
-                  <div className={styles.username}>{player.username}</div>
-                  <div className={styles.wallet}>{player.wallet}</div>
-                </div>
-                <div className={styles.score}>{player.score.toLocaleString()}</div>
-              </div>
-            ))}
+      <main className={styles.simpleMain}>
+        <div className={styles.simpleContent}>
+          <div className={styles.leaderboardHero}>
+            <h1 className={styles.simpleTitle}>
+              🏆 Liderlik Tablosu
+            </h1>
+            <p className={styles.simpleDescription}>
+              En yüksek skorları yapan oyuncuları görün. Siz de listenin başında yer almak için oynayın!
+            </p>
           </div>
 
-          <div className={styles.leaderboardFooter}>
-            <p>Skorlarınız otomatik olarak kaydedilir ve güncellenir.</p>
+          <div className={styles.leaderboardCard}>
+            <div className={styles.leaderboardList}>
+              {leaderboard.map((player) => (
+                <div key={player.rank} className={`${styles.leaderboardItem} ${player.rank <= 3 ? styles.topPlayer : ''}`}>
+                  <div className={styles.rank}>
+                    {player.rank === 1 && '🥇'}
+                    {player.rank === 2 && '🥈'}
+                    {player.rank === 3 && '🥉'}
+                    {player.rank > 3 && `#${player.rank}`}
+                  </div>
+                  <div className={styles.playerInfo}>
+                    <div className={styles.username}>{player.username}</div>
+                    <div className={styles.wallet}>{player.wallet}</div>
+                  </div>
+                  <div className={styles.score}>{player.score.toLocaleString('en-US')}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.leaderboardActions}>
+            <Link href="/static/eat-grow.html" className={styles.primaryButton}>
+              Oyunu Başlat
+            </Link>
+            <Link href="/profile" className={styles.secondaryButton}>
+              Profilimi Görüntüle
+            </Link>
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* Simple Footer */}
+      <footer className={styles.simpleFooter}>
+        <div className={styles.footerLinks}>
+          <Link href="/about">Hakkında</Link>
+          <Link href="/privacy">Gizlilik</Link>
+          <Link href="/terms">Şartlar</Link>
+        </div>
+        <div className={styles.footerText}>
+          Built on Base ⚡
+        </div>
+      </footer>
     </div>
   );
 }

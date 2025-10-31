@@ -33,10 +33,10 @@ export default function SettingsPage() {
       {/* Tab Navigation */}
       <div className={styles.tabBar}>
         {[
-          { id: 'game', label: 'Oyun', path: '/', icon: '🎮' },
-          { id: 'leaderboard', label: 'Liderlik', path: '/leaderboard', icon: '🏆' },
-          { id: 'profile', label: 'Profil', path: '/profile', icon: '👤' },
-          { id: 'settings', label: 'Ayarlar', path: '/settings', icon: '⚙️' },
+          { id: 'game', label: 'Play', path: '/', icon: '🎮' },
+          { id: 'leaderboard', label: 'Leaderboard', path: '/leaderboard', icon: '🏆' },
+          { id: 'profile', label: 'Profile', path: '/profile', icon: '👤' },
+          { id: 'settings', label: 'Settings', path: '/settings', icon: '⚙️' },
         ].map((tab) => (
           <Link key={tab.id} href={tab.path} className={styles.tabLink}>
             <button
@@ -52,98 +52,160 @@ export default function SettingsPage() {
       {/* Settings Content */}
       <div className={styles.content}>
         <div className={styles.settingsContainer}>
-          <h2 className={styles.settingsTitle}>⚙️ Ayarlar</h2>
+          <div className={styles.settingsHeader}>
+            <h2 className={styles.settingsTitle}>
+              <span className={styles.titleIcon}>⚙️</span>
+              Settings
+            </h2>
+            <p className={styles.settingsSubtitle}>Customize your gaming experience</p>
+          </div>
 
-          <div className={styles.settingsGroup}>
-            <h3 className={styles.groupTitle}>Ses & Müzik</h3>
-            <div className={styles.settingItem}>
-              <div className={styles.settingInfo}>
-                <label className={styles.settingLabel}>Oyun Sesleri</label>
-                <p className={styles.settingDescription}>Yılan hareketleri ve puan sesleri</p>
-              </div>
-              <label className={styles.toggle}>
-                <input
-                  type="checkbox"
-                  checked={settings.soundEnabled}
-                  onChange={(e) => handleSettingChange('soundEnabled', e.target.checked)}
-                />
-                <span className={styles.toggleSlider}></span>
-              </label>
+          {/* Audio Settings Card */}
+          <div className={styles.settingsCard}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.groupTitle}>
+                <span className={styles.groupIcon}>🔊</span>
+                Sound & Music
+              </h3>
+              <p className={styles.groupDescription}>Sound effects and music settings</p>
             </div>
 
-            <div className={styles.settingItem}>
-              <div className={styles.settingInfo}>
-                <label className={styles.settingLabel}>Arka Plan Müziği</label>
-                <p className={styles.settingDescription}>Oyun sırasında çalan müzik</p>
+            <div className={styles.settingsList}>
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <label className={styles.settingLabel}>Game Sounds</label>
+                  <p className={styles.settingDescription}>Snake movements and scoring sounds</p>
+                </div>
+                <label className={styles.modernToggle}>
+                  <input
+                    type="checkbox"
+                    checked={settings.soundEnabled}
+                    onChange={(e) => handleSettingChange('soundEnabled', e.target.checked)}
+                  />
+                  <span className={styles.toggleSlider}></span>
+                  <span className={styles.toggleLabel}>
+                    {settings.soundEnabled ? 'On' : 'Off'}
+                  </span>
+                </label>
               </div>
-              <label className={styles.toggle}>
-                <input
-                  type="checkbox"
-                  checked={settings.musicEnabled}
-                  onChange={(e) => handleSettingChange('musicEnabled', e.target.checked)}
-                />
-                <span className={styles.toggleSlider}></span>
-              </label>
+
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <label className={styles.settingLabel}>Background Music</label>
+                  <p className={styles.settingDescription}>Music played during gameplay</p>
+                </div>
+                <label className={styles.modernToggle}>
+                  <input
+                    type="checkbox"
+                    checked={settings.musicEnabled}
+                    onChange={(e) => handleSettingChange('musicEnabled', e.target.checked)}
+                  />
+                  <span className={styles.toggleSlider}></span>
+                  <span className={styles.toggleLabel}>
+                    {settings.musicEnabled ? 'On' : 'Off'}
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
 
-          <div className={styles.settingsGroup}>
-            <h3 className={styles.groupTitle}>Bildirimler</h3>
-            <div className={styles.settingItem}>
-              <div className={styles.settingInfo}>
-                <label className={styles.settingLabel}>Bildirimler</label>
-                <p className={settings.notificationsEnabled ? styles.settingDescription : styles.settingDescriptionDisabled}>
-                  {settings.notificationsEnabled ? 'Yeni başarılar ve güncellemeler için bildirim alın' : 'Bildirimler devre dışı'}
-                </p>
+          {/* Notifications Card */}
+          <div className={styles.settingsCard}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.groupTitle}>
+                <span className={styles.groupIcon}>🔔</span>
+                Notifications
+              </h3>
+              <p className={styles.groupDescription}>Notification preferences</p>
+            </div>
+
+            <div className={styles.settingsList}>
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <label className={styles.settingLabel}>Push Notifications</label>
+                  <p className={settings.notificationsEnabled ? styles.settingDescription : styles.settingDescriptionDisabled}>
+                    {settings.notificationsEnabled ? 'Receive notifications for new achievements and updates' : 'Notifications are disabled'}
+                  </p>
+                </div>
+                <label className={styles.modernToggle}>
+                  <input
+                    type="checkbox"
+                    checked={settings.notificationsEnabled}
+                    onChange={(e) => handleSettingChange('notificationsEnabled', e.target.checked)}
+                  />
+                  <span className={styles.toggleSlider}></span>
+                  <span className={styles.toggleLabel}>
+                    {settings.notificationsEnabled ? 'On' : 'Off'}
+                  </span>
+                </label>
               </div>
-              <label className={styles.toggle}>
-                <input
-                  type="checkbox"
-                  checked={settings.notificationsEnabled}
-                  onChange={(e) => handleSettingChange('notificationsEnabled', e.target.checked)}
-                />
-                <span className={styles.toggleSlider}></span>
-              </label>
             </div>
           </div>
 
-          <div className={styles.settingsGroup}>
-            <h3 className={styles.groupTitle}>Görünüm</h3>
-            <div className={styles.settingItem}>
-              <div className={styles.settingInfo}>
-                <label className={styles.settingLabel}>Tema</label>
-                <p className={styles.settingDescription}>Uygulama görünümü</p>
-              </div>
-              <select
-                className={styles.select}
-                value={settings.theme}
-                onChange={(e) => handleSettingChange('theme', e.target.value)}
-              >
-                <option value="dark">Koyu</option>
-                <option value="light">Açık</option>
-                <option value="auto">Otomatik</option>
-              </select>
+          {/* Appearance Card */}
+          <div className={styles.settingsCard}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.groupTitle}>
+                <span className={styles.groupIcon}>🎨</span>
+                Appearance
+              </h3>
+              <p className={styles.groupDescription}>Theme and language settings</p>
             </div>
 
-            <div className={styles.settingItem}>
-              <div className={styles.settingInfo}>
-                <label className={styles.settingLabel}>Dil</label>
-                <p className={styles.settingDescription}>Uygulama dili</p>
+            <div className={styles.settingsList}>
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <label className={styles.settingLabel}>Theme</label>
+                  <p className={styles.settingDescription}>Application appearance</p>
+                </div>
+                <div className={styles.selectWrapper}>
+                  <select
+                    className={styles.modernSelect}
+                    value={settings.theme}
+                    onChange={(e) => handleSettingChange('theme', e.target.value)}
+                  >
+                    <option value="dark">🌙 Dark</option>
+                    <option value="light">☀️ Light</option>
+                    <option value="auto">🔄 Auto</option>
+                  </select>
+                </div>
               </div>
-              <select
-                className={styles.select}
-                value={settings.language}
-                onChange={(e) => handleSettingChange('language', e.target.value)}
-              >
-                <option value="tr">Türkçe</option>
-                <option value="en">English</option>
-              </select>
+
+              <div className={styles.settingItem}>
+                <div className={styles.settingInfo}>
+                  <label className={styles.settingLabel}>Language</label>
+                  <p className={styles.settingDescription}>Application language</p>
+                </div>
+                <div className={styles.selectWrapper}>
+                  <select
+                    className={styles.modernSelect}
+                    value={settings.language}
+                    onChange={(e) => handleSettingChange('language', e.target.value)}
+                  >
+                    <option value="tr">🇹🇷 Turkish</option>
+                    <option value="en">🇺🇸 English</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className={styles.settingsActions}>
-            <button className={styles.saveButton}>Kaydet</button>
-            <button className={styles.resetButton}>Varsayılanlara Dön</button>
+          {/* Actions Card */}
+          <div className={styles.actionsCard}>
+            <div className={styles.actionsGrid}>
+              <button className={styles.primaryButton}>
+                <span className={styles.buttonIcon}>💾</span>
+                Save
+              </button>
+              <button className={styles.secondaryButton}>
+                <span className={styles.buttonIcon}>🔄</span>
+                Reset to Defaults
+              </button>
+              <button className={styles.dangerButton}>
+                <span className={styles.buttonIcon}>🗑️</span>
+                Reset Account
+              </button>
+            </div>
           </div>
         </div>
       </div>

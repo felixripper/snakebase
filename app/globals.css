@@ -1,11 +1,55 @@
 @layer base {
   :root {
+    /* Sayfa arka planları */
+    --page-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --page-bg-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    --card-bg: #ffffff;
+    --card-bg-dark: #1f2937;
+
+    /* Yazı tipleri ve renkleri */
+    --font-family: system-ui, -apple-system, sans-serif;
+    --heading-color: #1f2937;
+    --heading-color-dark: #f9fafb;
+    --text-color: #374151;
+    --text-color-dark: #d1d5db;
+    --muted-text-color: #6b7280;
+    --muted-text-color-dark: #9ca3af;
+
+    /* Buton renkleri */
+    --primary-btn-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --primary-btn-text: #ffffff;
+    --secondary-btn-bg: #f3f4f6;
+    --secondary-btn-text: #374151;
+    --danger-btn-bg: #dc2626;
+    --danger-btn-text: #ffffff;
+
+    /* Özel renkler */
+    --accent-color: #667eea;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --error-color: #ef4444;
+
+    /* Tasarım öğeleri */
+    --border-radius: 12px;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-color-dark: rgba(0, 0, 0, 0.3);
+
+    /* Eski değişkenler (geriye uyumluluk için) */
     --background: #ffffff;
     --foreground: #171717;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
+      /* Koyu tema için geçersiz kılmalar */
+      --page-bg: var(--page-bg-dark);
+      --card-bg: var(--card-bg-dark);
+      --heading-color: var(--heading-color-dark);
+      --text-color: var(--text-color-dark);
+      --muted-text-color: var(--muted-text-color-dark);
+      --shadow-color: var(--shadow-color-dark);
+
+      /* Eski değişkenler */
       --background: #0a0a0a;
       --foreground: #ededed;
     }
@@ -18,15 +62,9 @@
   }
 
   body {
-    color: var(--foreground);
-    background: var(--background);
-    font-family:
-      "Inter",
-      "Segoe UI",
-      "Helvetica Neue",
-      Arial,
-      system-ui,
-      sans-serif;
+    color: var(--text-color);
+    background: var(--page-bg);
+    font-family: var(--font-family);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

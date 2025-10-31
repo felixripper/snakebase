@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 
-type AdminTab = 'gameplay' | 'appearance' | 'typography' | 'buttons' | 'presets' | 'data' | 'content';
+type AdminTab = 'gameplay' | 'appearance' | 'typography' | 'theme' | 'buttons' | 'presets' | 'data' | 'content';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -144,6 +144,7 @@ export default function AdminPage() {
           { id: 'gameplay' as AdminTab, label: 'Oyun Mekaniği', icon: '🎮' },
           { id: 'appearance' as AdminTab, label: 'Görünüm', icon: '🎨' },
           { id: 'typography' as AdminTab, label: 'Yazı Tipi', icon: '📝' },
+          { id: 'theme' as AdminTab, label: 'Tema', icon: '🎭' },
           { id: 'buttons' as AdminTab, label: 'Butonlar', icon: '🔘' },
           { id: 'content' as AdminTab, label: 'Sayfa İçeriği', icon: '📄' },
           { id: 'presets' as AdminTab, label: 'Hazır Temalar', icon: '⚙️' },
@@ -171,6 +172,9 @@ export default function AdminPage() {
           )}
           {activeTab === 'typography' && (
             <TypographyTab config={config} updateNestedConfig={updateNestedConfig} />
+          )}
+          {activeTab === 'theme' && (
+            <ThemeTab config={config} updateNestedConfig={updateNestedConfig} />
           )}
           {activeTab === 'buttons' && (
             <ButtonsTab config={config} updateNestedConfig={updateNestedConfig} />
@@ -514,6 +518,274 @@ function TypographyTab({ config, updateNestedConfig }: {
             max="900"
             step="100"
           />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Theme Tab Component
+function ThemeTab({ config, updateNestedConfig }: {
+  config: any;
+  updateNestedConfig: (path: string[], value: any) => void;
+}) {
+  return (
+    <div className={styles.settingsSection}>
+      <h2>🎭 Tema Ayarları</h2>
+      <p className={styles.sectionDescription}>
+        Sayfaların genel görünümünü, renklerini ve yazı tiplerini buradan yönetebilirsiniz.
+      </p>
+
+      <div className={styles.settingGroup}>
+        <h3>📄 Sayfa Arka Planları</h3>
+        <div className={styles.settingRow}>
+          <label>Açık Tema Sayfa Arka Planı:</label>
+          <input
+            type="text"
+            value={config.theme?.pageBackground || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"}
+            onChange={(e) => updateNestedConfig(['theme', 'pageBackground'], e.target.value)}
+            placeholder="CSS background değeri (ör: linear-gradient(...))"
+          />
+          <small className={styles.settingDescription}>Ana sayfaların arka plan rengi/gradyanı</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Koyu Tema Sayfa Arka Planı:</label>
+          <input
+            type="text"
+            value={config.theme?.pageBackgroundDark || "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)"}
+            onChange={(e) => updateNestedConfig(['theme', 'pageBackgroundDark'], e.target.value)}
+            placeholder="CSS background değeri"
+          />
+          <small className={styles.settingDescription}>Koyu mod için sayfa arka planı</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Kart Arka Planı (Açık):</label>
+          <input
+            type="color"
+            value={config.theme?.cardBackground || "#ffffff"}
+            onChange={(e) => updateNestedConfig(['theme', 'cardBackground'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Kart ve panel arka plan rengi</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Kart Arka Planı (Koyu):</label>
+          <input
+            type="color"
+            value={config.theme?.cardBackgroundDark || "#1f2937"}
+            onChange={(e) => updateNestedConfig(['theme', 'cardBackgroundDark'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Koyu mod için kart arka plan rengi</small>
+        </div>
+      </div>
+
+      <div className={styles.settingGroup}>
+        <h3>✍️ Yazı Tipleri ve Renkleri</h3>
+        <div className={styles.settingRow}>
+          <label>Yazı Tipi Ailesi:</label>
+          <select
+            value={config.theme?.fontFamily || "system-ui, -apple-system, sans-serif"}
+            onChange={(e) => updateNestedConfig(['theme', 'fontFamily'], e.target.value)}
+          >
+            <option value="system-ui, -apple-system, sans-serif">Sistem Yazı Tipi</option>
+            <option value="Arial, sans-serif">Arial</option>
+            <option value="Helvetica, sans-serif">Helvetica</option>
+            <option value="Times New Roman, serif">Times New Roman</option>
+            <option value="Courier New, monospace">Courier New</option>
+            <option value="Georgia, serif">Georgia</option>
+            <option value="Verdana, sans-serif">Verdana</option>
+            <option value="Inter, sans-serif">Inter</option>
+            <option value="Roboto, sans-serif">Roboto</option>
+            <option value="Open Sans, sans-serif">Open Sans</option>
+          </select>
+          <small className={styles.settingDescription}>Tüm sayfalar için genel yazı tipi</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Başlık Rengi (Açık):</label>
+          <input
+            type="color"
+            value={config.theme?.headingColor || "#1f2937"}
+            onChange={(e) => updateNestedConfig(['theme', 'headingColor'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>H1, H2, H3 gibi başlıkların rengi</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Başlık Rengi (Koyu):</label>
+          <input
+            type="color"
+            value={config.theme?.headingColorDark || "#f9fafb"}
+            onChange={(e) => updateNestedConfig(['theme', 'headingColorDark'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Koyu mod için başlık rengi</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Normal Yazı Rengi (Açık):</label>
+          <input
+            type="color"
+            value={config.theme?.textColor || "#374151"}
+            onChange={(e) => updateNestedConfig(['theme', 'textColor'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Paragraf ve normal metin rengi</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Normal Yazı Rengi (Koyu):</label>
+          <input
+            type="color"
+            value={config.theme?.textColorDark || "#d1d5db"}
+            onChange={(e) => updateNestedConfig(['theme', 'textColorDark'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Koyu mod için normal metin rengi</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Soluk Yazı Rengi (Açık):</label>
+          <input
+            type="color"
+            value={config.theme?.mutedTextColor || "#6b7280"}
+            onChange={(e) => updateNestedConfig(['theme', 'mutedTextColor'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Açıklamalar ve ikincil metin rengi</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Soluk Yazı Rengi (Koyu):</label>
+          <input
+            type="color"
+            value={config.theme?.mutedTextColorDark || "#9ca3af"}
+            onChange={(e) => updateNestedConfig(['theme', 'mutedTextColorDark'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Koyu mod için soluk metin rengi</small>
+        </div>
+      </div>
+
+      <div className={styles.settingGroup}>
+        <h3>🔘 Buton Renkleri</h3>
+        <div className={styles.settingRow}>
+          <label>Birincil Buton Arka Plan:</label>
+          <input
+            type="text"
+            value={config.theme?.primaryButtonBg || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"}
+            onChange={(e) => updateNestedConfig(['theme', 'primaryButtonBg'], e.target.value)}
+            placeholder="CSS background değeri"
+          />
+          <small className={styles.settingDescription}>Kaydet, Gönder gibi birincil butonlar</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Birincil Buton Yazı Rengi:</label>
+          <input
+            type="color"
+            value={config.theme?.primaryButtonText || "#ffffff"}
+            onChange={(e) => updateNestedConfig(['theme', 'primaryButtonText'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Birincil butonların yazı rengi</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>İkincil Buton Arka Plan:</label>
+          <input
+            type="color"
+            value={config.theme?.secondaryButtonBg || "#f3f4f6"}
+            onChange={(e) => updateNestedConfig(['theme', 'secondaryButtonBg'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>İptal, Geri gibi ikincil butonlar</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>İkincil Buton Yazı Rengi:</label>
+          <input
+            type="color"
+            value={config.theme?.secondaryButtonText || "#374151"}
+            onChange={(e) => updateNestedConfig(['theme', 'secondaryButtonText'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>İkincil butonların yazı rengi</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Tehlike Buton Arka Plan:</label>
+          <input
+            type="color"
+            value={config.theme?.dangerButtonBg || "#dc2626"}
+            onChange={(e) => updateNestedConfig(['theme', 'dangerButtonBg'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Sil, Sıfırla gibi tehlikeli işlemler</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Tehlike Buton Yazı Rengi:</label>
+          <input
+            type="color"
+            value={config.theme?.dangerButtonText || "#ffffff"}
+            onChange={(e) => updateNestedConfig(['theme', 'dangerButtonText'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Tehlike butonlarının yazı rengi</small>
+        </div>
+      </div>
+
+      <div className={styles.settingGroup}>
+        <h3>🎨 Özel Renkler</h3>
+        <div className={styles.settingRow}>
+          <label>Vurgu Rengi:</label>
+          <input
+            type="color"
+            value={config.theme?.accentColor || "#667eea"}
+            onChange={(e) => updateNestedConfig(['theme', 'accentColor'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Linkler, vurgular ve aktif durumlar</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Başarı Rengi:</label>
+          <input
+            type="color"
+            value={config.theme?.successColor || "#10b981"}
+            onChange={(e) => updateNestedConfig(['theme', 'successColor'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Başarılı işlemler ve onay mesajları</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Uyarı Rengi:</label>
+          <input
+            type="color"
+            value={config.theme?.warningColor || "#f59e0b"}
+            onChange={(e) => updateNestedConfig(['theme', 'warningColor'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Uyarı mesajları ve dikkat çekici öğeler</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Hata Rengi:</label>
+          <input
+            type="color"
+            value={config.theme?.errorColor || "#ef4444"}
+            onChange={(e) => updateNestedConfig(['theme', 'errorColor'], e.target.value)}
+          />
+          <small className={styles.settingDescription}>Hata mesajları ve başarısız işlemler</small>
+        </div>
+      </div>
+
+      <div className={styles.settingGroup}>
+        <h3>📐 Tasarım Öğeleri</h3>
+        <div className={styles.settingRow}>
+          <label>Kenar Yuvarlaklığı:</label>
+          <input
+            type="number"
+            value={config.theme?.borderRadius || 12}
+            onChange={(e) => updateNestedConfig(['theme', 'borderRadius'], parseInt(e.target.value))}
+            min="0"
+            max="50"
+          />px
+          <small className={styles.settingDescription}>Kartlar ve butonların köşe yuvarlaklığı</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Gölge Rengi (Açık):</label>
+          <input
+            type="text"
+            value={config.theme?.shadowColor || "rgba(0, 0, 0, 0.1)"}
+            onChange={(e) => updateNestedConfig(['theme', 'shadowColor'], e.target.value)}
+            placeholder="CSS rgba değeri"
+          />
+          <small className={styles.settingDescription}>Kart gölgeleri için renk</small>
+        </div>
+        <div className={styles.settingRow}>
+          <label>Gölge Rengi (Koyu):</label>
+          <input
+            type="text"
+            value={config.theme?.shadowColorDark || "rgba(0, 0, 0, 0.3)"}
+            onChange={(e) => updateNestedConfig(['theme', 'shadowColorDark'], e.target.value)}
+            placeholder="CSS rgba değeri"
+          />
+          <small className={styles.settingDescription}>Koyu mod için gölge rengi</small>
         </div>
       </div>
     </div>

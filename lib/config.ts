@@ -27,6 +27,43 @@ export const GameConfigSchema = z.object({
   controlScheme: z.enum(['keyboard', 'swipe', 'buttons']).default('keyboard'),
   soundEnabled: z.boolean().default(true),
 
+  // Genel tema ayarları - sayfaların görünümü için
+  theme: z.object({
+    // Sayfa arka planları
+    pageBackground: z.string().default('linear-gradient(135deg, #667eea 0%, #764ba2 100%)'),
+    pageBackgroundDark: z.string().default('linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)'),
+    cardBackground: z.string().default('#ffffff'),
+    cardBackgroundDark: z.string().default('#1f2937'),
+
+    // Yazı tipleri ve renkleri
+    fontFamily: z.string().default('system-ui, -apple-system, sans-serif'),
+    headingColor: z.string().default('#1f2937'),
+    headingColorDark: z.string().default('#f9fafb'),
+    textColor: z.string().default('#374151'),
+    textColorDark: z.string().default('#d1d5db'),
+    mutedTextColor: z.string().default('#6b7280'),
+    mutedTextColorDark: z.string().default('#9ca3af'),
+
+    // Buton renkleri
+    primaryButtonBg: z.string().default('linear-gradient(135deg, #667eea 0%, #764ba2 100%)'),
+    primaryButtonText: z.string().default('#ffffff'),
+    secondaryButtonBg: z.string().default('#f3f4f6'),
+    secondaryButtonText: z.string().default('#374151'),
+    dangerButtonBg: z.string().default('#dc2626'),
+    dangerButtonText: z.string().default('#ffffff'),
+
+    // Kenarlık ve gölge
+    borderRadius: z.number().min(0).max(50).default(12),
+    shadowColor: z.string().default('rgba(0, 0, 0, 0.1)'),
+    shadowColorDark: z.string().default('rgba(0, 0, 0, 0.3)'),
+
+    // Özel renkler
+    accentColor: z.string().default('#667eea'),
+    successColor: z.string().default('#10b981'),
+    warningColor: z.string().default('#f59e0b'),
+    errorColor: z.string().default('#ef4444'),
+  }).default({}),
+
   // Yem ayarları
   foodIcon: z.object({
     type: z.enum(['emoji', 'image']).default('emoji'),
@@ -122,6 +159,10 @@ function mergeConfig(base: GameConfig, patch: Partial<GameConfig>): GameConfig {
     scoreSubmissionUI: {
       ...base.scoreSubmissionUI,
       ...(patch.scoreSubmissionUI ?? {}),
+    },
+    theme: {
+      ...base.theme,
+      ...(patch.theme ?? {}),
     },
     difficultyPresets: {
       ...base.difficultyPresets,
