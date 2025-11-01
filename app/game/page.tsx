@@ -102,8 +102,8 @@ export default function GamePage() {
       const { type, score, imageBlob } = event.data;
 
       if (type === 'SUBMIT_ONCHAIN_SCORE' && score) {
-        // Handle on-chain score submission
-        handleScoreSubmission(score);
+        // Handle on-chain score submission - temporarily disabled
+        // handleScoreSubmission(score);
       }
 
       if (type === 'MINT_NFT' && score && imageBlob) {
