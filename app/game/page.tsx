@@ -4,10 +4,10 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-// Temporarily disabled OnchainKit wallet
-// import { ConnectWallet } from '@coinbase/onchainkit/wallet';
-// Temporarily disabled UserContext
-// import { useUser } from '../_contexts/UserContext';
+import { useWriteContract } from 'wagmi';
+import { getConfig } from "../../lib/config";
+import { GAME_CONTRACT_ADDRESS, GAME_CONTRACT_ABI } from "../../lib/contract";
+import { useUser } from "../_contexts/UserContext";
 import styles from "../page.module.css";
 
 type TabType = 'game' | 'leaderboard' | 'profile' | 'settings';
@@ -17,73 +17,55 @@ export default function GamePage() {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
   const pathname = usePathname();
-  // Temporarily disabled user context
-  // const { user, authenticated } = useUser();
-
+  const { user, authenticated } = useUser();
   useEffect(() => {
     void sdk.actions.ready();
   }, []);
 
   // Send user info to iframe when loaded and authenticated
-  // Temporarily disabled user registration
-  // useEffect(() => {
-  //   if (loaded && authenticated && user && iframeRef.current) {
-  //     const message = {
-  //       type: 'REGISTER_PLAYER',
-  //       user: {
-  //         id: user.id,
-  //         username: user.username,
-  //         walletAddress: user.walletAddress,
-  //       }
-  //     };
-  //     iframeRef.current.contentWindow?.postMessage(message, '*');
-  //   }
-  // }, [loaded, authenticated, user]);
+  useEffect(() => {
+    if (loaded && authenticated && user && iframeRef.current) {
+      const message = {
+        type: 'REGISTER_PLAYER',
+        user: {
+          id: user.id,
+          username: user.username,
+          walletAddress: user.walletAddress,
+        }
+      };
+      iframeRef.current.contentWindow?.postMessage(message, '*');
+    }
+  }, [loaded, authenticated, user]);
 
-  const handleNFTMinting = useCallback(async (score: number, imageBlob: Blob) => {
+  const { writeContract, isPending, isSuccess, error: contractError } = useWriteContract();
+
+  const handleNFTMinting = useCallback(async (score: number, imageBlob?: Blob) => {
+    if (!user?.walletAddress) {
+      console.error('No wallet address available for NFT minting');
+      return;
+    }
+
     try {
-      // Send status update to iframe
-      if (iframeRef.current) {
-        iframeRef.current.contentWindow?.postMessage({
-          type: 'ONCHAIN_STATUS',
-          message: 'NFT mintleniyor...'
-        }, '*');
+      // Check if contract is configured
+      if (!GAME_CONTRACT_ADDRESS || GAME_CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000') {
+        console.error('Contract not configured for NFT minting');
+        return;
       }
 
-      // Create FormData for file upload
-      const formData = new FormData();
-      formData.append('image', imageBlob, 'game-screenshot.png');
-      formData.append('score', score.toString());
-
-      // Upload image and mint NFT
-      const response = await fetch('/api/upload-food-image', {
-        method: 'POST',
-        body: formData,
+      // For now, use submitScore instead of mintNFT since mintNFT doesn't exist in contract
+      // TODO: Add mintNFT function to contract and update ABI
+      writeContract({
+        address: GAME_CONTRACT_ADDRESS as `0x${string}`,
+        abi: GAME_CONTRACT_ABI,
+        functionName: 'submitScore',
+        args: [BigInt(score)],
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        // Send success message to iframe
-        if (iframeRef.current) {
-          iframeRef.current.contentWindow?.postMessage({
-            type: 'ONCHAIN_CONFIRMED',
-            message: 'NFT başarıyla mintlendi!'
-          }, '*');
-        }
-      } else {
-        throw new Error('NFT minting failed');
-      }
+      console.log('Score submission initiated for NFT minting, score:', score);
     } catch (error) {
-      console.error('NFT minting error:', error);
-      // Send error message to iframe
-      if (iframeRef.current) {
-        iframeRef.current.contentWindow?.postMessage({
-          type: 'ONCHAIN_ERROR',
-          message: 'NFT mint edilemedi'
-        }, '*');
-      }
+      console.error('NFT minting failed:', error);
     }
-  }, []);
+  }, [writeContract, user?.walletAddress]);
 
   // Listen for messages from iframe
   useEffect(() => {
@@ -102,8 +84,8 @@ export default function GamePage() {
       const { type, score, imageBlob } = event.data;
 
       if (type === 'SUBMIT_ONCHAIN_SCORE' && score) {
-        // Handle on-chain score submission - temporarily disabled
-        // handleScoreSubmission(score);
+        // Handle on-chain score submission
+        handleNFTMinting(score);
       }
 
       if (type === 'MINT_NFT' && score && imageBlob) {
@@ -149,7 +131,7 @@ export default function GamePage() {
 
   const tabs = [
     { id: 'game' as TabType, label: 'Oyun', path: '/game', icon: '🎮' },
-    { id: 'leaderboard' as TabType, label: 'Liderlik', path: '/leaderboard', icon: '🏆' },
+    { id: 'leaderboard' as TabType, label: 'Leaderboard', path: '/leaderboard', icon: '🏆' },
     { id: 'profile' as TabType, label: 'Profil', path: '/profile', icon: '👤' },
     { id: 'settings' as TabType, label: 'Ayarlar', path: '/settings', icon: '⚙️' },
   ];
@@ -182,15 +164,15 @@ export default function GamePage() {
             </button>
           </Link>
         ))}
-        {/* Admin Link - sadece geliştirme ortamında göster */}
-        {process.env.NODE_ENV === 'development' && (
+        {/* Admin Link - hidden */}
+        {/* {process.env.NODE_ENV === 'development' && (
           <Link href="/admin" className={styles.tabLink}>
             <button className={styles.tabButton}>
               <span className={styles.tabIcon}>🔧</span>
               <span className={styles.tabLabel}>Admin</span>
             </button>
           </Link>
-        )}
+        )} */}
       </div>
 
       {/* Game Content */}

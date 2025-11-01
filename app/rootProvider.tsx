@@ -1,12 +1,11 @@
 "use client";
 import { ReactNode, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { OnchainKitProvider } from '@coinbase/onchainkit';
+import { base } from 'viem/chains';
 import { getConfig } from "../lib/config";
-// Temporarily disabled OnchainKit due to dependency conflicts
-// import { OnchainKitProvider } from '@coinbase/onchainkit';
-// import { base } from 'viem/chains';
 // Temporarily disabled UserProvider due to Wagmi dependency
-// import { UserProvider } from "./_contexts/UserContext";
+import { UserProvider } from "./_contexts/UserContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -83,16 +82,22 @@ export function RootProvider({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        {/* Temporarily disabled OnchainKit */}
-        {/* <OnchainKitProvider
+        <OnchainKitProvider
           apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
           chain={base}
-        > */}
-          {/* Temporarily disabled UserProvider */}
-          {/* <UserProvider> */}
+          config={{
+            appearance: {
+              name: 'Snakebase',
+              logo: '🐍',
+              mode: 'auto',
+              theme: 'default',
+            },
+          }}
+        >
+          <UserProvider>
             {children}
-          {/* </UserProvider> */}
-        {/* </OnchainKitProvider> */}
+          </UserProvider>
+        </OnchainKitProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

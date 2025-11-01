@@ -232,10 +232,14 @@
         transform: translateY(1px);
       }
       .game-over {
-        display: none;
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
       }
       .game-over.show {
-        display: grid;
+        display: grid !important;
+        visibility: visible !important;
+        opacity: 1 !important;
       }
     </style>
   </head>
@@ -903,7 +907,6 @@
         gameOverEl.classList.remove('show');
       }
       function showGameOver() {
-        overlay.style.display = "grid";
         gameOverEl.style.display = "grid";
         gameOverEl.classList.add('show');
 
@@ -953,6 +956,11 @@
         hudBest.textContent = state.best;
         applyDifficulty();
         resetGame();
+        
+        // Ensure game over screen is hidden at startup
+        gameOverEl.style.display = "none";
+        gameOverEl.classList.remove('show');
+        
         showStart();
         tryReady();
         attachSDKListeners();

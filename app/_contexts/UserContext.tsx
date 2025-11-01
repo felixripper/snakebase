@@ -50,7 +50,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         }
       }
     } catch (error) {
-      console.error('Session yüklenirken hata:', error);
+      console.error('Error loading session:', error);
     } finally {
       setLoading(false);
     }
@@ -69,10 +69,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
         const sessionData = await response.json();
         setUser(sessionData.user);
       } else {
-        console.error('Oturum oluşturulamadı');
+        console.error('Failed to create session');
       }
     } catch (error) {
-      console.error('Cüzdan bağlantısı işlenirken hata:', error);
+      console.error('Error handling wallet connection:', error);
     }
   };
 
@@ -85,7 +85,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       await fetch('/api/auth/logout', { method: 'POST' });
       setUser(null);
     } catch (error) {
-      console.error('Çıkış yapılırken hata:', error);
+      console.error('Error during logout:', error);
     }
   };
 
