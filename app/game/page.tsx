@@ -40,53 +40,49 @@ export default function GamePage() {
   //   }
   // }, [loaded, authenticated, user]);
 
-  const handleScoreSubmission = useCallback(async (score: number) => {
-    // Temporarily disabled score submission
-    // if (!user) return;
+  const handleNFTMinting = useCallback(async (score: number, imageBlob: Blob) => {
+    try {
+      // Send status update to iframe
+      if (iframeRef.current) {
+        iframeRef.current.contentWindow?.postMessage({
+          type: 'ONCHAIN_STATUS',
+          message: 'NFT mintleniyor...'
+        }, '*');
+      }
 
-    // try {
-    //   // Send status update to iframe
-    //   if (iframeRef.current) {
-    //     iframeRef.current.contentWindow?.postMessage({
-    //       type: 'ONCHAIN_STATUS',
-    //       message: 'Skor gönderiliyor...'
-    //     }, '*');
-    //   }
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('image', imageBlob, 'game-screenshot.png');
+      formData.append('score', score.toString());
 
-    //   // Submit score to API
-    //   const response = await fetch('/api/score/submit', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({
-    //       score,
-    //       userId: user.id,
-    //       walletAddress: user.walletAddress,
-    //     }),
-    //   });
+      // Upload image and mint NFT
+      const response = await fetch('/api/upload-food-image', {
+        method: 'POST',
+        body: formData,
+      });
 
-    //   if (response.ok) {
-    //     const result = await response.json();
-    //     // Send success message to iframe
-    //     if (iframeRef.current) {
-    //       iframeRef.current.contentWindow?.postMessage({
-    //         type: 'ONCHAIN_CONFIRMED',
-    //         hash: result.transactionHash
-    //       }, '*');
-    //     }
-    //   } else {
-    //     throw new Error('Score submission failed');
-    //   }
-    // } catch (error) {
-    //   console.error('Score submission error:', error);
-    //   // Send error message to iframe
-    //   if (iframeRef.current) {
-    //     iframeRef.current.contentWindow?.postMessage({
-    //       type: 'ONCHAIN_ERROR',
-    //       message: 'Skor gönderilemedi'
-    //     }, '*');
-    //   }
-    // }
-    // }, [user]);
+      if (response.ok) {
+        const result = await response.json();
+        // Send success message to iframe
+        if (iframeRef.current) {
+          iframeRef.current.contentWindow?.postMessage({
+            type: 'ONCHAIN_CONFIRMED',
+            message: 'NFT başarıyla mintlendi!'
+          }, '*');
+        }
+      } else {
+        throw new Error('NFT minting failed');
+      }
+    } catch (error) {
+      console.error('NFT minting error:', error);
+      // Send error message to iframe
+      if (iframeRef.current) {
+        iframeRef.current.contentWindow?.postMessage({
+          type: 'ONCHAIN_ERROR',
+          message: 'NFT mint edilemedi'
+        }, '*');
+      }
+    }
   }, []);
 
   // Listen for messages from iframe
@@ -103,17 +99,22 @@ export default function GamePage() {
 
       if (!allowedOrigins.includes(event.origin)) return;
 
-      const { type, score } = event.data;
+      const { type, score, imageBlob } = event.data;
 
       if (type === 'SUBMIT_ONCHAIN_SCORE' && score) {
         // Handle on-chain score submission
         handleScoreSubmission(score);
       }
+
+      if (type === 'MINT_NFT' && score && imageBlob) {
+        // Handle NFT minting
+        handleNFTMinting(score, imageBlob);
+      }
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [handleScoreSubmission]);
+  }, [handleNFTMinting]);
 
   // Poll iframe document.readyState as a fallback in case onLoad doesn't fire
   useEffect(() => {
